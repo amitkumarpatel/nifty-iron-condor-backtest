@@ -117,6 +117,11 @@ Entry filter + gap exit (gap>=1.25% @15:16) combos: ±3% ₹64.7k/−7.7k (52 tr
 ₹62.8k/−7.7k; down<−2.5% or (up>+4% & VIX<15) ₹70.1k/−7.7k (60 tr) vs base ±2.5% ₹66.1k/−7.5k. Gap level is
 very sensitive (1.0/1.5% much worse for most); combos win 2021–23, base wins 2024–26; with 0.5–1 pt/leg
 slippage base is equal/best. Kept base ±2.5% (1 parameter vs 3–4).
+400-pt hedges tested 2-Oct-2026 (IC_HEDGE_WIDTH=400, downloaded; output/IC_backtest_hedge400.xlsx,
+output/hedge300_vs_400_trades.xlsx). With ±2.5% filter: 44 trades ₹83,114 / DD −₹9,814 / worst −₹9,814 /
+win 75% / PF 3.17 vs 300-pt ₹66,052 / −₹7,527 / −₹7,243 / 73% / 3.20. Credit 181 vs 146, max loss/condor
+219 vs 154 pts; better in 5 of 6 years (2022 worse). 0.5 pt slip: ₹73.8k vs ₹56.5k. Not adopted yet –
+user's decision (more margin and bigger worst case); default stays 300.
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,
