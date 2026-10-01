@@ -62,6 +62,9 @@ def main():
     notes = {r[hdr.index("trade_id")]: r[hdr.index("strike_note")] for r in tr.iter_rows(min_row=2, values_only=True)}
     if os.environ.get("IC_HEDGE_WIDTH", "300") == "300":   # the fake 13500PE hedge has no data
         assert notes.get(1) and "PE 13800/13500 ->" in notes[1], f"trade 1 should use fallback PE strikes: {notes}"
+    out7 = run([sys.executable, "export_prices.py", "--trades", "1", "9", "23", "62", "67",
+                "--out", str(tmp / "output" / "smoke_prices.xlsx")], env)
+    assert (tmp / "output" / "smoke_prices.xlsx").exists(), out7
     out5 = run([sys.executable, "select_strikes.py", "--ce-delta", "0.25", "--name", "smoke", "--trades", "9", "62"], env)
     assert (tmp / "data" / "strike_sets" / "strikes_smoke.csv").exists(), out5
     env5 = dict(env, IC_STRIKE_SET="smoke")

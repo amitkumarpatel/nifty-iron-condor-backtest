@@ -51,8 +51,8 @@ Full user documentation: README.md. All settings: `ic/config.py`.
 - Costs modelled approximately in `config.COSTS` (~₹250 per condor); report gross and net.
 
 ## Layout
-- Entry scripts in root: `login_url.py`, `probe.py`, `download.py`, `backtest.py`, `select_strikes.py`
-- Code in `ic/`: `config.py`, `breeze_client.py`, `common.py`, `downloader.py`, `engine.py`, `fallback.py`, `probe.py`, `strikes.py`
+- Entry scripts in root: `login_url.py`, `probe.py`, `download.py`, `backtest.py`, `select_strikes.py`, `export_prices.py`
+- Code in `ic/`: `config.py`, `breeze_client.py`, `common.py`, `downloader.py`, `engine.py`, `export.py`, `fallback.py`, `probe.py`, `strikes.py`
 - Reference data (committed): `data/reference/ic_reference_trades.csv`, `ic_reference_legs.csv`,
   `stockmock_export.xlsx`; validation workbook in `docs/`
 - Generated (git-ignored): `data/cache/` (1-min candles), `data/nifty_trading_days.csv`, `output/`
@@ -67,6 +67,7 @@ python download.py              # fetch candles (API, restart-safe, ~3,100 calls
 python download.py --index      # NIFTY + India VIX daily OHLC only (API, a few calls)
 python select_strikes.py --ce-delta 0.25 --name ce25   # delta-based sold strikes (API) -> IC_STRIKE_SET=ce25
 python backtest.py [--trades ..] [--out path]   # offline, writes output/IC_backtest_report.xlsx
+python export_prices.py [--trades ..] [--out path] # offline, daily leg prices -> output/IC_leg_prices.xlsx
 ```
 
 ## Rules for working in this repo

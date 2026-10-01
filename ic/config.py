@@ -63,7 +63,7 @@ MAX_AFTER_MIN_AT_ENTRY = 15             # entry price from a trade later than th
 # priced strikes (closer first), else widens the hedge. IC_FALLBACK=off to disable.
 FALLBACK_STRIKES       = os.environ.get("IC_FALLBACK", "").lower() != "off"
 FALLBACK_SHIFTS        = [-50, 50, -100, 100]   # points; negative = closer to the money
-FALLBACK_HEDGE_WIDTHS  = [350, 400]
+FALLBACK_HEDGE_WIDTHS  = [HEDGE_WIDTH + 50, HEDGE_WIDTH + 100]   # 350/400 for 300-pt hedges
 EXTRA_HOLIDAYS = ["2026-09-14"]         # confirmed holidays, always removed from the calendar
 # Diwali Muhurat sessions (special ~1-hour session, no 15:16 candle). Treated as non-trading days:
 # no daily check and never a time-exit day. Add each new year's date once NSE announces it.

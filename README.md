@@ -72,12 +72,14 @@ nifty-iron-condor-backtest/
 ├── download.py             # downloads 1-minute candles (and --index: NIFTY/VIX daily) into data/
 ├── select_strikes.py       # optional: pick sold strikes by delta (experiments)
 ├── backtest.py             # runs the engine and writes the Excel report
+├── export_prices.py        # daily option prices of every trade leg (for analysis)
 ├── ic/                     # the code
 │   ├── config.py           # ALL settings: rules, filter, lot sizes, costs, paths, limits
 │   ├── breeze_client.py    # login (reads .env)
 │   ├── common.py           # calendar, contracts, lot sizes, trend move, cache paths
 │   ├── downloader.py       # option candles, NIFTY/VIX daily, fallback-strike candles
 │   ├── engine.py           # trade replay, exits, report
+│   ├── export.py           # daily leg-price export
 │   ├── fallback.py         # nearest priced strikes when a leg has no price at entry
 │   ├── strikes.py          # delta-based strike selection
 │   └── probe.py
@@ -180,6 +182,7 @@ Run every command from the project folder with the virtual environment active
 | `python download.py [--trades ...]` | 1-minute candles for every leg, plus fallback strikes; restart-safe | Yes (~3,500 calls first time) | `data/cache/` |
 | `python backtest.py` | Replays all trades with the current rules | No | `output/IC_backtest_report.xlsx` |
 | `python backtest.py --trades 1 9 23 --out output/x.xlsx` | Selected trades / separate report file | No | the `--out` file |
+| `python export_prices.py [--trades ...] [--out file]` | Daily price of every leg of every trade, entry to exit (11:16 entry, 15:16 checks, day OHLC), incl. filter-skipped months | No | `output/IC_leg_prices.xlsx` |
 | `python select_strikes.py --ce-delta 0.25 --name ce25` | Experiment: choose sold strikes by delta | Yes | `data/strike_sets/` |
 
 ### 5.0a Settings you can change per run (environment variables)
@@ -357,7 +360,7 @@ The project only reads historical data – it never places orders. Each month:
 | STALE | last traded candle earlier that day, > 15 minutes old |
 | AFTER | no earlier trade that day; first candle after the target minute (slight look-ahead) |
 | AFTER_TOO_LATE | entry leg's first trade came more than `MAX_AFTER_MIN_AT_ENTRY` (15) minutes after 11:16 – rejected (not knowable at entry) |
-| (fallback) | a leg with no usable entry price: that side's spread moves to the nearest priced strikes – 50 closer, 50 further, 100 closer, 100 further – else the hedge widens to 350/400 (`FALLBACK_*`, `IC_FALLBACK=off`). Shown in the Trades sheet's `strike_note` column |
+| (fallback) | a leg with no usable entry price: that side's spread moves to the nearest priced strikes – 50 closer, 50 further, 100 closer, 100 further – else the hedge widens by 50/100 points, i.e. 350/400 for 300-pt hedges (`FALLBACK_*`, `IC_FALLBACK=off`). Shown in the Trades sheet's `strike_note` column |
 | BAD_PRICE | a hedge priced at or above its sold leg (a stray illiquid print): at entry the trade is skipped (BAD_ENTRY_PRICE); on a daily check that day is skipped; on the time-exit day the last consistent prices are used |
 | REF | entry leg had no Breeze price; StockMock's entry price used |
 | CARRY | forced time exit with no price that day; last known price carried forward |
