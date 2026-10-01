@@ -137,7 +137,9 @@ Action items:
    Main report now 45 trades (29, 30, 31 on fallback strikes), net ₹66,052, max DD −₹7,527, win 73%, PF 3.20;
    no-filter 66 trades ₹47,298 / −₹11,860.
 4. Paper trade 3–6 months; record real fills and bid-ask of the 300-pt hedges at 11:16; check margin.
-5. Commit the code to a git repository (not a repo yet): `git init`, check `.gitignore` excludes
-   `.env`, `data/cache/`, `output/`; small commits; ask the user before creating/pushing a remote.
+5. Done 1-Oct-2026: public repo https://github.com/amitkumarpatel/nifty-iron-condor-backtest (branch main).
+   Commit identity (repo-local): amit <1357109+amitkumarpatel@users.noreply.github.com>. User chose to publish
+   everything incl. StockMock .xlsx files and this file. Pushing needs the user's PAT (no gh CLI) – run
+   `git push` in the user's Terminal; never ask for or handle the token.
 6. Review the summary web page (link above).
 7. Returns (~₹11.6k/yr with filter) are far below the 1–1.5%/month target – sizing is the user's call.
