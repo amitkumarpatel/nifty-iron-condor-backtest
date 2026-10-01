@@ -1,0 +1,143 @@
+# CLAUDE.md – project context for Claude Code
+
+## What this project is
+Backtest automation for a NIFTY monthly iron condor that was first backtested on StockMock.
+The engine replays the same 67 trades (same entry dates, expiries and strikes as StockMock) on
+real 1-minute option prices from the ICICI Direct Breeze API and reconciles every trade.
+Owner: beginner-to-intermediate systematic options trader, ₹3–5L capital, conservative,
+target ~1–1.5%/month, capital preservation first. Explain trading/code decisions plainly.
+
+Full user documentation: README.md. All settings: `ic/config.py`.
+
+## Strategy rules (do not change without the user's explicit request)
+- Entry 42–45 DTE at 11:16 (close of the 1-min candle labelled 11:16); next-month expiry
+- Sell ~30-delta CE + PE (strikes from StockMock report), buy 300 pts further out on both sides
+  (`HEDGE_WIDTH`; was 200 = StockMock; changed 27-Sep-2026 at the user's request)
+- One combined check per day at 15:16 (close of candle labelled 15:16); no intraday monitoring
+- Exit all 4 legs: SL if P&L <= -100% credit, else TP if P&L >= 50% credit, else time exit on
+  the last trading day on/before expiry − 18 calendar days (was 15; changed 27-Sep-2026 at the
+  user's request). StockMock reference used 15 DTE (`REF_EXIT_DTE`).
+- 1 lot at each expiry's lot size (`config.LOT_SIZES`: 50 → 25 for Jun-2024..Jan-2025 expiries → 75 →
+  65; 25 confirmed from NSE circulars 28-Sep-2026); no adjustment, re-entry
+- Entry filter (adopted 28-Sep-2026 at the user's request): skip the month if |NIFTY 10-day move| >
+  2.5% at the close before entry (`SKIP_IF_10D_MOVE_PCT`, `IC_TREND_FILTER=off` to disable). No other filters.
+
+## Decisions already made (with the user)
+- Price rule: exact-minute candle close. Fallback: last traded candle earlier that day
+  (FFILL/STALE), then first candle after (AFTER), flagged in Data_Quality. Entry leg with no
+  Breeze price → StockMock price (REF).
+- Time exit rolls to the previous trading day when the exit-DTE date is a weekend/holiday
+  (confirmed: trade 62 → 13-Mar-2026, trade 67 → 11-Sep-2026 because 14-Sep-2026 was a holiday).
+- Diwali Muhurat sessions (`config.MUHURAT_DAYS`) are non-trading days for the strategy: no daily
+  check, never a time-exit day. Add each new year's date when NSE announces it.
+- 18 DTE chosen after tests (27-Sep-2026, 200-pt hedges, 67 trades): net ₹18.4k → ₹26.8k, net max DD −₹17.9k → −₹9.3k,
+  1 condor at a time. Rejected: TP 40%, SL 50/75%, SL 50% + 18 DTE, TP 40% + SL 50%. No TP/SL/DTE
+  value reduced the 18-DTE drawdown further. Result is sensitive (17 and 21 DTE worse) – paper trade.
+- Cached candles: 200-pt legs cover entry → StockMock exit (~15 DTE); 300-pt hedges cover entry →
+  max(18 DTE, StockMock exit). Earlier exits need no download.
+- Final setup (27-Sep-2026): 300-pt hedges + 18 DTE + SL 100% + TP 50%. Net ₹38,581 on 61 trades,
+  net max DD −₹11,860, largest loss −₹8,529 (200-pt, same trades: ₹23,108 / −₹9,286 / −₹5,834).
+  Rejected for 300: SL 50/60/75/80%, exit DTE 15–17 and 21–30. Both widths best at 18–20 DTE.
+- `HEDGE_WIDTH` (env `IC_HEDGE_WIDTH`, default 300; `REF_HEDGE_WIDTH` = 200 StockMock) moves both
+  bought legs; 200 and 300 are cached, other widths need their own download.
+- With 300-pt hedges trades 1, 24, 29, 30, 31, 33, 57 had no usable price at entry; the fallback rule now
+  moves them to the nearest priced strikes (24 still has no data).
+- Slippage is the biggest sensitivity: 1 pt/leg → 300-pt ≈ ₹11k net, 200-pt negative.
+- Trade 23 was exited manually in StockMock → expected reconciliation mismatch.
+- April-2026 cycle is not traded (StockMock had no data).
+- Trade 9 (Sep-2021) has thin data – judge it using Data_Quality.
+- Data source: ICICI Breeze (free, exact strike+expiry, 1-min). Probe run confirmed coverage
+  2022–2026 fully, 2021 mostly; prices within a few tenths of StockMock; net credit within ~1.5 pts.
+- Costs modelled approximately in `config.COSTS` (~₹250 per condor); report gross and net.
+
+## Layout
+- Entry scripts in root: `login_url.py`, `probe.py`, `download.py`, `backtest.py`, `select_strikes.py`
+- Code in `ic/`: `config.py`, `breeze_client.py`, `common.py`, `downloader.py`, `engine.py`, `fallback.py`, `probe.py`, `strikes.py`
+- Reference data (committed): `data/reference/ic_reference_trades.csv`, `ic_reference_legs.csv`,
+  `stockmock_export.xlsx`; validation workbook in `docs/`
+- Generated (git-ignored): `data/cache/` (1-min candles), `data/nifty_trading_days.csv`, `output/`
+
+## Commands
+```bash
+source .venv/bin/activate
+python tests/smoke_test.py      # offline end-to-end test (fake Breeze) – run after code changes
+python login_url.py             # daily Breeze login URL
+python probe.py [--trades ..]   # data availability check (API)
+python download.py              # fetch candles (API, restart-safe, ~3,100 calls)
+python download.py --index      # NIFTY + India VIX daily OHLC only (API, a few calls)
+python select_strikes.py --ce-delta 0.25 --name ce25   # delta-based sold strikes (API) -> IC_STRIKE_SET=ce25
+python backtest.py [--trades ..] [--out path]   # offline, writes output/IC_backtest_report.xlsx
+```
+
+## Rules for working in this repo
+- NEVER read, print, edit or commit `.env`; never echo API keys, secrets or session tokens.
+- NEVER place, modify or cancel orders. This project only reads historical data; do not add
+  order-placement code unless the user explicitly asks, and even then ask before running it.
+- Breeze limits: 100 calls/min, 5,000/day. Don't run `download.py`/`probe.py` casually –
+  ask the user first (it needs today's session token and uses quota).
+- Keep all tunable values in `ic/config.py`; keep the root scripts as thin entry points.
+- Run `python tests/smoke_test.py` after any change to `ic/`; update README.md when behaviour,
+  commands or settings change.
+- Small, reviewable commits with clear messages; don't rewrite git history.
+
+## Current status / next steps
+Done: data downloaded (200 + 300-pt hedges, NIFTY/VIX daily), rule variations tested, final setup
+chosen (300-pt hedges, 18 DTE, SL 100%, TP 50%; net ₹38,322 on 60 trades, max DD −₹11,860), lot sizes
+corrected, 15-DTE StockMock manual run reconciled (output/reconcile_manual300_vs_engine.xlsx).
+Price sanity rules (28-Sep-2026): entry prices from trades >15 min after 11:16 rejected; a hedge priced
+>= its sold leg is a bad print (skip trade at entry / skip that daily check). This dropped trade 29.
+10-day trend filter ADOPTED and in the engine (28-Sep-2026): main report = 42 trades, net ₹64,859,
+max DD −₹7,243, win 74%, PF 3.46; 21 months skipped (Skipped sheet). Study: output/trend_filter_study.xlsx.
+Threshold re-test 1-Oct-2026 (current data, no-filter 66 trades ₹47.3k / DD −₹11.9k): ±1.5 ₹56.6k/−5.5k (27 tr),
+±2.0 ₹59.0k/−9.9k, ±2.5 ₹66.1k/−7.5k, ±3 ₹58.3k/−8.5k, ±4 ₹47.9k/−14.7k, ±5 ₹47.5k/−13.9k. CAVEAT: 2021–23
+alone picks ±3% (not 2.5), and ±3% ≈ no gain on 2024–26 (₹41.5k vs ₹41.2k); ±2.5 wins 2024–26 because trades
+48/52/62 sit between 2.5–3%. Filter idea robust across 1.5–3.5% on the full period; exact 2.5 is partly
+fitted – expect a smaller benefit live. Down-move limit: only 3 trades, no evidence (up≤2.5/down≥−2 +₹1.2k).
+Tested on top of it, not adopted: VIX level/change, VIX − realised vol (failed 2024–26), 50/200-DMA,
+5/20-day moves, range, credit size. Event filters tested 29-Sep-2026 (holding through the event date):
+India election results alone skip 7 trades (2 losers/5 winners, ≈ ₹0, DD worse) – no use as a primary
+filter; on top of ±2.5% +₹3.9k (all from trade 35) – judgement rule only. Union Budget months were all
+winners (6/6 BT, 7/7 SM; skipping costs ≈ ₹18k) – do NOT avoid budgets. US election 2024 = trade 46,
+already skipped by ±2.5%.
+Tested 28-Sep-2026, not adopted: 30Δ put + 25Δ call (IC_STRIKE_SET=ce25; data/strike_sets/strikes_ce25.csv).
+Mixed: +₹5.0k on the 55 common trades (helps 2021/23/24 rallies, hurts 2025–26) but 5 months had
+no clean far-call price; full-set ₹36,593 vs ₹38,322 (with filter ₹56,250 vs ₹64,859).
+Tested 29-Sep-2026, not adopted: trade the filter months with strikes shifted with the trend
+(select_strikes.py --trend-shift; strike sets shiftA = 20Δ trend-side leg, shiftB = 20Δ trend side + 35Δ
+other side; output/trend_shift_test.xlsx). Those months stay losing (normal −₹26.5k, A −₹27.2k, B −₹24.5k);
+full strategy A ₹37.7k / DD −₹13.2k, B ₹40.4k / DD −₹12.8k vs skipping ₹64.9k / −₹7.2k. Cause: shifting
+cuts the credit, so reversals hit the 100%-of-credit stop sooner (trade 50: −₹2.4k → −₹9.8k/−₹10.4k).
+Gap-exit rule tested 1-Oct-2026, not adopted (exit all legs on a day NIFTY opens with |gap| >= G vs prior
+close; at 15:16 or 09:20; optionally only if losing). Without the trend filter gap>=1.25% @15:16 helps
+(₹47.3k/−11.9k → ₹54.7k/−9.9k; trade 62 −₹8.5k → −₹0.9k). With the adopted ±2.5% filter every variant cuts
+profit (₹66.1k → ₹55–64.5k): 10 of 14 gap exits were trades that recovered; only gap>=1% lowers DD
+(−7.5k → −6.1k) at −₹11k. Trade 62 is already skipped by the filter.
+Entry filter + gap exit (gap>=1.25% @15:16) combos: ±3% ₹64.7k/−7.7k (52 tr); ±4% ₹64.5k/−7.7k; up>+4% only
+₹62.8k/−7.7k; down<−2.5% or (up>+4% & VIX<15) ₹70.1k/−7.7k (60 tr) vs base ±2.5% ₹66.1k/−7.5k. Gap level is
+very sensitive (1.0/1.5% much worse for most); combos win 2021–23, base wins 2024–26; with 0.5–1 pt/leg
+slippage base is equal/best. Kept base ±2.5% (1 parameter vs 3–4).
+Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
+18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
+18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,
+output/reconcile_manual18_vs_backtest.xlsx): times, expiries, lot sizes, arithmetic all correct; trade 35
+was closed manually on 4-Dec (rule exit = SL 5-Dec, corrected using Breeze 5-Dec prices). 59 same-strike
+trades: 48 within 3 pts, 55 same exit; mismatches = borderline 50% targets (StockMock/Breeze within
+<1 pt of the line) and thin 300-pt hedge prices. StockMock 67 trades ≈ ₹42.7k net (approx costs),
+MDD −₹12.9k; with 10-day filter ≈ ₹64.2k, MDD −₹7.2k (backtest ₹64.9k / −₹7.2k) – filter confirmed.
+Extra Apr-2026 cycle traded in StockMock (entry 16-Mar-26, PE hedge 400 pts) – not in the backtest.
+Fallback rule used by the user when a strike has no price: nearest strike with a price, sold leg kept
+near 30 delta (prefer 100 pts closer); hedge 300 pts, else next available (e.g. 400).
+
+Action items:
+1. Done: 18-DTE StockMock run reconciled; 10-day filter adopted and built in.
+2. Decide on the election-results rule (checklist only, or optional engine setting).
+3. Fallback-strike rule built in (1-Oct-2026, ic/fallback.py, FALLBACK_SHIFTS −50/+50/−100/+100 then hedge
+   350/400; strike_note column). Matches the user's StockMock picks for trades 1, 29, 30, 57; 31 and 33
+   differ (StockMock availability / user moved toward 30Δ); 24 has no Breeze data. Downloaded 1-Oct-2026.
+   Main report now 45 trades (29, 30, 31 on fallback strikes), net ₹66,052, max DD −₹7,527, win 73%, PF 3.20;
+   no-filter 66 trades ₹47,298 / −₹11,860.
+4. Paper trade 3–6 months; record real fills and bid-ask of the 300-pt hedges at 11:16; check margin.
+5. Commit the code to a git repository (not a repo yet): `git init`, check `.gitignore` excludes
+   `.env`, `data/cache/`, `output/`; small commits; ask the user before creating/pushing a remote.
+6. Review the summary web page (link above).
+7. Returns (~₹11.6k/yr with filter) are far below the 1–1.5%/month target – sizing is the user's call.

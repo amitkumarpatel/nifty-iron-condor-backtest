@@ -1,0 +1,24 @@
+# secrets
+.env
+
+# python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# downloaded market data and generated reports (reproducible, large)
+data/cache/
+data/nifty_trading_days.csv
+data/nifty_daily.csv
+data/india_vix_daily.csv
+output/
+
+# Breeze SDK logs (may contain session details)
+logs/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+~$*.xlsx
