@@ -514,6 +514,11 @@ The project only reads historical data – it never places orders. Each month:
     Monday filter skips (−₹18.0k, incl. trade 62 −₹10.3k) – strong moves that paused for two days.
   - Friday roll: better in 2022–23 (₹7.5k / ₹13.0k vs −₹3.7k / ₹5.3k) but much worse in 2025–26
     (trade 50 −₹9.8k stop-loss; 2026 −₹0.9k); no sign of "free" weekend theta.
+  - Why 2025–26 was weak for the Friday roll (₹18.0k vs Monday ₹46.9k): about ₹20k is the filter. Measured
+    on Thursday's close it misses Friday's move, so it took trades 50 (−₹9.8k) and 62 (−₹11.2k) that the
+    Monday check (on Friday's close) skips. Using NIFTY's live price at 15:16 on Friday for the 10-day
+    move fixes most of it: Friday roll ₹64,015 / DD −₹7,458 (2025–26 ₹36.6k) – about equal to Monday.
+    The remaining ~₹8.5k is the same 13 trades doing slightly worse (3 more days held, e.g. 53, 56, 67).
 - Breeze vs StockMock prices: net credit typically within ~1.5 points; single deep-ITM legs can
   differ more but offset within the spread.
 

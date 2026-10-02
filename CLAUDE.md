@@ -147,6 +147,8 @@ Monday for 65/67 trades; only trades from Sep-2025 (12) had Tuesday weekly expir
 Entry-day results (2-Oct-2026, all strikes ~30Δ after widening the search for 6 trades per test): Monday SM
 ₹66,052/−₹7,527; Monday 30Δ ₹65,171/−₹8,026 (validates strike method); Wednesday ₹27,653/−₹16,280; previous-
 Friday 15:16 roll ₹52,881/−₹11,179. Sep-2025+ Tuesday-expiry period: Monday still best. Keep Monday 11:16.
+Friday roll with the 10-day move on live 15:16 NIFTY (not prior close): ₹64,015 / −₹7,458 ≈ Monday; the weak 2025–26
+was mainly the filter missing Friday's move (trades 50, 62).
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,
