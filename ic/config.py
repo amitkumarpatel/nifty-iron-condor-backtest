@@ -40,6 +40,11 @@ REF_HEDGE_WIDTH = 200       # hedge width used in the StockMock reference run (f
 SKIP_IF_10D_MOVE_PCT = (None if os.environ.get("IC_TREND_FILTER", "").lower() == "off"
                         else float(os.environ.get("IC_TREND_FILTER") or 2.5))   # IC_TREND_FILTER=off to disable
 TREND_LOOKBACK_DAYS  = 10
+# Optional gap-up exit (tested 2-Oct-2026, OFF by default): on a day NIFTY opens at least this % above the
+# previous close (data/nifty_daily.csv), exit all legs at that day's CHECK_TIME (15:16). Not on the entry day.
+# None = off. Per run: IC_GAP_UP_EXIT=1.0 (or off).
+GAP_UP_EXIT_PCT = (None if os.environ.get("IC_GAP_UP_EXIT", "off").lower() == "off"
+                   else float(os.environ["IC_GAP_UP_EXIT"]))
 
 # ---- delta-based strike sets (python select_strikes.py; IC_STRIKE_SET=<name> to use one) ----
 STRIKE_SET     = os.environ.get("IC_STRIKE_SET", "")   # "" = StockMock's sold strikes

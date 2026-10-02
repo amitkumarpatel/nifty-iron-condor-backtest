@@ -78,6 +78,24 @@ def order_costs(legs_px, qty, entry: bool):
     return brk + exch + sebi + stt + stamp + gst + slip
 
 
+@lru_cache(maxsize=1)
+def _nifty_gaps() -> dict:
+    """NIFTY opening gap in % (open vs previous close) per day, from data/nifty_daily.csv."""
+    f = Path(C.INDEX_DAILY["NIFTY"])
+    if not f.exists():
+        raise SystemExit(f"{f} not found - run `python download.py --index` (needed by the gap-up exit), "
+                         "or set IC_GAP_UP_EXIT=off.")
+    n = pd.read_csv(f, parse_dates=["date"]).set_index("date").sort_index()
+    if "open" not in n.columns:
+        return {}
+    g = (n.open / n.close.shift() - 1) * 100
+    return {d.date(): v for d, v in g.dropna().items()}
+
+
+def nifty_gap_pct(day) -> float:
+    return _nifty_gaps().get(day, 0.0)
+
+
 def bad_hedge(px, pairs):
     """True if a bought leg is priced at or above the sold leg of the same type - impossible for a
     further out-of-the-money option, so one of the two prints is a stray illiquid trade."""
@@ -148,6 +166,8 @@ def run_trade(t, tlegs, cal):
             action = "STOPLOSS"
         elif pnl >= tp - EPS:
             action = "TARGET"
+        elif C.GAP_UP_EXIT_PCT is not None and d > entry_day and nifty_gap_pct(d) >= C.GAP_UP_EXIT_PCT:
+            action = "GAP_UP"
         elif d == tx_day:
             action = "TIME"
         else:
@@ -313,6 +333,7 @@ def main():
     extra = pd.DataFrame({"Engine (gross)": {
         "Exits - TARGET": (tr.exit_reason == "TARGET").sum(),
         "Exits - STOPLOSS": (tr.exit_reason == "STOPLOSS").sum(),
+        "Exits - GAP_UP": (tr.exit_reason == "GAP_UP").sum(),
         "Exits - TIME": (tr.exit_reason == "TIME").sum(),
         "Max concurrent positions": max_concurrent(tr),
         "Total costs (Rs)": tr.costs.sum(),
@@ -330,6 +351,8 @@ def main():
         f"time exit on last trading day on/before expiry-{C.EXIT_DTE} (holidays and Muhurat sessions skipped).",
         (f"Entry filter: skip if |NIFTY {C.TREND_LOOKBACK_DAYS}-day move| > {C.SKIP_IF_10D_MOVE_PCT}% at the prior close "
          f"({len(skipped)} trades skipped, see Skipped sheet)." if C.SKIP_IF_10D_MOVE_PCT is not None else "Entry filter: off."),
+        (f"Gap-up exit: ON - exit at {C.CHECK_TIME} on a day NIFTY opens >= {C.GAP_UP_EXIT_PCT}% above the previous close."
+         if C.GAP_UP_EXIT_PCT is not None else "Gap-up exit: off (IC_GAP_UP_EXIT=1.0 to test)."),
         "Sizing: 1 lot at each expiry's NIFTY lot size (config.LOT_SIZES).",
         "April-2026 expiry cycle not traded (no StockMock data) - not in the reference list.",
         "Max drawdown uses trades in entry order, like StockMock.",

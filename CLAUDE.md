@@ -21,6 +21,8 @@ Full user documentation: README.md. All settings: `ic/config.py`.
   65; 25 confirmed from NSE circulars 28-Sep-2026); no adjustment, re-entry
 - Entry filter (adopted 28-Sep-2026 at the user's request): skip the month if |NIFTY 10-day move| >
   2.5% at the close before entry (`SKIP_IF_10D_MOVE_PCT`, `IC_TREND_FILTER=off` to disable). No other filters.
+- Optional gap-up exit (built in 2-Oct-2026, OFF by default, `GAP_UP_EXIT_PCT` / `IC_GAP_UP_EXIT=1.0`): exit all
+  legs at 15:16 on a day NIFTY opens >= 1% above the prior close (not the entry day). User's call to switch on.
 
 ## Decisions already made (with the user)
 - Price rule: exact-minute candle close. Fallback: last traded candle earlier that day
@@ -127,7 +129,7 @@ close). With ±2.5% filter: 300-pt G=1.0% ₹68,023 / DD −₹5,523 (base ₹66
 (base ₹83,114 / −₹9,814). Every year positive (2022 −₹3.3k → +₹1.5k). G=1.25/1.5 also ≥ base on profit but DD only
 −7.2k; G=0.75 much worse. Helps 2021–23 (₹14.2k→₹21.3k, DD −7.5k→−3.7k), slightly hurts 2024–26 (₹51.8k→₹46.7k).
 Key trades 35 (+₹6.3k), 22, 15; 10 small winners trimmed. Gap-DOWN exits are harmful (DD −12k to −16k).
-Not adopted yet – candidate optional rule.
+Built into the engine as an optional rule, OFF by default (engine reproduces the test exactly).
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,

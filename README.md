@@ -51,6 +51,7 @@ You only need a new session token (`python login_url.py`) for commands that call
 | Target | P&L ≥ **50%** of initial credit → exit all 4 legs |
 | Stop-loss | Loss ≥ **100%** of initial credit → exit all 4 legs |
 | Time exit | Last trading day on/before **expiry − 18 calendar days** (holiday/weekend/Muhurat session → previous trading day). Changed from 15 DTE on 27-Sep-2026 – see §7 |
+| Optional: gap-up exit | **Off by default.** If on (`GAP_UP_EXIT_PCT` / `IC_GAP_UP_EXIT=1.0`): on a day NIFTY opens ≥ 1% above the previous close, exit all 4 legs at that day's 15:16 check (never on the entry day). Tested 2-Oct-2026 – see §7 |
 | Sizing | **1 lot** at each expiry's NIFTY lot size (50 → 25 → 75 → 65, `LOT_SIZES`) |
 | Not allowed | Adjustments, re-entry, quantity change, other entry filters |
 
@@ -195,6 +196,7 @@ Permanent changes go in `ic/config.py`.
 | `IC_TREND_FILTER` | `2.5` | 10-day move limit in %; `off` disables the entry filter |
 | `IC_HEDGE_WIDTH` | `300` | points between sold and bought strikes (200 and 300 are downloaded) |
 | `IC_FALLBACK` | on | `off` disables the fallback strikes |
+| `IC_GAP_UP_EXIT` | `off` | e.g. `1.0`: exit at 15:16 on a day NIFTY opens ≥ 1% above the previous close |
 | `IC_STRIKE_SET` | – | use strikes from `data/strike_sets/strikes_<name>.csv` (select_strikes.py) |
 | `IC_DATA_DIR`, `IC_OUTPUT_DIR` | `data/`, `output/` | alternative folders (used by the smoke test) |
 | `IC_PAUSE_SEC` | `0.65` | pause between API calls (stays under 100 calls/min) |
@@ -282,6 +284,7 @@ Edit `ic/config.py`, then re-run with a separate output file so results don't ov
 | Exit earlier, e.g. 21 DTE | `EXIT_DTE = 21` | No |
 | Old rule, 15 DTE (StockMock's rule) | `EXIT_DTE = 15` | No – existing trades are cached up to their StockMock exit (~15 DTE) |
 | Fallback strikes off | `IC_FALLBACK=off` before the command | No |
+| Gap-up exit on | `IC_GAP_UP_EXIT=1.0` before the command (or `GAP_UP_EXIT_PCT = 1.0`) | No – needs `data/nifty_daily.csv` |
 | Hold longer, e.g. 7 DTE | `EXIT_DTE = 7` | **Yes** – run `python download.py` (fetches only the extra days) |
 | Hedge width (default 300) | `HEDGE_WIDTH`, or `IC_HEDGE_WIDTH=200` before the command | 200 and 300 are already cached. Any other width: **yes** – `IC_HEDGE_WIDTH=<w> python download.py` (~1,300 calls), then `IC_HEDGE_WIDTH=<w> python backtest.py --out output/hedge<w>.xlsx`. Hedges other than 200 have no StockMock price, so the REF entry fallback does not apply to them |
 
@@ -336,6 +339,8 @@ The project only reads historical data – it never places orders. Each month:
    strike has no price, use the fallback rule (spread 50/100 points closer or further, else a
    350/400-point hedge).
 3. **Every day at 15:16:** exit all 4 legs at −100% of the credit (stop) or +50% (target).
+   Optional (paper trade it first): if NIFTY opened ≥ 1% above the previous close that day, exit
+   at 15:16 too (gap-up exit, §7). Log every such day either way.
 4. **Time exit:** 15:16 on the last trading day on/before expiry − 18 days.
 5. Afterwards: add the trade to the two reference CSVs (section 5.8), `python download.py`,
    `python backtest.py`, and compare your fills with the backtest.
@@ -346,7 +351,7 @@ The project only reads historical data – it never places orders. Each month:
 |---|---|
 | Summary | Engine gross vs engine net of costs vs StockMock: total P&L, win %, averages, max drawdown, streaks, profit factor, P&L in points, exit-reason counts, max concurrent positions, total costs, reconciliation counts, notes |
 | Trades | One row per trade: dates, DTE, NIFTY 10-day move at the close before entry (`nifty_10d_move_pct`) and the filter result (`trend_filter`), strikes, entry/exit price of every leg, credit, TP/SL levels, P&L (points, % of credit, ₹ gross/net), costs, MFE/MAE at daily checks |
-| Daily_MTM | Every 15:16 check: position value, P&L, action (HOLD/TARGET/STOPLOSS/TIME/SKIP), price quality |
+| Daily_MTM | Every 15:16 check: position value, P&L, action (HOLD/TARGET/STOPLOSS/GAP_UP/TIME/SKIP), price quality |
 | Reconciliation | Engine vs StockMock per trade: MATCH / PNL DIFF / EXIT DIFF / SKIPPED (filter), with likely reason |
 | Skipped | Months skipped by the trend filter, with NIFTY's 10-day move at the close before entry |
 | Data_Quality | Every price that did not come from the exact-minute candle |
@@ -435,6 +440,33 @@ The project only reads historical data – it never places orders. Each month:
   daily range, credit size. An election-results rule (don't hold through general/major state
   results) helped slightly on 5 trades (+₹4.7k, largest loss −₹7.2k → −₹5.5k) – a judgement rule,
   not proven.
+- **Gap-up exit** (tested 2-Oct-2026, built in, **off by default**; turn on with `IC_GAP_UP_EXIT=1.0`).
+  Idea (user's): gap-ups create the big losses, so close the condor at 15:16 on a day NIFTY opens
+  ≥ 1% above the previous close. Results with the ±2.5% filter, net of costs:
+
+  | Rule | 300-pt net | 300-pt max DD | 400-pt net | 400-pt max DD |
+  |---|---|---|---|---|
+  | No gap exit (default) | ₹66,052 | −₹7,527 | ₹83,114 | −₹9,814 |
+  | Gap-up ≥ 0.75% | ₹50,661 | −₹6,656 | ₹65,170 | −₹9,643 |
+  | **Gap-up ≥ 1.0%** | **₹68,023** | **−₹5,523** | **₹88,148** | **−₹6,976** |
+  | Gap-up ≥ 1.25% | ₹69,073 | −₹7,217 | ₹87,107 | −₹9,814 |
+  | Gap-up ≥ 1.5% | ₹68,798 | −₹7,217 | ₹87,330 | −₹9,814 |
+  | Gap-up ≥ 2.0% | ₹63,585 | −₹7,527 | ₹80,776 | −₹9,814 |
+  | Gap-**down** ≥ 1.0% (for comparison) | ₹47,269 | −₹12,041 | ₹58,278 | −₹16,281 |
+  | Gap either way ≥ 1.0% | ₹54,918 | −₹6,110 | ₹71,100 | −₹8,255 |
+
+  - 300-pt, gap-up ≥ 1%: 14 early exits – 4 helped (+₹13.7k: trade 35 −₹7,243 → −₹897, trade 22
+    −₹3,654 → +₹528, trade 15 −₹3,347 → −₹369), 10 trimmed winners (−₹11.7k). Same number of trades,
+    so no extra slippage. Every year positive (2022: −₹3,307 → +₹1,477; 2023: ₹5,447 → ₹11,793).
+  - Without the trend filter it also helps: 300-pt ₹47,298 / −₹11,860 → ₹58,874 / −₹5,874.
+  - Gap-**downs** must not trigger an exit – those losses usually recovered; exiting doubles the
+    drawdown.
+  - Cautions: helps 2021–23 (₹14.2k → ₹21.3k, DD −₹7.5k → −₹3.7k) but slightly lowers 2024–26
+    (₹51.8k → ₹46.7k); 0.75% is far worse and only 1.0% clearly cuts the drawdown; much of the gain
+    is trade 35; cannot be checked against StockMock (needs daily prices on gap days).
+  - Status: optional rule. Paper trade it: log every gap-up ≥ 1% while a condor is open and what a
+    15:16 exit would have done. Reports with it on: `output/IC_backtest_gapup.xlsx`,
+    `output/IC_backtest_hedge400_gapup.xlsx`.
 - Breeze vs StockMock prices: net credit typically within ~1.5 points; single deep-ITM legs can
   differ more but offset within the spread.
 
