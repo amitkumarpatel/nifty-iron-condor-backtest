@@ -194,7 +194,8 @@ Permanent changes go in `ic/config.py`.
 | Variable | Default | Effect |
 |---|---|---|
 | `IC_TREND_FILTER` | `2.5` | 10-day move limit in %; `off` disables the entry filter |
-| `IC_HEDGE_WIDTH` | `300` | points between sold and bought strikes (200 and 300 are downloaded) |
+| `IC_HEDGE_WIDTH` | `300` | points between sold and bought strikes (200, 300 and 400 are downloaded) |
+| `IC_HEDGE_WIDTH_CE`, `IC_HEDGE_WIDTH_PE` | = `IC_HEDGE_WIDTH` | different call / put hedge widths (e.g. CE 300, PE 400) |
 | `IC_FALLBACK` | on | `off` disables the fallback strikes |
 | `IC_GAP_UP_EXIT` | `off` | e.g. `1.0`: exit at 15:16 on a day NIFTY opens ≥ 1% above the previous close |
 | `IC_STRIKE_SET` | – | use strikes from `data/strike_sets/strikes_<name>.csv` (select_strikes.py) |
@@ -365,7 +366,7 @@ The project only reads historical data – it never places orders. Each month:
 | STALE | last traded candle earlier that day, > 15 minutes old |
 | AFTER | no earlier trade that day; first candle after the target minute (slight look-ahead) |
 | AFTER_TOO_LATE | entry leg's first trade came more than `MAX_AFTER_MIN_AT_ENTRY` (15) minutes after 11:16 – rejected (not knowable at entry) |
-| (fallback) | a leg with no usable entry price: that side's spread moves to the nearest priced strikes – 50 closer, 50 further, 100 closer, 100 further – else the hedge widens by 50/100 points, i.e. 350/400 for 300-pt hedges (`FALLBACK_*`, `IC_FALLBACK=off`). Shown in the Trades sheet's `strike_note` column |
+| (fallback) | a leg with no usable entry price: that side's spread moves to the nearest priced strikes – 50 closer, 50 further, 100 closer, 100 further – else the hedge widens by 50/100 points, i.e. 350/400 for 300-pt hedges (`FALLBACK_SHIFTS`, `FALLBACK_HEDGE_EXTRA`, `IC_FALLBACK=off`). Shown in the Trades sheet's `strike_note` column |
 | BAD_PRICE | a hedge priced at or above its sold leg (a stray illiquid print): at entry the trade is skipped (BAD_ENTRY_PRICE); on a daily check that day is skipped; on the time-exit day the last consistent prices are used |
 | REF | entry leg had no Breeze price; StockMock's entry price used |
 | CARRY | forced time exit with no price that day; last known price carried forward |
@@ -467,6 +468,20 @@ The project only reads historical data – it never places orders. Each month:
   - Status: optional rule. Paper trade it: log every gap-up ≥ 1% while a condor is open and what a
     15:16 exit would have done. Reports with it on: `output/IC_backtest_gapup.xlsx`,
     `output/IC_backtest_hedge400_gapup.xlsx`.
+- **Different call/put hedge widths** (tested 2-Oct-2026, not adopted; `IC_HEDGE_WIDTH_CE/PE`). With the ±2.5%
+  filter, net of costs:
+
+  | Hedges | Net | Max DD | Worst trade | Credit | Max loss/condor | 2021–23 | 2024–26 |
+  |---|---|---|---|---|---|---|---|
+  | **CE 300 / PE 300 (default)** | ₹66,052 | **−₹7,527** | −₹7,243 | 146 | 154 pts | ₹14,203 | ₹51,849 |
+  | CE 300 / PE 400 | ₹72,533 | −₹10,935 | −₹8,584 | 163 | 237 pts | ₹11,882 | ₹60,651 |
+  | CE 400 / PE 300 | ₹70,920 | −₹11,123 | −₹10,377 | 164 | 236 pts | ₹9,346 | ₹61,574 |
+  | CE 400 / PE 400 | ₹83,114 | −₹9,814 | −₹9,814 | 181 | 219 pts | ₹14,944 | ₹68,170 |
+
+  Mixed widths earn more than 300/300 but have the **largest** drawdowns: the wider side adds ~100 pts
+  of risk while only ~17 pts of credit, so the worst case (≈ 237 pts) is bigger than even 400/400.
+  The side that gets tested loses more – e.g. trade 11 (Nov-2021 fall): 300/300 −₹635 at the time exit,
+  CE300/PE400 stopped out at −₹8,584. Both mixes are also weaker than 300/300 in 2021–23.
 - Breeze vs StockMock prices: net credit typically within ~1.5 points; single deep-ITM legs can
   differ more but offset within the spread.
 

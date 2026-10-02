@@ -7,7 +7,7 @@ the way the user handles missing strikes in StockMock:
    is priced at or above the sold leg;
 2. shift that side's whole spread (sold + hedge, same width) by FALLBACK_SHIFTS points - negative =
    closer to the money - and take the first pair with usable, consistent prices;
-3. else keep the sold strike and widen the hedge to FALLBACK_HEDGE_WIDTHS;
+3. else keep the sold strike and widen the hedge by FALLBACK_HEDGE_EXTRA points;
 4. else leave the side as it is (the trade is then not run).
 """
 import pandas as pd
@@ -31,7 +31,8 @@ def candidates(sold, width, opt):
     for s in C.FALLBACK_SHIFTS:
         k = sold + out_ * s
         out.append((k, k + out_ * width, f"spread {abs(s)} pts {'closer' if s < 0 else 'further out'}"))
-    for w in C.FALLBACK_HEDGE_WIDTHS:
+    for extra in C.FALLBACK_HEDGE_EXTRA:
+        w = width + extra
         out.append((sold, sold + out_ * w, f"hedge widened to {w} pts"))
     return out
 

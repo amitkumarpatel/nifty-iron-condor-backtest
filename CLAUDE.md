@@ -130,6 +130,9 @@ close). With ±2.5% filter: 300-pt G=1.0% ₹68,023 / DD −₹5,523 (base ₹66
 −7.2k; G=0.75 much worse. Helps 2021–23 (₹14.2k→₹21.3k, DD −7.5k→−3.7k), slightly hurts 2024–26 (₹51.8k→₹46.7k).
 Key trades 35 (+₹6.3k), 22, 15; 10 small winners trimmed. Gap-DOWN exits are harmful (DD −12k to −16k).
 Built into the engine as an optional rule, OFF by default (engine reproduces the test exactly).
+Asymmetric hedges tested 2-Oct-2026, not adopted (IC_HEDGE_WIDTH_CE/PE): with ±2.5% filter CE300/PE400
+₹72,533 / DD −₹10,935, CE400/PE300 ₹70,920 / −₹11,123 vs 300/300 ₹66,052 / −₹7,527 and 400/400 ₹83,114 / −₹9,814.
+Wide side adds ~100 pts risk for ~17 pts credit (max loss ≈237 pts > 400/400's 219); trade 11 −₹635 → SL −₹8,584.
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,

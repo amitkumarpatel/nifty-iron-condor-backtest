@@ -33,6 +33,8 @@ EXIT_DTE     = 18           # exit on last trading day on/before (expiry - 18 ca
 REF_EXIT_DTE = 15           # exit DTE used in the StockMock reference run (for reconciliation labels)
 HEDGE_WIDTH  = int(os.environ.get("IC_HEDGE_WIDTH", 300))  # bought strike = sold strike +/- this many points
                            # (chosen 27-Sep-2026; StockMock reference = 200; each width needs its own download)
+HEDGE_WIDTH_CE = int(os.environ.get("IC_HEDGE_WIDTH_CE", HEDGE_WIDTH))   # per-side override (call hedge)
+HEDGE_WIDTH_PE = int(os.environ.get("IC_HEDGE_WIDTH_PE", HEDGE_WIDTH))   # per-side override (put hedge)
 REF_HEDGE_WIDTH = 200       # hedge width used in the StockMock reference run (for reconciliation labels)
 # Entry filter (adopted 28-Sep-2026): skip the month if NIFTY moved more than this % (up or down) over the
 # last TREND_LOOKBACK_DAYS trading days, measured at the close before entry. None = no filter.
@@ -68,7 +70,7 @@ MAX_AFTER_MIN_AT_ENTRY = 15             # entry price from a trade later than th
 # priced strikes (closer first), else widens the hedge. IC_FALLBACK=off to disable.
 FALLBACK_STRIKES       = os.environ.get("IC_FALLBACK", "").lower() != "off"
 FALLBACK_SHIFTS        = [-50, 50, -100, 100]   # points; negative = closer to the money
-FALLBACK_HEDGE_WIDTHS  = [HEDGE_WIDTH + 50, HEDGE_WIDTH + 100]   # 350/400 for 300-pt hedges
+FALLBACK_HEDGE_EXTRA   = [50, 100]   # widen the hedge by this much (350/400 for 300-pt hedges)
 EXTRA_HOLIDAYS = ["2026-09-14"]         # confirmed holidays, always removed from the calendar
 # Diwali Muhurat sessions (special ~1-hour session, no 15:16 candle). Treated as non-trading days:
 # no daily check and never a time-exit day. Add each new year's date once NSE announces it.

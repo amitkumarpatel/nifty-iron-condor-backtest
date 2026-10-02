@@ -50,11 +50,11 @@ def apply_strike_set(legs: pd.DataFrame) -> pd.DataFrame:
 
 
 def apply_hedge_width(legs: pd.DataFrame) -> pd.DataFrame:
-    """Move each bought leg to sold strike +/- HEDGE_WIDTH. A moved leg has no StockMock prices."""
+    """Move each bought leg to sold strike +/- HEDGE_WIDTH_CE / HEDGE_WIDTH_PE. A moved leg has no StockMock prices."""
     legs = legs.copy()
     sold = legs[legs.side == "SELL"].set_index(["trade_id", "opt_type"]).strike
     for i, r in legs[legs.side == "BUY"].iterrows():
-        k = sold[(r.trade_id, r.opt_type)] + (C.HEDGE_WIDTH if r.opt_type == "CE" else -C.HEDGE_WIDTH)
+        k = sold[(r.trade_id, r.opt_type)] + (C.HEDGE_WIDTH_CE if r.opt_type == "CE" else -C.HEDGE_WIDTH_PE)
         if k != r.strike:
             legs.loc[i, ["strike", "entry_px", "exit_px"]] = [k, float("nan"), float("nan")]
     return legs
