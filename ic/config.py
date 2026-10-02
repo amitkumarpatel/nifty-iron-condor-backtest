@@ -25,7 +25,7 @@ INDEX_DAILY  = {"NIFTY": DATA_DIR / "nifty_daily.csv",       # daily OHLC for tr
 PROBE_DIR    = OUTPUT_DIR / "probe"
 
 # ---- strategy rules ----
-ENTRY_TIME   = "11:16"      # close of the 1-minute candle labelled 11:16
+ENTRY_TIME   = os.environ.get("IC_ENTRY_TIME", "11:16")   # close of the 1-minute candle labelled 11:16
 CHECK_TIME   = "15:16"      # one combined-position check per day
 TP_FRACTION  = 0.50         # exit when P&L >= 50% of initial credit
 SL_FRACTION  = 1.00         # exit when loss >= 100% of initial credit
@@ -49,8 +49,8 @@ GAP_UP_EXIT_PCT = (None if os.environ.get("IC_GAP_UP_EXIT", "off").lower() == "o
                    else float(os.environ["IC_GAP_UP_EXIT"]))
 
 # ---- entry-day experiments ----
-# Shift every entry this many calendar days after StockMock's entry (Monday): 2 = Wednesday, 4 = Friday.
-# A non-trading day moves to the next trading day. Shifted entries have no StockMock prices, so pair it
+# Shift every entry this many calendar days from StockMock's entry (Monday): 2 = Wednesday, -3 = previous Friday.
+# A non-trading day moves to the next trading day (positive shift) or the previous one (negative shift). Shifted entries have no StockMock prices, so pair it
 # with a delta-based strike set (select_strikes.py) chosen on the shifted day. IC_ENTRY_SHIFT=2 per run.
 ENTRY_SHIFT_DAYS = int(os.environ.get("IC_ENTRY_SHIFT", 0))
 

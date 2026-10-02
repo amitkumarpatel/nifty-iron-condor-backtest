@@ -32,8 +32,11 @@ def load_inputs(trade_ids=None):
 
 
 def shift_entry(day: date, days: int) -> date:
-    """`day` + `days` calendar days, moved forward to the next trading day if needed."""
+    """`day` + `days` calendar days; a non-trading day moves forward (days > 0) or back (days < 0)."""
     target = day + timedelta(days=days)
+    if days < 0:
+        cal = load_calendar(target - timedelta(days=10), target)
+        return cal[-1] if cal else target
     cal = load_calendar(target, target + timedelta(days=10))
     return cal[0] if cal else target
 

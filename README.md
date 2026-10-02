@@ -199,7 +199,8 @@ Permanent changes go in `ic/config.py`.
 | `IC_FALLBACK` | on | `off` disables the fallback strikes |
 | `IC_GAP_UP_EXIT` | `off` | e.g. `1.0`: exit at 15:16 on a day NIFTY opens ≥ 1% above the previous close |
 | `IC_STRIKE_SET` | – | use strikes from `data/strike_sets/strikes_<name>.csv` (select_strikes.py) |
-| `IC_ENTRY_SHIFT` | `0` | experiment: enter N calendar days after StockMock's Monday entry (2 = Wednesday, 4 = Friday; holidays → next trading day). Use with a strike set chosen on that day |
+| `IC_ENTRY_SHIFT` | `0` | experiment: shift the entry N calendar days from StockMock's Monday (2 = Wednesday, −3 = previous Friday; holidays move forward / back). Use with a strike set chosen on that day |
+| `IC_ENTRY_TIME` | `11:16` | entry time, e.g. `15:16` for the Friday roll test (exit old and enter new at the same check) |
 | `IC_DATA_DIR`, `IC_OUTPUT_DIR` | `data/`, `output/` | alternative folders (used by the smoke test) |
 | `IC_PAUSE_SEC` | `0.65` | pause between API calls (stays under 100 calls/min) |
 
