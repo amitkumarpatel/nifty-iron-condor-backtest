@@ -150,6 +150,7 @@ Friday 15:16 roll ₹52,881/−₹11,179. Sep-2025+ Tuesday-expiry period: Monda
 Friday roll with the 10-day move on live 15:16 NIFTY (not prior close): ₹64,015 / −₹7,458 ≈ Monday; the weak 2025–26
 was mainly the filter missing Friday's move (trades 50, 62).
 No filter: Monday 30Δ ₹45,814/−₹11,488 vs Friday roll ₹36,464/−₹12,011 (Friday better 2021–24, worse 2025–26).
+Filter + gap-up 1%: Monday 30Δ ₹65,679/−₹5,550 vs Friday roll ₹51,225/−₹7,458 (weekend gap-ups exit Friday trades on day 1).
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,

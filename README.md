@@ -521,6 +521,10 @@ The project only reads historical data – it never places orders. Each month:
     The remaining ~₹8.5k is the same 13 trades doing slightly worse (3 more days held, e.g. 53, 56, 67).
   - Without the 10-day filter (66 trades each): Monday 11:16 ₹45,814 / DD −₹11,488 (StockMock strikes ₹47,298 /
     −₹11,860) vs Friday 15:16 roll ₹36,464 / −₹12,011, worst trade −₹11,179. Friday better 2021–24, worse 2025–26.
+  - With the 10-day filter + 1% gap-up exit (30Δ strikes): Monday 11:16 ₹65,679 / DD −₹5,550 (filter only ₹65,171 /
+    −₹8,026); Friday 15:16 roll ₹51,225 / −₹7,458 (filter only ₹64,015 / −₹7,458). The gap-up exit suits Monday but
+    hurts the Friday roll: weekend gap-ups trigger exits on the first Monday (trade 53 −₹3,795) and it trims more
+    winners (12 hurt vs 3 helped). Monday + StockMock strikes + gap-up: ₹68,023 / −₹5,523.
 - Breeze vs StockMock prices: net credit typically within ~1.5 points; single deep-ITM legs can
   differ more but offset within the spread.
 
