@@ -122,6 +122,12 @@ output/hedge300_vs_400_trades.xlsx). With ±2.5% filter: 44 trades ₹83,114 / D
 win 75% / PF 3.17 vs 300-pt ₹66,052 / −₹7,527 / −₹7,243 / 73% / 3.20. Credit 181 vs 146, max loss/condor
 219 vs 154 pts; better in 5 of 6 years (2022 worse). 0.5 pt slip: ₹73.8k vs ₹56.5k. Not adopted yet –
 user's decision (more margin and bigger worst case); default stays 300.
+Gap-UP exit tested 2-Oct-2026 (user idea; exit all legs at 15:16 on a day NIFTY opens >= G% above the prior
+close). With ±2.5% filter: 300-pt G=1.0% ₹68,023 / DD −₹5,523 (base ₹66,052 / −₹7,527); 400-pt ₹88,148 / −₹6,976
+(base ₹83,114 / −₹9,814). Every year positive (2022 −₹3.3k → +₹1.5k). G=1.25/1.5 also ≥ base on profit but DD only
+−7.2k; G=0.75 much worse. Helps 2021–23 (₹14.2k→₹21.3k, DD −7.5k→−3.7k), slightly hurts 2024–26 (₹51.8k→₹46.7k).
+Key trades 35 (+₹6.3k), 22, 15; 10 small winners trimmed. Gap-DOWN exits are harmful (DD −12k to −16k).
+Not adopted yet – candidate optional rule.
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,
