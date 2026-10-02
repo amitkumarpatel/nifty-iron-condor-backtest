@@ -136,6 +136,9 @@ Wide side adds ~100 pts risk for ~17 pts credit (max loss ≈237 pts > 400/400's
 Close-one-side rule tested 2-Oct-2026, not adopted: close the call or put spread when it alone loses >= X% of
 total credit. 300-pt with filter: X=40–100% gives ₹16.8k–₹57.7k (vs ₹66.1k) and DD −₹9.0k to −₹16.0k (vs −₹7.5k);
 tested side usually recovers, remaining side gets hit on the reversal (60%: 6 helped +₹11.3k, 11 hurt −₹45.3k).
+Lock-in-profit tested 2-Oct-2026, not adopted: fixed floor (arm A%, exit at B%) and trailing (T% below peak).
+Max DD unchanged in every variant (−₹7,527 / −₹9,814). Best 300-pt arm 25%/floor 5% ₹73,722 (+₹7.7k, 5 exits,
+mostly trade 67); neighbours mixed (arm 20/floor 10 ₹59.4k, arm 30/floor 10 ₹63.2k). Too few exits to trust.
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,

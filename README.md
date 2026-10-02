@@ -490,6 +490,12 @@ The project only reads historical data – it never places orders. Each month:
   worst loss (to about −₹4.3k at 60%) but the tested side usually recovers after the close, and the
   remaining side then gets hit on the reversal (e.g. trade 61 +₹4,814 → −₹3,712, trade 51 +₹3,900 →
   −₹4,344). At 60%: 6 trades helped (+₹11.3k), 11 hurt (−₹45.3k).
+- **Lock in profit** (tested 2-Oct-2026, not adopted). Once the trade has reached +A% of the credit at a 15:16
+  check, exit later if it falls back to +B% (fixed floor) or T% below its peak (trailing). With the ±2.5% filter
+  the **max drawdown never changes** (−₹7,527 at 300-pt, −₹9,814 at 400-pt) – the drawdown trades never reached
+  +25%. Profit effect is small and patchy: 300-pt arm 25% / floor 5% ₹73,722 (+₹7.7k, 5 lock exits, mostly
+  trade 67 −₹5,523 → −₹371 and trade 55), but arm 20% / floor 10% ₹59.4k and arm 30% / floor 10% ₹63.2k are
+  worse than the base ₹66,052. Arm 25% was ≥ base for every floor (300 and 400-pt); gains are all in 2024–26.
 - Breeze vs StockMock prices: net credit typically within ~1.5 points; single deep-ITM legs can
   differ more but offset within the spread.
 
