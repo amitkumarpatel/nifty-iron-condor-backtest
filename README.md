@@ -260,7 +260,7 @@ closest to the target in `data/strike_sets/strikes_<name>.csv` (plus every candi
 `--trend-shift --with-delta 0.20 [--against-delta 0.35]` picks strikes only for the months beyond the
 trend-filter limit: the leg on the trend side (CE after a rise, PE after a fall) at `--with-delta`, the
 other leg at `--against-delta` (unchanged if omitted). `--range`/`--closer` widen the strike search;
-`--dry-run` only counts the API calls. Experiment only – the adopted rule still skips these months. Hedges follow the new
+`--dry-run` only counts the API calls; `--append` updates only the given `--trades` in an existing strike set. Experiment only – the adopted rule still skips these months. Hedges follow the new
 sold strikes (`HEDGE_WIDTH`). Trades with no price at entry keep StockMock's strike (listed at the end).
 
 ### 5.4 Run the full backtest

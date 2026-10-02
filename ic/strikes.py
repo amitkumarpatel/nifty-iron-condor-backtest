@@ -76,6 +76,8 @@ def main():
     ap.add_argument("--with-delta", type=float, help="trend-shift: delta of the leg on the trend side, e.g. 0.20")
     ap.add_argument("--against-delta", type=float, help="trend-shift: delta of the other leg, e.g. 0.35 (default: unchanged)")
     ap.add_argument("--dry-run", action="store_true", help="only count the API calls needed")
+    ap.add_argument("--append", action="store_true",
+                    help="update only these trades in an existing strikes_<name>.csv instead of rewriting it")
     ap.add_argument("--limit", type=float, help="trend-shift: |10-day move| limit (default SKIP_IF_10D_MOVE_PCT or 2.5)")
     a = ap.parse_args()
 
@@ -161,6 +163,10 @@ def main():
     out = pick[["trade_id", "opt_type", "strike", "delta", "iv", "spot", "price", "quality", "ref_strike", "ref_delta"]]
     Path(C.STRIKE_SETS_DIR).mkdir(parents=True, exist_ok=True)
     f = Path(C.STRIKE_SETS_DIR) / f"strikes_{a.name}.csv"
+    if a.append and f.exists():
+        old_ = pd.read_csv(f)
+        keep = ~old_.set_index(["trade_id", "opt_type"]).index.isin(out.set_index(["trade_id", "opt_type"]).index)
+        out = pd.concat([old_[keep], out], ignore_index=True)
     out.sort_values(["trade_id", "opt_type"]).to_csv(f, index=False)
 
     print(f"\nSaved {len(out)} strikes -> {f}")
