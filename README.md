@@ -498,6 +498,22 @@ The project only reads historical data – it never places orders. Each month:
   +25%. Profit effect is small and patchy: 300-pt arm 25% / floor 5% ₹73,722 (+₹7.7k, 5 lock exits, mostly
   trade 67 −₹5,523 → −₹371 and trade 55), but arm 20% / floor 10% ₹59.4k and arm 30% / floor 10% ₹63.2k are
   worse than the base ₹66,052. Arm 25% was ≥ base for every floor (300 and 400-pt); gains are all in 2024–26.
+- **Entry day** (tested 2-Oct-2026, not adopted; `IC_ENTRY_SHIFT`, `IC_ENTRY_TIME`, strike sets d30_*). ~30Δ CE/PE
+  chosen on the entry day, 300-pt hedges, ±2.5% filter measured from that day:
+
+  | Entry | Net | Max DD | Worst | Win | Sep-2025+ (Tuesday weekly expiry) |
+  |---|---|---|---|---|---|
+  | **Monday 11:16, StockMock strikes (current)** | **₹66,052** | **−₹7,527** | −₹7,243 | 73% | 9 tr, ₹29,165 |
+  | Monday 11:16, 30Δ strikes (fair baseline) | ₹65,171 | −₹8,026 | −₹7,240 | 73% | 9 tr, ₹31,330 |
+  | Wednesday 11:16 (43/41 DTE) | ₹27,653 | −₹16,280 | −₹10,298 | 61% | 11 tr, ₹24,765 |
+  | Previous Friday 15:16 roll (48/46 DTE) | ₹52,881 | −₹11,179 | −₹11,179 | 71% | 10 tr, ₹17,250 |
+
+  - Monday before a Tuesday weekly expiry does **not** hurt: Monday was the best entry in that period too.
+  - Wednesday is worse for two reasons: on the 41 trades both filters take it makes ₹45.7k vs ₹61.8k
+    (shorter hold, fewer targets), and measured from Wednesday the filter lets in 10 months that the
+    Monday filter skips (−₹18.0k, incl. trade 62 −₹10.3k) – strong moves that paused for two days.
+  - Friday roll: better in 2022–23 (₹7.5k / ₹13.0k vs −₹3.7k / ₹5.3k) but much worse in 2025–26
+    (trade 50 −₹9.8k stop-loss; 2026 −₹0.9k); no sign of "free" weekend theta.
 - Breeze vs StockMock prices: net credit typically within ~1.5 points; single deep-ITM legs can
   differ more but offset within the spread.
 

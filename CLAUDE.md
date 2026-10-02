@@ -144,6 +144,9 @@ IC_ENTRY_SHIFT=-3 IC_ENTRY_TIME=15:16, 48/46 DTE, strike set d30_fri – roll: e
 38/66 entries fall on the previous trade's exit Friday, 20 a week later, never overlapping; strike sets d30_s0/d30_s2/d30_s4 = ~30Δ CE+PE
 chosen on that day by select_strikes.py --ce-delta 0.30 --pe-delta 0.30 --range 200 --closer 4). Entries were
 Monday for 65/67 trades; only trades from Sep-2025 (12) had Tuesday weekly expiries (Thursday before).
+Entry-day results (2-Oct-2026, all strikes ~30Δ after widening the search for 6 trades per test): Monday SM
+₹66,052/−₹7,527; Monday 30Δ ₹65,171/−₹8,026 (validates strike method); Wednesday ₹27,653/−₹16,280; previous-
+Friday 15:16 roll ₹52,881/−₹11,179. Sep-2025+ Tuesday-expiry period: Monday still best. Keep Monday 11:16.
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,
