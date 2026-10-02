@@ -519,6 +519,8 @@ The project only reads historical data – it never places orders. Each month:
     Monday check (on Friday's close) skips. Using NIFTY's live price at 15:16 on Friday for the 10-day
     move fixes most of it: Friday roll ₹64,015 / DD −₹7,458 (2025–26 ₹36.6k) – about equal to Monday.
     The remaining ~₹8.5k is the same 13 trades doing slightly worse (3 more days held, e.g. 53, 56, 67).
+  - Without the 10-day filter (66 trades each): Monday 11:16 ₹45,814 / DD −₹11,488 (StockMock strikes ₹47,298 /
+    −₹11,860) vs Friday 15:16 roll ₹36,464 / −₹12,011, worst trade −₹11,179. Friday better 2021–24, worse 2025–26.
 - Breeze vs StockMock prices: net credit typically within ~1.5 points; single deep-ITM legs can
   differ more but offset within the spread.
 
