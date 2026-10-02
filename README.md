@@ -332,6 +332,10 @@ Run it after changing the code. The fake prices are not market data.
 ---
 
 ### 5.10 Monthly routine (paper or live trading)
+**Forward-test plan (3-Oct-2026):** 1 lot for 3–6 months with the default rules – ±2.5% 10-day filter, Monday
+~11:15–11:16 entry (~43 DTE), ~30Δ CE + PE sold, 300-pt hedges, exit at −100% / +50% of credit or 18 DTE, and a
+noted (not acted on) check of the condor at 15:16 on every 1% gap-up day. Later: same rules with 400-pt hedges.
+
 The project only reads historical data – it never places orders. Each month:
 
 1. **Evening before the planned entry (42–45 DTE):** check the 10-day trend filter – NIFTY's

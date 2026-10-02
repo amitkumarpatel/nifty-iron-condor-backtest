@@ -178,8 +178,14 @@ Action items:
    `git push` in the user's Terminal; never ask for or handle the token.
 6. Review the summary web page (link above).
 7. Returns (~₹11.6k/yr with filter) are far below the 1–1.5%/month target – sizing is the user's call.
-8. Forward test (decided 2-Oct-2026): 300-pt hedges + ±2.5% 10-day filter, gap-up exit OFF but shadow-logged
-   (note condor P&L at 15:16 on every day NIFTY opens >= 1% higher). Record bid/ask/fills/margin per leg.
+8. FORWARD-TEST PLAN (user's conclusion, 3-Oct-2026), 1 lot, 3–6 months:
+   - Skip the month if |NIFTY 10-day move| > 2.5% (close before entry vs close 10 trading days earlier).
+   - Monday ~11:15–11:16 entry, ~43 DTE (Tuesday expiries), next-month expiry.
+   - Sell ~30Δ CE + PE, buy hedges 300 pts further out (fallback rule if a strike has no price).
+   - Exit all legs at the 15:16 check: SL −100% of credit, TP +50%, else time exit at expiry − 18 days.
+   - CE-side risk: on any day NIFTY opens >= 1% higher, check and note the condor P&L at 15:16 (gap-up
+     exit stays OFF in the engine; shadow-log only). Record bid/ask/fills/margin per leg.
+   - Later: same rules with 400-pt hedges (backtest ₹83,114 / DD −₹9,814; with gap-up exit ₹88,148 / −₹6,976).
 9. NEW (2-Oct-2026): partial automation in Zerodha + trade journal. Planned scope, in order:
    a. Signal helper (read-only): evening check of the 10-day move, entry-day strike picks (~30Δ sold,
       300-pt hedges, fallback rule), stop/target levels, 18-DTE exit date, daily 15:16 P&L check and
