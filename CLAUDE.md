@@ -133,6 +133,9 @@ Built into the engine as an optional rule, OFF by default (engine reproduces the
 Asymmetric hedges tested 2-Oct-2026, not adopted (IC_HEDGE_WIDTH_CE/PE): with ±2.5% filter CE300/PE400
 ₹72,533 / DD −₹10,935, CE400/PE300 ₹70,920 / −₹11,123 vs 300/300 ₹66,052 / −₹7,527 and 400/400 ₹83,114 / −₹9,814.
 Wide side adds ~100 pts risk for ~17 pts credit (max loss ≈237 pts > 400/400's 219); trade 11 −₹635 → SL −₹8,584.
+Close-one-side rule tested 2-Oct-2026, not adopted: close the call or put spread when it alone loses >= X% of
+total credit. 300-pt with filter: X=40–100% gives ₹16.8k–₹57.7k (vs ₹66.1k) and DD −₹9.0k to −₹16.0k (vs −₹7.5k);
+tested side usually recovers, remaining side gets hit on the reversal (60%: 6 helped +₹11.3k, 11 hurt −₹45.3k).
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,

@@ -482,6 +482,14 @@ The project only reads historical data – it never places orders. Each month:
   of risk while only ~17 pts of credit, so the worst case (≈ 237 pts) is bigger than even 400/400.
   The side that gets tested loses more – e.g. trade 11 (Nov-2021 fall): 300/300 −₹635 at the time exit,
   CE300/PE400 stopped out at −₹8,584. Both mixes are also weaker than 300/300 in 2021–23.
+- **Close only the side under pressure** (tested 2-Oct-2026, not adopted). At the 15:16 check, if the call or
+  put spread alone has lost ≥ X% of the total credit, close that spread and keep the other side; target,
+  stop and time exit still apply to the whole trade. With the ±2.5% filter (300-pt): no rule ₹66,052 /
+  DD −₹7,527; X = 40% ₹16,846 / −₹11,494; 50% ₹30,747 / −₹12,400; 60% ₹32,013 / −₹9,011; 70% ₹20,641 /
+  −₹15,988; 80% ₹37,429 / −₹12,803; 100% ₹57,704 / −₹9,777. 400-pt hedges: same pattern. It trims the
+  worst loss (to about −₹4.3k at 60%) but the tested side usually recovers after the close, and the
+  remaining side then gets hit on the reversal (e.g. trade 61 +₹4,814 → −₹3,712, trade 51 +₹3,900 →
+  −₹4,344). At 60%: 6 trades helped (+₹11.3k), 11 hurt (−₹45.3k).
 - Breeze vs StockMock prices: net credit typically within ~1.5 points; single deep-ITM legs can
   differ more but offset within the spread.
 
