@@ -19,6 +19,9 @@ def load_inputs(trade_ids=None):
     trades = pd.read_csv(C.TRADES_CSV, parse_dates=["entry_date", "expiry", "ref_exit_date"])
     trades["qty"] = [lot_size(e.date()) for e in trades.expiry]
     legs = pd.read_csv(C.LEGS_CSV)
+    if C.ENTRY_SHIFT_DAYS:
+        trades["entry_date"] = [pd.Timestamp(shift_entry(d.date(), C.ENTRY_SHIFT_DAYS)) for d in trades.entry_date]
+        legs[["entry_px", "exit_px"]] = float("nan")          # StockMock prices are for the original day
     legs = apply_strike_set(legs)
     legs = apply_hedge_width(legs)
     legs["key"] = [contract_key(e, k, t) for e, k, t in zip(legs.expiry, legs.strike, legs.opt_type)]
@@ -26,6 +29,13 @@ def load_inputs(trade_ids=None):
         trades = trades[trades.trade_id.isin(trade_ids)]
         legs = legs[legs.trade_id.isin(trade_ids)]
     return trades, legs
+
+
+def shift_entry(day: date, days: int) -> date:
+    """`day` + `days` calendar days, moved forward to the next trading day if needed."""
+    target = day + timedelta(days=days)
+    cal = load_calendar(target, target + timedelta(days=10))
+    return cal[0] if cal else target
 
 
 def lot_size(expiry: date) -> int:

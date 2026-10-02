@@ -70,6 +70,10 @@ def main():
     summary_text = [str(c.value) for row in openpyxl.load_workbook(tmp / "output" / "smoke_gapup.xlsx")["Summary"].iter_rows()
                     for c in row if c.value is not None]
     assert any("Gap-up exit: ON" in t for t in summary_text), "gap-up exit note missing from the report"
+    env9 = dict(env, IC_ENTRY_SHIFT="2")
+    run([sys.executable, "download.py", "--trades", "9", "62"], env9)
+    out9 = run([sys.executable, "backtest.py", "--trades", "9", "62", "--out", str(tmp / "output" / "smoke_wed.xlsx")], env9)
+    assert "Entry shifted 2" in "".join(str(c.value) for r in openpyxl.load_workbook(tmp / "output" / "smoke_wed.xlsx")["Summary"].iter_rows() for c in r), out9
     out5 = run([sys.executable, "select_strikes.py", "--ce-delta", "0.25", "--name", "smoke", "--trades", "9", "62"], env)
     assert (tmp / "data" / "strike_sets" / "strikes_smoke.csv").exists(), out5
     env5 = dict(env, IC_STRIKE_SET="smoke")

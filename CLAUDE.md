@@ -139,6 +139,9 @@ tested side usually recovers, remaining side gets hit on the reversal (60%: 6 he
 Lock-in-profit tested 2-Oct-2026, not adopted: fixed floor (arm A%, exit at B%) and trailing (T% below peak).
 Max DD unchanged in every variant (−₹7,527 / −₹9,814). Best 300-pt arm 25%/floor 5% ₹73,722 (+₹7.7k, 5 exits,
 mostly trade 67); neighbours mixed (arm 20/floor 10 ₹59.4k, arm 30/floor 10 ₹63.2k). Too few exits to trust.
+Entry-day test set up 2-Oct-2026 (IC_ENTRY_SHIFT=2 Wed / 4 Fri; strike sets d30_s0/d30_s2/d30_s4 = ~30Δ CE+PE
+chosen on that day by select_strikes.py --ce-delta 0.30 --pe-delta 0.30 --range 200 --closer 4). Entries were
+Monday for 65/67 trades; only trades from Sep-2025 (12) had Tuesday weekly expiries (Thursday before).
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,

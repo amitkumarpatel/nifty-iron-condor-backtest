@@ -351,6 +351,8 @@ def main():
         f"time exit on last trading day on/before expiry-{C.EXIT_DTE} (holidays and Muhurat sessions skipped).",
         (f"Entry filter: skip if |NIFTY {C.TREND_LOOKBACK_DAYS}-day move| > {C.SKIP_IF_10D_MOVE_PCT}% at the prior close "
          f"({len(skipped)} trades skipped, see Skipped sheet)." if C.SKIP_IF_10D_MOVE_PCT is not None else "Entry filter: off."),
+        (f"Entry shifted {C.ENTRY_SHIFT_DAYS} calendar days after StockMock's entry (experiment)."
+         if C.ENTRY_SHIFT_DAYS else "Entry: StockMock's entry dates."),
         (f"Gap-up exit: ON - exit at {C.CHECK_TIME} on a day NIFTY opens >= {C.GAP_UP_EXIT_PCT}% above the previous close."
          if C.GAP_UP_EXIT_PCT is not None else "Gap-up exit: off (IC_GAP_UP_EXIT=1.0 to test)."),
         "Sizing: 1 lot at each expiry's NIFTY lot size (config.LOT_SIZES).",

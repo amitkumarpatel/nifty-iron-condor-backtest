@@ -48,6 +48,12 @@ TREND_LOOKBACK_DAYS  = 10
 GAP_UP_EXIT_PCT = (None if os.environ.get("IC_GAP_UP_EXIT", "off").lower() == "off"
                    else float(os.environ["IC_GAP_UP_EXIT"]))
 
+# ---- entry-day experiments ----
+# Shift every entry this many calendar days after StockMock's entry (Monday): 2 = Wednesday, 4 = Friday.
+# A non-trading day moves to the next trading day. Shifted entries have no StockMock prices, so pair it
+# with a delta-based strike set (select_strikes.py) chosen on the shifted day. IC_ENTRY_SHIFT=2 per run.
+ENTRY_SHIFT_DAYS = int(os.environ.get("IC_ENTRY_SHIFT", 0))
+
 # ---- delta-based strike sets (python select_strikes.py; IC_STRIKE_SET=<name> to use one) ----
 STRIKE_SET     = os.environ.get("IC_STRIKE_SET", "")   # "" = StockMock's sold strikes
 STRIKE_SETS_DIR = DATA_DIR / "strike_sets"             # strikes_<name>.csv: trade_id, opt_type, strike
