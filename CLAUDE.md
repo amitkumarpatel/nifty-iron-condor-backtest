@@ -157,3 +157,15 @@ Action items:
    `git push` in the user's Terminal; never ask for or handle the token.
 6. Review the summary web page (link above).
 7. Returns (~₹11.6k/yr with filter) are far below the 1–1.5%/month target – sizing is the user's call.
+8. Forward test (decided 2-Oct-2026): 300-pt hedges + ±2.5% 10-day filter, gap-up exit OFF but shadow-logged
+   (note condor P&L at 15:16 on every day NIFTY opens >= 1% higher). Record bid/ask/fills/margin per leg.
+9. NEW (2-Oct-2026): partial automation in Zerodha + trade journal. Planned scope, in order:
+   a. Signal helper (read-only): evening check of the 10-day move, entry-day strike picks (~30Δ sold,
+      300-pt hedges, fallback rule), stop/target levels, 18-DTE exit date, daily 15:16 P&L check and
+      gap-up flag – alerts only.
+   b. Journal: one row per trade/leg (planned vs actual price, bid/ask, slippage, margin, exit reason,
+      gap-up shadow result), comparable with export_prices.py output.
+   c. Order assistance (later, only if the user asks): prepare the 4-leg order for the user to confirm
+      in Kite; never place, modify or cancel orders without explicit per-order confirmation. Hedges
+      (buy legs) first, sold legs second; limit orders. Check Kite Connect API terms/costs first.
+   Keep it separate from the backtest code (e.g. a live/ package) and keep secrets in .env.
