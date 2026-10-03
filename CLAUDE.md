@@ -27,6 +27,13 @@ Full user documentation: README.md. All settings: `ic/config.py`.
   above the bought call (all 7 losses) had a >= 1% gap-up first; with the gap-up exit max DD −₹7.5k → −₹5.5k and
   profit ₹66,052 → ₹68,023 (300-pt, filter). Late warning: NIFTY closing above the bought call (trades 30, 52 had no gap).
 
+## Key lessons (user asked 3-Oct-2026 to keep these as notes – do not re-test; full list in README §1a)
+- Call side: once NIFTY closes above the bought call the trade loses – 7/7 (with filter 4/4). 1% gap-up is the early
+  warning (5 of those 7). Gap-up exit: 300-pt ₹68,023 / −₹5,523; 400-pt ₹88,148 / −₹6,976.
+- Put side: no rule separates losers from winners (sold put crossed → 20/28 still profit); put-side exits double the DD.
+- 400-pt hedges = more profit with a bigger drawdown (₹83,114 / −₹9,814 vs ₹66,052 / −₹7,527); gap-up exit helps both.
+- When a test is finished, add its conclusion to README §1a/§7 so the user does not repeat it.
+
 ## Decisions already made (with the user)
 - Price rule: exact-minute candle close. Fallback: last traded candle earlier that day
   (FFILL/STALE), then first candle after (AFTER), flagged in Data_Quality. Entry leg with no

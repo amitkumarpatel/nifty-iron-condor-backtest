@@ -66,6 +66,41 @@ Order of checks each day: stop-loss → target → time exit.
 
 ---
 
+## 1a. Key lessons – read before testing anything new
+
+All figures: Monday 11:16 entry, ~30Δ sold legs, 18-DTE exit, 50% target, 100% stop, net of costs, Feb-2021 to
+Sep-2026. Details and tables for each point are in §7.
+
+**The three things to remember**
+
+1. **Call side: once NIFTY closes above the bought call (the hedge), the trade is a loser.** 7 of 7 such trades
+   ended in a loss (−₹32.9k); with the ±2.5% filter 4 of 4 (−₹18.0k). A 1% gap-up is the *early* warning – it came
+   first in 5 of those 7. The other 2 (trades 30, 52) were slow rallies with no gap.
+2. **Put side: no rule separates losers from winners.** After NIFTY closed below the sold put, 20 of 28 trades
+   still ended in profit; below the bought put it was 8 of 16. Every put-side exit tested roughly doubled the
+   drawdown. Falls usually bounce – leave the put side to the stop-loss and the time exit.
+3. **400-pt hedges earn more with a bigger drawdown – same strategy, more risk.** With the ±2.5% filter:
+   300-pt ₹66,052 / max DD −₹7,527; 400-pt ₹83,114 / −₹9,814 (worst case per condor ≈ 154 vs 219 points). The 1%
+   gap-up exit helps both: 300-pt ₹68,023 / −₹5,523; 400-pt ₹88,148 / −₹6,976.
+
+**Already tested – no need to repeat**
+
+| Idea | Result |
+|---|---|
+| ±2.5% 10-day filter | **Adopted.** ₹47.3k / −₹11.9k → ₹66.1k / −₹7.5k. ±3% is next best; ±2.75% and ±4% worse. The up-move (call) side does the work; only 3 trades ever started after a > 2.5% fall |
+| 1% gap-up exit at 15:16 | **Helps** (optional, off by default). Gap-*down* exits are harmful |
+| Exit when NIFTY closes above the bought call | Small help alone; adds nothing once the gap-up exit is on |
+| Exit day | 18–20 DTE best; 15–17 and 21+ worse |
+| Stop-loss 50–80%, target 40–60% | All worse than 100% / 50% |
+| Hedge width 200 / 300 / 400, mixed call/put widths | Same profit ÷ drawdown (≈ 8–9); mixed widths have the worst drawdown |
+| 25-delta call | Mixed; thin strikes; not adopted |
+| VIX filters, 5/20-day moves, 50/200-day averages, range, credit size | No reliable signal |
+| Election / Budget / US-election filters | Elections: judgement call only. Budget months were all winners – never skip them |
+| Shift strikes with the trend, close only the tested side, lock in profit | All worse or no drawdown benefit |
+| Entry day | Monday 11:16 best. Wednesday much worse. Previous-Friday 15:16 roll ≈ Monday only with the filter on live NIFTY, and it does not work with the gap-up exit |
+
+---
+
 ## 2. Project structure
 
 ```
