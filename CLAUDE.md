@@ -23,6 +23,9 @@ Full user documentation: README.md. All settings: `ic/config.py`.
   2.5% at the close before entry (`SKIP_IF_10D_MOVE_PCT`, `IC_TREND_FILTER=off` to disable). No other filters.
 - Optional gap-up exit (built in 2-Oct-2026, OFF by default, `GAP_UP_EXIT_PCT` / `IC_GAP_UP_EXIT=1.0`): exit all
   legs at 15:16 on a day NIFTY opens >= 1% above the prior close (not the entry day). User's call to switch on.
+- NOTE (user, 3-Oct-2026): a 1% gap-up is the early call-side warning – 5 of the 7 trades where NIFTY later closed
+  above the bought call (all 7 losses) had a >= 1% gap-up first; with the gap-up exit max DD −₹7.5k → −₹5.5k and
+  profit ₹66,052 → ₹68,023 (300-pt, filter). Late warning: NIFTY closing above the bought call (trades 30, 52 had no gap).
 
 ## Decisions already made (with the user)
 - Price rule: exact-minute candle close. Fallback: last traded candle earlier that day

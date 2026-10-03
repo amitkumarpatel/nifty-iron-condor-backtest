@@ -57,6 +57,13 @@ You only need a new session token (`python login_url.py`) for commands that call
 
 Order of checks each day: stop-loss → target → time exit.
 
+> **Note – 1% gap-up is an early warning (call side).** In 5 of the 7 trades where NIFTY later closed above
+> the bought call – all 7 ended in a loss – NIFTY had first opened ≥ 1% above the previous close, 10 days to
+> 3 weeks earlier. Exiting at the 15:16 check on such a gap-up day reduced the max drawdown from −₹7.5k to
+> −₹5.5k and raised net profit from ₹66,052 to ₹68,023 (300-pt hedges, ±2.5% filter). The other 2 (trades 30,
+> 52) were slow rallies with no 1% gap; there the late warning is NIFTY closing above the bought call.
+> The rule is built in but **off by default** (`IC_GAP_UP_EXIT=1.0`); in the forward test it is noted, not acted on.
+
 ---
 
 ## 2. Project structure
