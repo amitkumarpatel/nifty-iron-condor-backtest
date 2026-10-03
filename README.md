@@ -534,6 +534,14 @@ The project only reads historical data – it never places orders. Each month:
   −₹8,529 (trade 62 comes back). Removing trade 62 by hindsight makes CE 3% / PE 2.5% look best (₹71,045 / −₹7,243),
   but with the 1% gap-up exit applied to every trade both are equal (₹68,023 vs ₹68,159, DD −₹5,523), and a gap
   exit in both directions makes CE 3% worse (₹57,045 / −₹8,993). Kept 2.5% on both sides.
+- **What happens after NIFTY crosses a strike** (3-Oct-2026, 300-pt hedges, all 66 trades, NIFTY daily close):
+  - CE **hedge** crossed (close ≥ bought call): 7 trades, **all 7 ended in loss** (−₹32.9k; trades 8, 15, 19, 22, 30,
+    35, 52). CE **sold** strike crossed: 20 trades, 15 losses / 5 profits.
+  - PE sold strike crossed: 28 trades, 20 ended in **profit**; PE hedge crossed: 16 trades, 8 profit / 8 loss –
+    falls usually recover, so there is no usable put-side exit point.
+  - Exit when NIFTY closes ≥ bought call (call side only), with the ±2.5% filter: ₹66,879 / DD −₹5,997 / worst
+    −₹5,523 vs ₹66,052 / −₹7,527 / −₹7,243 – same profit, smaller drawdown (4 exits). Exiting already at the sold
+    call costs ≈ ₹12k (trades that recover, e.g. 51, 58). Any put-side exit roughly doubles the drawdown.
 - Breeze vs StockMock prices: net credit typically within ~1.5 points; single deep-ITM legs can
   differ more but offset within the spread.
 

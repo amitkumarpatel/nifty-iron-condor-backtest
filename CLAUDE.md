@@ -158,6 +158,10 @@ gap-up 1%: CE2.5/PE2.5 ₹68,023/−₹5,523 vs CE3/PE2.5 ₹68,159/−₹5,523 
 Hedge width with ±2.5% filter (3-Oct-2026, output/IC_backtest_hedge200.xlsx): 200-pt ₹41,596 / DD −₹5,127 / worst −₹4,695 /
 max loss ≈96 pts; 300-pt ₹66,052 / −₹7,527 / −₹7,243 / 154 pts; 400-pt ₹83,114 / −₹9,814 / −₹9,814 / 219 pts. Profit÷DD ≈ 8–9
 for all three; 0.5-pt slippage: 200 ₹31.8k, 300 ₹56.5k, 400 ₹73.8k.
+Strike-cross study (3-Oct-2026, 300-pt, 66 trades): CE hedge crossed → 7/7 losses; CE sold crossed → 15/20 losses; PE sold
+crossed → 20/28 profits; PE hedge crossed → 8/16 profits. Call-side exit at NIFTY close >= bought CE (with filter):
+₹66,879 / DD −₹5,997 / worst −₹5,523 (base ₹66,052 / −₹7,527); exit at sold CE costs ≈₹12k; PE-side exits double the DD.
+Candidate adjustment (not adopted): exit when NIFTY closes above the CE hedge.
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,
