@@ -66,10 +66,11 @@ def main():
                 "--out", str(tmp / "output" / "smoke_prices.xlsx")], env)
     assert (tmp / "output" / "smoke_prices.xlsx").exists(), out7
     out8 = run([sys.executable, "backtest.py", "--trades", "1", "9", "23", "62", "67",
-                "--out", str(tmp / "output" / "smoke_gapup.xlsx")], dict(env, IC_GAP_UP_EXIT="1.0"))
+                "--out", str(tmp / "output" / "smoke_gapup.xlsx")], dict(env, IC_GAP_UP_EXIT="1.0", IC_CE_BREACH_EXIT="hedge"))
     summary_text = [str(c.value) for row in openpyxl.load_workbook(tmp / "output" / "smoke_gapup.xlsx")["Summary"].iter_rows()
                     for c in row if c.value is not None]
     assert any("Gap-up exit: ON" in t for t in summary_text), "gap-up exit note missing from the report"
+    assert any("Call-side breach exit: ON" in t for t in summary_text), "CE breach exit note missing from the report"
     env9 = dict(env, IC_ENTRY_SHIFT="2")
     run([sys.executable, "download.py", "--trades", "9", "62"], env9)
     out9 = run([sys.executable, "backtest.py", "--trades", "9", "62", "--out", str(tmp / "output" / "smoke_wed.xlsx")], env9)

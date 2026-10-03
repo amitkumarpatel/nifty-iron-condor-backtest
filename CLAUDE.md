@@ -162,6 +162,9 @@ Strike-cross study (3-Oct-2026, 300-pt, 66 trades): CE hedge crossed → 7/7 los
 crossed → 20/28 profits; PE hedge crossed → 8/16 profits. Call-side exit at NIFTY close >= bought CE (with filter):
 ₹66,879 / DD −₹5,997 / worst −₹5,523 (base ₹66,052 / −₹7,527); exit at sold CE costs ≈₹12k; PE-side exits double the DD.
 Candidate adjustment (not adopted): exit when NIFTY closes above the CE hedge.
+Built in as optional `CE_BREACH_EXIT_PTS` / `IC_CE_BREACH_EXIT=hedge` (off by default). Combination test: 300-pt + filter –
+gap-up ₹68,023/−₹5,523; CE cross ₹66,898/−₹6,018; both ₹67,989/−₹5,523 (CE cross redundant once gap-up is on; fires once,
+trade 30). 400-pt: gap-up ₹88,148/−₹6,976; CE cross alone ₹81,190/−₹9,814; both = gap-up. Gap-up remains the one useful exit.
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,

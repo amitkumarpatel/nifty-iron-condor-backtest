@@ -96,6 +96,16 @@ def nifty_gap_pct(day) -> float:
     return _nifty_gaps().get(day, 0.0)
 
 
+@lru_cache(maxsize=1)
+def _nifty_closes() -> dict:
+    f = Path(C.INDEX_DAILY["NIFTY"])
+    if not f.exists():
+        raise SystemExit(f"{f} not found - run `python download.py --index` (needed by the call-side breach exit), "
+                         "or set IC_CE_BREACH_EXIT=off.")
+    n = pd.read_csv(f, parse_dates=["date"])
+    return {d.date(): v for d, v in zip(n.date, n.close)}
+
+
 def bad_hedge(px, pairs):
     """True if a bought leg is priced at or above the sold leg of the same type - impossible for a
     further out-of-the-money option, so one of the two prints is a stray illiquid trade."""
@@ -109,6 +119,10 @@ def run_trade(t, tlegs, cal):
     sign = {r.key: (1 if r.side == "SELL" else -1) for r in tlegs.itertuples()}
     by = {(r.side, r.opt_type): r.key for r in tlegs.itertuples()}
     pairs = [(by["SELL", o], by["BUY", o]) for o in ("CE", "PE") if ("SELL", o) in by and ("BUY", o) in by]
+    strikes = {(r.side, r.opt_type): float(r.strike) for r in tlegs.itertuples()}
+    ce_breach = None                                   # NIFTY level that triggers the call-side breach exit
+    if C.CE_BREACH_EXIT_PTS is not None and ("SELL", "CE") in strikes:
+        ce_breach = strikes["BUY", "CE"] if C.CE_BREACH_EXIT_PTS == "hedge" else strikes["SELL", "CE"] + C.CE_BREACH_EXIT_PTS
     dq = []
 
     # ---- entry ----
@@ -168,6 +182,8 @@ def run_trade(t, tlegs, cal):
             action = "TARGET"
         elif C.GAP_UP_EXIT_PCT is not None and d > entry_day and nifty_gap_pct(d) >= C.GAP_UP_EXIT_PCT:
             action = "GAP_UP"
+        elif ce_breach is not None and d > entry_day and _nifty_closes().get(d, 0) >= ce_breach:
+            action = "CE_BREACH"
         elif d == tx_day:
             action = "TIME"
         else:
@@ -334,6 +350,7 @@ def main():
         "Exits - TARGET": (tr.exit_reason == "TARGET").sum(),
         "Exits - STOPLOSS": (tr.exit_reason == "STOPLOSS").sum(),
         "Exits - GAP_UP": (tr.exit_reason == "GAP_UP").sum(),
+        "Exits - CE_BREACH": (tr.exit_reason == "CE_BREACH").sum(),
         "Exits - TIME": (tr.exit_reason == "TIME").sum(),
         "Max concurrent positions": max_concurrent(tr),
         "Total costs (Rs)": tr.costs.sum(),
@@ -355,6 +372,9 @@ def main():
          if C.ENTRY_SHIFT_DAYS else "Entry: StockMock's entry dates."),
         (f"Gap-up exit: ON - exit at {C.CHECK_TIME} on a day NIFTY opens >= {C.GAP_UP_EXIT_PCT}% above the previous close."
          if C.GAP_UP_EXIT_PCT is not None else "Gap-up exit: off (IC_GAP_UP_EXIT=1.0 to test)."),
+        (f"Call-side breach exit: ON - exit at {C.CHECK_TIME} when NIFTY closes at/above "
+         + ("the bought CE strike." if C.CE_BREACH_EXIT_PTS == "hedge" else f"sold CE + {C.CE_BREACH_EXIT_PTS:g} pts.")
+         if C.CE_BREACH_EXIT_PTS is not None else "Call-side breach exit: off (IC_CE_BREACH_EXIT=hedge to test)."),
         "Sizing: 1 lot at each expiry's NIFTY lot size (config.LOT_SIZES).",
         "April-2026 expiry cycle not traded (no StockMock data) - not in the reference list.",
         "Max drawdown uses trades in entry order, like StockMock.",

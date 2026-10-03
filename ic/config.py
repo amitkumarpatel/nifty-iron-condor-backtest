@@ -47,6 +47,11 @@ TREND_LOOKBACK_DAYS  = 10
 # None = off. Per run: IC_GAP_UP_EXIT=1.0 (or off).
 GAP_UP_EXIT_PCT = (None if os.environ.get("IC_GAP_UP_EXIT", "off").lower() == "off"
                    else float(os.environ["IC_GAP_UP_EXIT"]))
+# Optional call-side breach exit (tested 3-Oct-2026, OFF by default): exit all legs at CHECK_TIME on a day NIFTY
+# closes at or above sold CE strike + this many points (300 = the hedge strike with 300-pt hedges; 0 = sold strike).
+# Uses the daily close in data/nifty_daily.csv (live: NIFTY at 15:16). "hedge" = the bought CE strike.
+_ce = os.environ.get("IC_CE_BREACH_EXIT", "off").lower()
+CE_BREACH_EXIT_PTS = None if _ce == "off" else ("hedge" if _ce == "hedge" else float(_ce))
 
 # ---- entry-day experiments ----
 # Shift every entry this many calendar days from StockMock's entry (Monday): 2 = Wednesday, -3 = previous Friday.

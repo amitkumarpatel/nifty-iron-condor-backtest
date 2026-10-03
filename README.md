@@ -198,6 +198,7 @@ Permanent changes go in `ic/config.py`.
 | `IC_HEDGE_WIDTH_CE`, `IC_HEDGE_WIDTH_PE` | = `IC_HEDGE_WIDTH` | different call / put hedge widths (e.g. CE 300, PE 400) |
 | `IC_FALLBACK` | on | `off` disables the fallback strikes |
 | `IC_GAP_UP_EXIT` | `off` | e.g. `1.0`: exit at 15:16 on a day NIFTY opens ≥ 1% above the previous close |
+| `IC_CE_BREACH_EXIT` | `off` | `hedge` (or points above the sold call, e.g. `300`): exit at 15:16 on a day NIFTY closes at/above that level |
 | `IC_STRIKE_SET` | – | use strikes from `data/strike_sets/strikes_<name>.csv` (select_strikes.py) |
 | `IC_ENTRY_SHIFT` | `0` | experiment: shift the entry N calendar days from StockMock's Monday (2 = Wednesday, −3 = previous Friday; holidays move forward / back). Use with a strike set chosen on that day |
 | `IC_ENTRY_TIME` | `11:16` | entry time, e.g. `15:16` for the Friday roll test (exit old and enter new at the same check) |
@@ -542,6 +543,10 @@ The project only reads historical data – it never places orders. Each month:
   - Exit when NIFTY closes ≥ bought call (call side only), with the ±2.5% filter: ₹66,879 / DD −₹5,997 / worst
     −₹5,523 vs ₹66,052 / −₹7,527 / −₹7,243 – same profit, smaller drawdown (4 exits). Exiting already at the sold
     call costs ≈ ₹12k (trades that recover, e.g. 51, 58). Any put-side exit roughly doubles the drawdown.
+  - Built in as an optional rule, off by default (`IC_CE_BREACH_EXIT=hedge`). Combined with the 1% gap-up exit it adds
+    nothing: 300-pt with filter – none ₹66,052 / −₹7,527; gap-up ₹68,023 / −₹5,523; call-hedge cross ₹66,898 /
+    −₹6,018; both ₹67,989 / −₹5,523. The gap-up exit closes the same rallies (35, 22, 15) earlier, leaving one extra
+    exit (trade 30, no gain). With 400-pt hedges the hedge is rarely reached (1 exit, slightly worse: ₹81,190).
 - Breeze vs StockMock prices: net credit typically within ~1.5 points; single deep-ITM legs can
   differ more but offset within the spread.
 
