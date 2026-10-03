@@ -151,6 +151,10 @@ Friday roll with the 10-day move on live 15:16 NIFTY (not prior close): ₹64,01
 was mainly the filter missing Friday's move (trades 50, 62).
 No filter: Monday 30Δ ₹45,814/−₹11,488 vs Friday roll ₹36,464/−₹12,011 (Friday better 2021–24, worse 2025–26).
 Filter + gap-up 1%: Monday 30Δ ₹65,679/−₹5,550 vs Friday roll ₹51,225/−₹7,458 (weekend gap-ups exit Friday trades on day 1).
+CE/PE split filter (3-Oct-2026): with trade 62, CE2.5/PE2.5 best (₹66,052/−₹7,527); CE3/PE2.5 ₹62,516/−₹8,529. Without
+trade 62 (hindsight) CE3/PE2.5 ₹71,045/−₹7,243 wins both periods (SM ₹67,407). Fair version – gap rule on ALL trades:
+gap-up 1%: CE2.5/PE2.5 ₹68,023/−₹5,523 vs CE3/PE2.5 ₹68,159/−₹5,523 (equal, 6 more trades); gap up-or-down 1%: CE3/PE2.5
+₹57,045/−₹8,993 (worse). PE-side limit only touches 3 trades (17, 46, 52). Kept 2.5/2.5.
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,

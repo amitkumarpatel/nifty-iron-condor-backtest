@@ -529,6 +529,11 @@ The project only reads historical data – it never places orders. Each month:
     −₹8,026); Friday 15:16 roll ₹51,225 / −₹7,458 (filter only ₹64,015 / −₹7,458). The gap-up exit suits Monday but
     hurts the Friday roll: weekend gap-ups trigger exits on the first Monday (trade 53 −₹3,795) and it trims more
     winners (12 hurt vs 3 helped). Monday + StockMock strikes + gap-up: ₹68,023 / −₹5,523.
+- **Separate CE / PE filter limits** (3-Oct-2026). Up-move (CE side) limit drives the result; only 3 trades ever
+  started after a 10-day fall > 2.5% (17, 46, 52). CE 2.5% / PE 2.5% ₹66,052 / −₹7,527; CE 3% / PE 2.5% ₹62,516 /
+  −₹8,529 (trade 62 comes back). Removing trade 62 by hindsight makes CE 3% / PE 2.5% look best (₹71,045 / −₹7,243),
+  but with the 1% gap-up exit applied to every trade both are equal (₹68,023 vs ₹68,159, DD −₹5,523), and a gap
+  exit in both directions makes CE 3% worse (₹57,045 / −₹8,993). Kept 2.5% on both sides.
 - Breeze vs StockMock prices: net credit typically within ~1.5 points; single deep-ITM legs can
   differ more but offset within the spread.
 
