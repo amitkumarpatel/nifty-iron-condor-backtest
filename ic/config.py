@@ -89,7 +89,36 @@ FALLBACK_HEDGE_EXTRA   = [50, 100]   # widen the hedge by this much (350/400 for
 EXTRA_HOLIDAYS = ["2026-09-14"]         # confirmed holidays, always removed from the calendar
 # Diwali Muhurat sessions (special ~1-hour session, no 15:16 candle). Treated as non-trading days:
 # no daily check and never a time-exit day. Add each new year's date once NSE announces it.
-MUHURAT_DAYS = ["2020-11-14", "2021-11-04", "2022-10-24", "2023-11-12", "2024-11-01", "2025-10-21"]
+MUHURAT_DAYS = ["2020-11-14", "2021-11-04", "2022-10-24", "2023-11-12", "2024-11-01", "2025-10-21", "2026-11-08"]
+# NSE trading holidays (F&O segment) for the forward-test calendar (entry and time-exit dates). Written by
+# `python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py holidays --write` from NSE's website - run it
+# each January (and after any special holiday announcement); do not edit the block by hand. The backtest does
+# not use it: its calendar comes from the days NIFTY actually traded.
+# NSE_HOLIDAYS_START
+# fetched from NSE on 2026-10-04 (FO segment, years [2026])
+NSE_HOLIDAYS = [
+    "2026-01-15",  # Thu Municipal Corporation Election - Maharashtra
+    "2026-01-26",  # Mon Republic Day
+    "2026-02-15",  # Sun Mahashivratri
+    "2026-03-03",  # Tue Holi
+    "2026-03-21",  # Sat Id-Ul-Fitr (Ramadan Eid)
+    "2026-03-26",  # Thu Shri Ram Navami
+    "2026-03-31",  # Tue Shri Mahavir Jayanti
+    "2026-04-03",  # Fri Good Friday
+    "2026-04-14",  # Tue Dr. Baba Saheb Ambedkar Jayanti
+    "2026-05-01",  # Fri Maharashtra Day
+    "2026-05-28",  # Thu Bakri Id
+    "2026-06-26",  # Fri Muharram
+    "2026-08-15",  # Sat Independence Day
+    "2026-09-14",  # Mon Ganesh Chaturthi
+    "2026-10-02",  # Fri Mahatma Gandhi Jayanti
+    "2026-10-20",  # Tue Dussehra
+    "2026-11-08",  # Sun Diwali Laxmi Pujan*
+    "2026-11-10",  # Tue Diwali-Balipratipada
+    "2026-11-24",  # Tue Prakash Gurpurb Sri Guru Nanak Dev
+    "2026-12-25",  # Fri Christmas
+]
+# NSE_HOLIDAYS_END
 
 # ---- Breeze API limits ----
 PAUSE_SEC        = float(os.environ.get("IC_PAUSE_SEC", 0.65))   # stays under 100 calls/min

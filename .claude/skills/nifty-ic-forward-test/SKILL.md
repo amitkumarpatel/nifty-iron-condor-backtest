@@ -38,7 +38,18 @@ Do not quote strategy numbers from memory. Take them from the `rules` output.
 python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py plan --expiry YYYY-MM-DD
 ```
 
-Shows the entry date and the time-exit date (expiry minus the configured exit DTE, moved back to the previous trading day on holidays, weekends and Muhurat sessions). The calendar only knows holidays listed in `ic/config.py`, so ask the user for any upcoming NSE holiday near the entry or exit date and pass each as `--holiday YYYY-MM-DD`.
+Shows the entry date and the time-exit date (expiry minus the configured exit DTE, moved back to the previous trading day on holidays, weekends and Muhurat sessions). The calendar uses the NSE holiday list in `ic/config.py` (`NSE_HOLIDAYS`). If `plan` warns that a year has no holiday list, refresh it first (below), or pass a known holiday as `--holiday YYYY-MM-DD`.
+
+Holiday list:
+
+```
+python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py holidays            # show NSE's list and what would change
+python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py holidays --write    # update NSE_HOLIDAYS in ic/config.py
+```
+
+It reads the F&O trading holidays from NSE's website. Run it without `--write` first and show the user the difference. `--write` edits `ic/config.py`, so do it only when the user agrees, then run `python tests/smoke_test.py` and commit. Refresh it each January (NSE publishes the next year's list in December) and after any special holiday announcement. A date NSE marks `*` is a Muhurat session: tell the user it must also be in `MUHURAT_DAYS`.
+
+Monthly expiries move to the previous trading day when the Tuesday is a holiday, so take the expiry date from NSE's listed expiries (the `strikes` command rejects a date that is not listed and prints the listed ones).
 
 The entry date is `ENTRY_DTE` calendar days before expiry (`ic/config.py`). NIFTY monthly expiries have been on Tuesday since Sep-2025, so the entry is 43 DTE: the Monday six weeks before expiry. If that Monday is a holiday, the entry moves to the next trading day (42 DTE). The old 42-45 DTE window belonged to Thursday expiries and is no longer used.
 
@@ -65,9 +76,23 @@ Always pass `--entry-date` so that only closes before the entry day are used, th
 
 ### 3. Entry at 11:16
 
-The user chooses the strikes. The rules call for ~30-delta sold CE and PE and bought legs `HEDGE_WIDTH` points further out, with the README fallback if a strike has no price. Help only with the following:
+The rules call for ~30-delta sold CE and PE and bought legs `HEDGE_WIDTH` points further out, with the README fallback if a strike has no price. The script works this out from NSE's option chain:
 
-- Use read-only Kite quotes if available to show bid, ask and LTP for all four legs. Otherwise ask the user for them.
+```
+python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py strikes --expiry YYYY-MM-DD --save journal/entry_quotes_N.csv
+```
+
+It prints the five strikes nearest 0.30 delta on each side (Black-Scholes delta from the bid-ask mid, the same method as the backtest's `select_strikes.py`), the four legs with bid and ask, the credit at those prices and at bid/ask, and the target, stop and maximum loss. If the hedge has no usable price it applies the README fallback and says so.
+
+Limits to state when reporting it:
+
+- NSE's website chain lags the market by a few minutes, and outside market hours it is the last snapshot (the script warns when it is more than 10 minutes old). Run it at about 11:16 on the entry day. Earlier runs are a preview only.
+- A strike flagged WIDE has an unreliable price and delta. Show the neighbouring strikes from the table so the user can prefer a liquid one.
+- The script points to the strikes the rules give. The user decides the strikes and confirms prices in the broker terminal.
+
+Then:
+
+- Use read-only Kite quotes if available to confirm bid, ask and LTP for all four legs. Otherwise use the script's output or ask the user.
 - Flag a hedge whose bid-ask spread is wide or whose price is at or above its sold leg (the README calls out BAD_PRICE and the slippage risk on the 300-pt hedges).
 - Write the trade row: strikes, `paper_px_*` (the paper fills, using the 11:16 prices), `bidask_*`, `filter_move_pct`.
 
@@ -114,5 +139,6 @@ Keep answers short and numeric. For a check, give: action, P&L in points and as 
 - The 10-day filter follows the README: last close before the entry day versus the close 10 trading days earlier, either direction. If the README definition changes, update `cmd_filter` in the script.
 - NSE's index file URL (`NSE_INDEX_URL` in the script) can change or be blocked. If the script falls back to the local CSV more than once, tell the user so the source can be fixed.
 - Today's NIFTY open for the gap-up log is not in NSE's file until the evening. Take it from a read-only Kite quote or ask the user.
-- `plan` treats weekdays as trading days except configured holidays, because `data/nifty_trading_days.csv` only covers past dates.
+- `plan` treats weekdays as trading days except the holidays in config (`NSE_HOLIDAYS`, `EXTRA_HOLIDAYS`, `MUHURAT_DAYS`), because `data/nifty_trading_days.csv` only covers past dates. A holiday announced after the last `holidays --write` is missed until it is refreshed.
+- NSE's holiday and option-chain addresses are unofficial website endpoints and can change or be blocked. If `holidays` or `strikes` fails, say so and fall back to NSE's holiday page or broker quotes; do not guess.
 - Forward-test sample sizes are tiny. One month proves nothing, so do not draw conclusions about the strategy from a single cycle.

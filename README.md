@@ -387,9 +387,15 @@ The project only reads historical data – it never places orders. Each month:
    `python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py plan --expiry YYYY-MM-DD` (entry and
    time-exit dates), then `... ic_tools.py filter --entry-date YYYY-MM-DD --show` (TRADE or SKIP).
    It falls back to `data/nifty_daily.csv` with a warning if NSE cannot be reached.
+   NSE holidays for the entry/exit dates are kept in `NSE_HOLIDAYS` (`ic/config.py`); refresh them each
+   January with `... ic_tools.py holidays --write` (reads the F&O holiday list from NSE's website). Monthly
+   expiries move to the previous trading day when the Tuesday is a holiday (Nov-2026 expiry = Mon 23-Nov).
    (`python download.py --index` then `python backtest.py` shows the same value as `nifty_10d_move_pct`
    once the trade is in the reference files.)
-2. **Entry at 11:16:** sell the ~30-delta CE and PE, buy the hedges 300 points further out. If a
+2. **Entry at 11:16:** sell the ~30-delta CE and PE, buy the hedges 300 points further out.
+   `... ic_tools.py strikes --expiry YYYY-MM-DD` reads NSE's option chain and prints the strikes nearest
+   30 delta, the four legs with bid/ask, the credit, target, stop and maximum loss (NSE's chain lags a few
+   minutes – confirm prices in the broker terminal). If a
    strike has no price, use the fallback rule (spread 50/100 points closer or further, else a
    350/400-point hedge).
 3. **Every day at 15:16:** exit all 4 legs at −100% of the credit (stop) or +50% (target).

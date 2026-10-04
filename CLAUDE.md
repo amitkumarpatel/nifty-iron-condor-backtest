@@ -241,3 +241,7 @@ Action items:
    check, export-ref; journal/ CSVs). `filter` reads NIFTY closes from NSE's daily index files
    (archives.nseindia.com/content/indices/ind_close_all_DDMMYYYY.csv; no login), falls back to data/nifty_daily.csv with a
    warning; `--closes-file` for Kite-connector data. Kite MCP: read-only tools only.
+   Added 4-Oct-2026: `holidays [--write]` (NSE F&O holiday list -> `NSE_HOLIDAYS` block in ic/config.py, forward-test calendar
+   only; refresh each January) and `strikes --expiry` (NSE option chain -> ~30Δ sold strikes, 300-pt hedges with the fallback
+   rule, bid/ask, credit, target/stop). NSE chain lags a few minutes; user confirms strikes and prices. 2026-11-08 (Sunday
+   Muhurat) added to MUHURAT_DAYS. Nov-2026 monthly expiry is Mon 23-Nov (24-Nov holiday) -> entry Mon 12-Oct-2026.
