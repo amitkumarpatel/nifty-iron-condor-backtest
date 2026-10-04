@@ -577,6 +577,9 @@ The project only reads historical data – it never places orders. Each month:
   −₹8,529 (trade 62 comes back). Removing trade 62 by hindsight makes CE 3% / PE 2.5% look best (₹71,045 / −₹7,243),
   but with the 1% gap-up exit applied to every trade both are equal (₹68,023 vs ₹68,159, DD −₹5,523), and a gap
   exit in both directions makes CE 3% worse (₹57,045 / −₹8,993). Kept 2.5% on both sides.
+  Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
+  −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
+  (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
 - **What happens after NIFTY crosses a strike** (3-Oct-2026, 300-pt hedges, all 66 trades, NIFTY daily close):
   - CE **hedge** crossed (close ≥ bought call): 7 trades, **all 7 ended in loss** (−₹32.9k; trades 8, 15, 19, 22, 30,
     35, 52). CE **sold** strike crossed: 20 trades, 15 losses / 5 profits.
