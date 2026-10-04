@@ -10,7 +10,9 @@ target ~1–1.5%/month, capital preservation first. Explain trading/code decisio
 Full user documentation: README.md. All settings: `ic/config.py`.
 
 ## Strategy rules (do not change without the user's explicit request)
-- Entry 42–45 DTE at 11:16 (close of the 1-min candle labelled 11:16); next-month expiry
+- Entry at 11:16 (close of the 1-min candle labelled 11:16); next-month expiry. Forward test: 43 DTE = the Monday six weeks
+  before a Tuesday expiry (`ENTRY_DTE`, `EXPIRY_WEEKDAY` in config, set 4-Oct-2026 at the user's request; next trading day if a
+  holiday). Backtest history was 42–45 DTE (Thursday expiries until Aug-2025). If NSE changes the expiry day, update both.
 - Sell ~30-delta CE + PE (strikes from StockMock report), buy 300 pts further out on both sides
   (`HEDGE_WIDTH`; was 200 = StockMock; changed 27-Sep-2026 at the user's request)
 - One combined check per day at 15:16 (close of candle labelled 15:16); no intraday monitoring
@@ -235,3 +237,7 @@ Action items:
       in Kite; never place, modify or cancel orders without explicit per-order confirmation. Hedges
       (buy legs) first, sold legs second; limit orders. Check Kite Connect API terms/costs first.
    Keep it separate from the backtest code (e.g. a live/ package) and keep secrets in .env.
+   Started 4-Oct-2026: skill `.claude/skills/nifty-ic-forward-test/` (SKILL.md + scripts/ic_tools.py: rules, filter, plan,
+   check, export-ref; journal/ CSVs). `filter` reads NIFTY closes from NSE's daily index files
+   (archives.nseindia.com/content/indices/ind_close_all_DDMMYYYY.csv; no login), falls back to data/nifty_daily.csv with a
+   warning; `--closes-file` for Kite-connector data. Kite MCP: read-only tools only.

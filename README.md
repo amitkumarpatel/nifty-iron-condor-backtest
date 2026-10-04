@@ -45,7 +45,7 @@ You only need a new session token (`python login_url.py`) for commands that call
 |---|---|
 | Underlying | NIFTY, next-month (monthly) expiry |
 | Entry filter | **Skip the month** if NIFTY moved more than **2.5%** (up or down) over the last **10 trading days**, measured at the close before entry (`SKIP_IF_10D_MOVE_PCT`, `TREND_LOOKBACK_DAYS`). Adopted 28-Sep-2026 – see §7 |
-| Entry | 42–45 DTE, **11:16** (close of the 1-minute candle labelled 11:16) |
+| Entry | **43 DTE** (the Monday six weeks before a Tuesday expiry; `ENTRY_DTE`, `EXPIRY_WEEKDAY`), **11:16** (close of the 1-minute candle labelled 11:16). Next trading day if that Monday is a holiday. Thursday expiries (before Sep-2025) were 42–45 DTE; if NSE changes the expiry day again, update both settings |
 | Legs | Sell ~30-delta CE and PE (strikes from the StockMock report); buy CE and PE **300 points** further out (`HEDGE_WIDTH`; StockMock used 200). Changed from 200 on 27-Sep-2026 – see §7 |
 | Check | Combined position checked **once a day at 15:16** – no intraday monitoring |
 | Target | P&L ≥ **50%** of initial credit → exit all 4 legs |
@@ -381,9 +381,13 @@ noted (not acted on) check of the condor at 15:16 on every 1% gap-up day. Later:
 
 The project only reads historical data – it never places orders. Each month:
 
-1. **Evening before the planned entry (42–45 DTE):** check the 10-day trend filter – NIFTY's
-   last close vs its close 10 trading days earlier. Beyond ±2.5% → skip the month.
-   (`python download.py --index` then `python backtest.py` shows it as `nifty_10d_move_pct`
+1. **Evening before the planned entry (43 DTE, the Monday six weeks before the Tuesday expiry):** check
+   the 10-day trend filter – NIFTY's last close vs its close 10 trading days earlier. Beyond ±2.5% → skip
+   the month. The forward-test helper does this from NSE's website, no Breeze login needed:
+   `python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py plan --expiry YYYY-MM-DD` (entry and
+   time-exit dates), then `... ic_tools.py filter --entry-date YYYY-MM-DD --show` (TRADE or SKIP).
+   It falls back to `data/nifty_daily.csv` with a warning if NSE cannot be reached.
+   (`python download.py --index` then `python backtest.py` shows the same value as `nifty_10d_move_pct`
    once the trade is in the reference files.)
 2. **Entry at 11:16:** sell the ~30-delta CE and PE, buy the hedges 300 points further out. If a
    strike has no price, use the fallback rule (spread 50/100 points closer or further, else a
@@ -461,7 +465,7 @@ The project only reads historical data – it never places orders. Each month:
 - **18 DTE in practice**: with Thursday expiries (to Aug-2025) expiry − 18 days is a Sunday, so the
   time exit is the Friday before (20 DTE). With Tuesday expiries (from Sep-2025) it is 18 DTE.
 - **Open positions**: with the 15-DTE exit two condors were often open together. With the 18-DTE
-  exit the old condor is closed before the next entry (42–45 DTE), so only **one** is open at a time.
+  exit the old condor is closed before the next entry (42–45 DTE in the backtest, 43 DTE going forward), so only **one** is open at a time.
 - **Stop-loss vs maximum loss**: with 300-pt hedges the credit is ≈ 145 pts, so the max possible
   loss is ≈ 155 pts per condor (200-pt hedges: credit ≈ 103, max loss ≈ 97). With daily-only checks
   a loss can exceed 1× credit.

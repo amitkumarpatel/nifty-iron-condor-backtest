@@ -1,0 +1,1 @@
+trade_id,entry_date,entry_time,expiry,sell_ce,buy_ce,sell_pe,buy_pe,lot_qty,paper_px_sell_ce,paper_px_buy_ce,paper_px_sell_pe,paper_px_buy_pe,bidask_sell_ce,bidask_buy_ce,bidask_sell_pe,bidask_buy_pe,filter_move_pct,exit_date,exit_reason,exit_px_sell_ce,exit_px_buy_ce,exit_px_sell_pe,exit_px_buy_pe,notes

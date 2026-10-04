@@ -26,6 +26,10 @@ PROBE_DIR    = OUTPUT_DIR / "probe"
 
 # ---- strategy rules ----
 ENTRY_TIME   = os.environ.get("IC_ENTRY_TIME", "11:16")   # close of the 1-minute candle labelled 11:16
+ENTRY_DTE    = 43           # forward test: enter this many calendar days before expiry = the Monday six weeks
+EXPIRY_WEEKDAY = "Tue"      # before a Tuesday monthly expiry (NIFTY expiries moved Thu -> Tue from Sep-2025; with
+                            # Thursday expiries the same Monday was 45 DTE). If NSE changes the expiry day again,
+                            # update both. The backtest takes its entry dates from the reference trades, not from here.
 CHECK_TIME   = "15:16"      # one combined-position check per day
 TP_FRACTION  = 0.50         # exit when P&L >= 50% of initial credit
 SL_FRACTION  = 1.00         # exit when loss >= 100% of initial credit
