@@ -140,6 +140,10 @@ close). With ±2.5% filter: 300-pt G=1.0% ₹68,023 / DD −₹5,523 (base ₹66
 −7.2k; G=0.75 much worse. Helps 2021–23 (₹14.2k→₹21.3k, DD −7.5k→−3.7k), slightly hurts 2024–26 (₹51.8k→₹46.7k).
 Key trades 35 (+₹6.3k), 22, 15; 10 small winners trimmed. Gap-DOWN exits are harmful (DD −12k to −16k).
 Built into the engine as an optional rule, OFF by default (engine reproduces the test exactly).
+Gap-up level by period (4-Oct-2026, 300-pt, filter; 2021–23 / 2024–26): base ₹14.2k / ₹51.8k; 1% ₹21.3k / ₹46.7k; 1.25%
+₹19.3k / ₹49.8k; 1.5% ₹19.2k / ₹49.6k. 1% costs 2024–26 ₹5.2k via trades 56 (gap 1.03%, −₹2.8k), 61 (4.69%, −₹1.9k), 43, 41;
+1.25% saves only 56 and 43. No 2024–26 loss avoided at any level. 1.25/1.5% lose the DD cut (trade 35: 1.09% gap 15-Nov-23
+→ −₹897; next gap 1.71% on 4-Dec → −₹6,933). 1% vs 1.25% hinges on trades 35 vs 56/3 – do not tune further; keep 1%.
 Asymmetric hedges tested 2-Oct-2026, not adopted (IC_HEDGE_WIDTH_CE/PE): with ±2.5% filter CE300/PE400
 ₹72,533 / DD −₹10,935, CE400/PE300 ₹70,920 / −₹11,123 vs 300/300 ₹66,052 / −₹7,527 and 400/400 ₹83,114 / −₹9,814.
 Wide side adds ~100 pts risk for ~17 pts credit (max loss ≈237 pts > 400/400's 219); trade 11 −₹635 → SL −₹8,584.

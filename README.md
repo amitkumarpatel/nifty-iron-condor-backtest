@@ -88,7 +88,7 @@ Sep-2026. Details and tables for each point are in §7.
 | Idea | Result |
 |---|---|
 | ±2.5% 10-day filter | **Adopted.** ₹47.3k / −₹11.9k → ₹66.1k / −₹7.5k. ±3% is next best; ±2.75% and ±4% worse. The up-move (call) side does the work; only 3 trades ever started after a > 2.5% fall |
-| 1% gap-up exit at 15:16 | **Helps** (optional, off by default). Gap-*down* exits are harmful |
+| 1% gap-up exit at 15:16 | **Helps** (optional, off by default). Gap-*down* exits are harmful. 1.25%/1.5% give ≈ same profit, keep more of 2024–26 (+₹3k) but lose the drawdown cut (−₹7.2k, trade 35) |
 | Exit when NIFTY closes above the bought call | Small help alone; adds nothing once the gap-up exit is on |
 | Exit day | 18–20 DTE best; 15–17 and 21+ worse |
 | Stop-loss 50–80%, target 40–60% | All worse than 100% / 50% |
@@ -509,6 +509,13 @@ The project only reads historical data – it never places orders. Each month:
     −₹3,654 → +₹528, trade 15 −₹3,347 → −₹369), 10 trimmed winners (−₹11.7k). Same number of trades,
     so no extra slippage. Every year positive (2022: −₹3,307 → +₹1,477; 2023: ₹5,447 → ₹11,793).
   - Without the trend filter it also helps: 300-pt ₹47,298 / −₹11,860 → ₹58,874 / −₹5,874.
+  - Gap level 1% vs 1.25% vs 1.5% by period (4-Oct-2026, 300-pt, filter; base 2021–23 ₹14,203 / 2024–26 ₹51,849):
+    1% ₹21,333 / ₹46,689; 1.25% ₹19,270 / ₹49,803; 1.5% ₹19,150 / ₹49,648. In 2024–26 the 1% rule made 5 exits
+    (−₹5,160): trade 56 ₹5,631 → ₹2,843 (gap 1.03%) and trade 43 ₹1,475 → ₹1,149 (1.24%) are saved by 1.25%;
+    trade 61 ₹4,814 → ₹2,901 (4.69% gap) and trade 41 (3.58%) are cut at every level. No 2024–26 loss was avoided
+    by any level. But 1.25%/1.5% lose the drawdown benefit: trade 35's first gap-up was 1.09% (15-Nov-23, exit
+    −₹897); the next was 1.71% on 4-Dec-23, one day before the stop (−₹6,933). The whole 1% vs 1.25% choice
+    rests on trades 35 (+₹6.0k for 1%) and 56/3 (+₹5.8k for 1.25%) – too few to tune; keep 1% as the level.
   - Gap-**downs** must not trigger an exit – those losses usually recovered; exiting doubles the
     drawdown.
   - Cautions: helps 2021–23 (₹14.2k → ₹21.3k, DD −₹7.5k → −₹3.7k) but slightly lowers 2024–26
