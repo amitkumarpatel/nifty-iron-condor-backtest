@@ -28,7 +28,7 @@ Do not quote strategy numbers from memory. Take them from the `rules` output.
 
 - `journal/forward_trades.csv`: one row per forward-test trade. Create it by copying `assets/forward_trades_template.csv` if missing.
 - `journal/forward_daily.csv`: one row per daily check, created by `check --log`.
-- Run all commands from the repo root. Put `journal/` in `.gitignore` or commit it, whichever the user prefers (ask once).
+- Run all commands from the repo root. `journal/` is in `.gitignore` (the repo is public), so the journal stays on this machine and is never committed.
 
 ## Workflow
 

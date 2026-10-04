@@ -14,6 +14,9 @@ data/nifty_daily.csv
 data/india_vix_daily.csv
 output/
 
+# forward-test journal (personal trade records)
+journal/
+
 # Breeze SDK logs (may contain session details)
 logs/
 
