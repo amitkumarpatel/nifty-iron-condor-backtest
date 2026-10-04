@@ -587,6 +587,10 @@ The project only reads historical data – it never places orders. Each month:
   Skipped months by side (4-Oct-2026, list in `output/filter_skipped_trades_CE_PE.xlsx`): after a rise > 2.5% – 18 trades,
   8 profit / 10 loss, −₹15,061 (6 lost on the call side as the rally continued, −₹17.3k; 4 on the put side after a reversal,
   −₹18.0k). After a fall > 2.5% – 3 trades (17, 46, 52), −₹3,694.
+  Skipped months – 10-day move on the next 10 trading days (4-Oct-2026, output/skipped_trades_next_10day_move.xlsx): the reading is
+  back inside ±2.5% after 1 day in 8 of 21, within 3 days in 13, within 8 days in all (median 2); average after a rise 3.75% →
+  1.57% (day 5) → −0.33% (day 10). But it often leaves the band again (16, 48, 50 to the down side; 5, 19, 63 back up), and the 4
+  reversal losers (62, 16, 48, 50) were all back inside within 1–2 days – "enter as soon as it is back inside" would re-take them.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
