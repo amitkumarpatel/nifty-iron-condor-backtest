@@ -594,7 +594,7 @@ The project only reads historical data – it never places orders. Each month:
     falls usually recover, so there is no usable put-side exit point.
   - PE hedge crossed, split by the ±2.5% filter (4-Oct-2026): 9 traded months → 6 profit / 3 loss, +₹1,838 (losers 67
     −₹5,523, 55 −₹2,178, 11 −₹635; 7 of 9 were back above the bought put at exit); 7 skipped months → 2 profit / 5 loss,
-    −₹16,500 (62, 16, 48, 50, 46). Losers are the ones still below the bought put on the exit day (6 of 7 lost).
+    −₹16,500 (62, 16, 48, 50, 46). Losers are the ones still below the bought put on the exit day (7 of 7 lost; of the 9 that recovered above it, 8 made a profit).
   - Exit when NIFTY closes ≥ bought call (call side only), with the ±2.5% filter: ₹66,879 / DD −₹5,997 / worst
     −₹5,523 vs ₹66,052 / −₹7,527 / −₹7,243 – same profit, smaller drawdown (4 exits). Exiting already at the sold
     call costs ≈ ₹12k (trades that recover, e.g. 51, 58). Any put-side exit roughly doubles the drawdown.

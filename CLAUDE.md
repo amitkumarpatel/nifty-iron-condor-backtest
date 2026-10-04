@@ -179,7 +179,7 @@ crossed → 20/28 profits; PE hedge crossed → 8/16 profits. Call-side exit at 
 ₹66,879 / DD −₹5,997 / worst −₹5,523 (base ₹66,052 / −₹7,527); exit at sold CE costs ≈₹12k; PE-side exits double the DD.
 Candidate adjustment (not adopted): exit when NIFTY closes above the CE hedge.
 PE hedge crossed split by filter (4-Oct-2026): traded months 9 → 6 profit / 3 loss, +₹1,838 (67, 55, 11 lost); skipped months
-7 → 2 / 5, −₹16,500. Loss only when NIFTY is still below the bought put at exit (6 of 7); no early signal.
+7 → 2 / 5, −₹16,500. Loss only when NIFTY is still below the bought put at exit (7 of 7; 8 of 9 that recovered made a profit); no early signal.
 Built in as optional `CE_BREACH_EXIT_PTS` / `IC_CE_BREACH_EXIT=hedge` (off by default). Combination test: 300-pt + filter –
 gap-up ₹68,023/−₹5,523; CE cross ₹66,898/−₹6,018; both ₹67,989/−₹5,523 (CE cross redundant once gap-up is on; fires once,
 trade 30). 400-pt: gap-up ₹88,148/−₹6,976; CE cross alone ₹81,190/−₹9,814; both = gap-up. Gap-up remains the one useful exit.
