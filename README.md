@@ -405,6 +405,42 @@ The project only reads historical data – it never places orders. Each month:
 5. Afterwards: add the trade to the two reference CSVs (section 5.8), `python download.py`,
    `python backtest.py`, and compare your fills with the backtest.
 
+## 5a. Claude skill
+
+The repo carries one Claude skill, `nifty-ic-forward-test`, in `.claude/skills/nifty-ic-forward-test/`
+(`SKILL.md`, `scripts/ic_tools.py`, `assets/forward_trades_template.csv`). Claude Code loads it in sessions opened
+in this folder when you mention the iron condor, the forward test, the 10-day filter or the 15:16 check. It runs
+the monthly routine of §5.10 as a paper-trading workflow. The same commands can be run by hand:
+`python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py <command>`.
+
+**What Claude can do with it**
+
+| You ask | What Claude does | Command |
+|---|---|---|
+| "What are the current rules?" | Prints the live values from `ic/config.py`, including entry DTE (43) and expiry weekday (Tue) | `rules` |
+| "Plan the November cycle" | Gives one entry date (the Monday six weeks before expiry) and the time-exit date, using the NSE holiday list in config; prints a note when the expiry is not a Tuesday and a warning when a year has no holiday list | `plan --expiry` |
+| "Should I enter this month?" | Reads the last 11 NIFTY closes from NSE's website and reports the 10-day move with TRADE or SKIP; uses `data/nifty_daily.csv` only if NSE is unreachable | `filter --entry-date` |
+| "Refresh the NSE holidays" | Shows NSE's F&O holiday list and what would change; with your agreement, writes it into `NSE_HOLIDAYS` in `ic/config.py` | `holidays [--write]` |
+| "Which strikes for this expiry?" | Reads NSE's option chain, finds the strikes nearest 30 delta, adds the 300-point hedges (with the fallback rule), and prints bid/ask, credit, target, stop and maximum loss | `strikes --expiry` |
+| "Log today's check" | Takes the four 15:16 leg prices and reports HOLD, TARGET, STOPLOSS, TIME or GAP_UP; fetches the previous close from NSE if it is not given; logs to `journal/forward_daily.csv` | `check --log` |
+| "The trade is closed" | Prints the rows for the two backtest reference files; writes nothing until you agree | `export-ref` |
+
+**Rules Claude follows under the skill**
+
+- No orders: only read-only tools on a broker connector; it never places, modifies or cancels orders or GTTs.
+- No recommendations: it reports what the rules and numbers say; the strikes and the decision to trade are yours.
+- `ic/config.py` and this README are the source of truth; it reads the values with `rules` each session.
+- `holidays --write` is the only command that edits `ic/config.py`, and only after showing the difference.
+- If NSE changes the expiry day it stops, because `ENTRY_DTE` and `EXPIRY_WEEKDAY` must be updated first.
+- `journal/` is git-ignored, so the forward-test records stay on your machine (keep your own backup).
+
+**What it does not do**
+
+- It does not run on a schedule or send alerts; each check happens when you ask.
+- It does not fetch the 15:16 leg prices or today's NIFTY open by itself; you give them, or Claude reads them from
+  a read-only broker connector.
+- NSE's website option chain lags a few minutes, and NSE can change or block these addresses.
+
 ## 6. The Excel report (`output/IC_backtest_report.xlsx`)
 
 | Sheet | Contents |
