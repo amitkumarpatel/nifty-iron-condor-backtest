@@ -171,6 +171,9 @@ gap-up 1%: CE2.5/PE2.5 ₹68,023/−₹5,523 vs CE3/PE2.5 ₹68,159/−₹5,523 
 ₹57,045/−₹8,993 (worse). PE-side limit only touches 3 trades (17, 46, 52). Kept 2.5/2.5.
 Up-limit ladder (PE 2.5%): no gap exit 2.5% ₹66,052/−₹7,527, 3% ₹62,516/−₹8,529, 3.5% ₹56,678/−₹10,057; with gap-up 1%:
 ₹68,023 / ₹68,159 / ₹67,665, all −₹5,523 (PF 4.88 / 3.64 / 3.28). Looser up-limits only work WITH the gap-up exit.
+Skipped months split (4-Oct-2026, 300-pt, output/filter_skipped_trades_CE_PE.xlsx): after a rise > 2.5% – 18 trades, 8 profit /
+10 loss, −₹15,061: 6 lost on the call side as the rally continued (8, 19, 36, 9, 5, 28 = −₹17.3k), 4 on the put side on a
+reversal (62, 16, 48, 50 = −₹18.0k). After a fall > 2.5% – 3 trades (17 +₹2,056, 46 −₹1,570, 52 −₹4,180), −₹3,694. No SL exits.
 Hedge width with ±2.5% filter (3-Oct-2026, output/IC_backtest_hedge200.xlsx): 200-pt ₹41,596 / DD −₹5,127 / worst −₹4,695 /
 max loss ≈96 pts; 300-pt ₹66,052 / −₹7,527 / −₹7,243 / 154 pts; 400-pt ₹83,114 / −₹9,814 / −₹9,814 / 219 pts. Profit÷DD ≈ 8–9
 for all three; 0.5-pt slippage: 200 ₹31.8k, 300 ₹56.5k, 400 ₹73.8k.

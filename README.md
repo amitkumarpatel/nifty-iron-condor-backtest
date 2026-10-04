@@ -584,6 +584,9 @@ The project only reads historical data – it never places orders. Each month:
   −₹8,529 (trade 62 comes back). Removing trade 62 by hindsight makes CE 3% / PE 2.5% look best (₹71,045 / −₹7,243),
   but with the 1% gap-up exit applied to every trade both are equal (₹68,023 vs ₹68,159, DD −₹5,523), and a gap
   exit in both directions makes CE 3% worse (₹57,045 / −₹8,993). Kept 2.5% on both sides.
+  Skipped months by side (4-Oct-2026, list in `output/filter_skipped_trades_CE_PE.xlsx`): after a rise > 2.5% – 18 trades,
+  8 profit / 10 loss, −₹15,061 (6 lost on the call side as the rally continued, −₹17.3k; 4 on the put side after a reversal,
+  −₹18.0k). After a fall > 2.5% – 3 trades (17, 46, 52), −₹3,694.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
