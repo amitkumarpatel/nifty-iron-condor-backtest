@@ -209,8 +209,14 @@ Fallback rule used by the user when a strike has no price: nearest strike with a
 near 30 delta (prefer 100 pts closer); hedge 300 pts, else next available (e.g. 400).
 
 Variant workflow built 5-Oct-2026 (README §5.3c): any sold delta (select_strikes.py --around = search around a Black-Scholes
-estimate, ~750 calls for 10Δ on all trades vs ~4,100) + any hedge width (--hedge). PENDING TEST (needs the user's Breeze session):
-40Δ + 200 and 300-pt hedges, all trades, strike set d40. Record results in README §1a/§7.
+estimate, ~750 calls for 10Δ on all trades vs ~4,100) + any hedge width (--hedge). All three variant tests below are done.
+40Δ sold legs tested 5-Oct-2026, NOT adopted (strike set d40, all 66 trades; output/IC_backtest_d40_h300[_nofilter].xlsx,
+IC_backtest_d40_h200[_nofilter].xlsx). With the ±2.5% filter, same 45 trades (net / max DD / win / PF): 30Δ+300 ₹66,052 / −₹7,527 /
+73% / 3.20; 40Δ+300 ₹43,912 / −₹6,186 / 69% / 2.64; 40Δ+200 ₹23,838 / −₹5,585 / 64% / 2.16 (30Δ+200 ₹42,911 / −₹4,695). No filter:
+40Δ+300 ₹23,673 / −₹12,171; 40Δ+200 −₹1,699 / −₹19,423 (30Δ+300 ₹47,298 / −₹11,860). 0.5-pt slippage: 40Δ+300 ₹34.4k, 40Δ+200 ₹14.3k.
+Why: credit is 203 of 300 pts (141 of 200), so the 50% target (≈100 pts) was never reached – 0 targets vs 11 – and the 100% stop
+is beyond the maximum loss, so it cannot trigger; every trade is a time exit. Worse in every year. TP/SL as % of credit do not
+fit 40Δ; a fair retest would need its own TP/SL (not done).
 Delayed entry for skipped months tested 5-Oct-2026, NOT adopted (re-check the filter the next Monday, enter a fresh 30Δ/300-pt
 IC at 35–38 DTE if inside ±2.5%; strike set d30_nm, --entry-shift 7): 13 of 21 months qualify; 12 run (trade 20 not downloaded):
 5 profit / 7 loss, net −₹22,988 (same months at the original entry −₹19,742; skipping = ₹0). 3 stop-losses (62 −₹11.4k,
