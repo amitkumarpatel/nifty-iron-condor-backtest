@@ -209,9 +209,13 @@ Fallback rule used by the user when a strike has no price: nearest strike with a
 near 30 delta (prefer 100 pts closer); hedge 300 pts, else next available (e.g. 400).
 
 Variant workflow built 5-Oct-2026 (README §5.3c): any sold delta (select_strikes.py --around = search around a Black-Scholes
-estimate, ~750 calls for 10Δ on all trades vs ~4,100) + any hedge width (--hedge). PENDING TESTS (need the user's Breeze
-session; nothing downloaded yet): (a) 10Δ + 500-pt hedges, first on the 21 filter-skipped months (alternative when the 30Δ
-IC is skipped), strike set d10; (b) 40Δ + 200 and 300-pt hedges, all trades, strike set d40. Record results in README §1a/§7.
+estimate, ~750 calls for 10Δ on all trades vs ~4,100) + any hedge width (--hedge). PENDING TEST (needs the user's Breeze session):
+40Δ + 200 and 300-pt hedges, all trades, strike set d40. Record results in README §1a/§7.
+10Δ + 500-pt hedges in the filter-skipped months (5-Oct-2026, strike set d10, output/IC_backtest_d10_h500_nofilter.xlsx), NOT
+adopted: only 11 of 21 months could be run – in the other 10 the call hedge 500 pts beyond the 10Δ call had no price at 11:16
+(strikes 300+ pts beyond a 10Δ call mostly do not trade 6 weeks out; puts are fine). The 11 that ran: 5 target / 6 stop-loss,
+net −₹15,235 vs −₹9,185 for the 30Δ/300-pt condor on the same months. Credit only ≈50 pts (30Δ ≈141), so the 100% stop sits
+close: stops at 1.0–1.7× credit (−₹1.5k to −₹4.9k) against ≈₹1–1.8k per win. Not an alternative for skipped months.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
 backtest_strangle.py) reusing ic/engine.py with a 2-leg leg builder; note unlimited risk and much higher margin than the IC.
 
