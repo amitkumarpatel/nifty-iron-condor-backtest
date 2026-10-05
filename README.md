@@ -90,6 +90,7 @@ Sep-2026. Details and tables for each point are in §7.
 | ±2.5% 10-day filter | **Adopted.** ₹47.3k / −₹11.9k → ₹66.1k / −₹7.5k. ±3% is next best; ±2.75% and ±4% worse. The up-move (call) side does the work; only 3 trades ever started after a > 2.5% fall |
 | 10Δ sold legs + 500-pt hedges in the months the filter skips | **No.** 11 of 21 months runnable (far call hedge has no price in the rest): 6 stop-losses, −₹15.2k vs −₹9.2k for 30Δ on the same months |
 | Skipped month: re-check the filter the next Monday and enter then (delayed entry) | **No.** 12 months: 5 profit / 7 loss, −₹23.0k (original entry −₹19.7k, skipping ₹0) |
+| Exit at 21 DTE (the common online rule) instead of 18, with the filter | **No.** ₹52.8k vs ₹66.1k, same drawdown; 18 DTE already exits on the Friday ≈ 20 DTE for Thursday expiries |
 | 1% gap-up exit at 15:16 | **Helps** (optional, off by default). Gap-*down* exits are harmful. 1.25%/1.5% give ≈ same profit, keep more of 2024–26 (+₹3k) but lose the drawdown cut (−₹7.2k, trade 35) |
 | Exit when NIFTY closes above the bought call | Small help alone; adds nothing once the gap-up exit is on |
 | Exit day | 18–20 DTE best; 15–17 and 21+ worse |
@@ -682,6 +683,11 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   IC at 35–38 DTE if inside ±2.5%; strike set d30_nm, --entry-shift 7): 13 of 21 months qualify; 12 run (trade 20 not downloaded):
   5 profit / 7 loss, net −₹22,988 (same months at the original entry −₹19,742; skipping = ₹0). 3 stop-losses (62 −₹11.4k,
   12 −₹6.8k, 8 −₹6.5k); helped 50, 9, 16, hurt 12, 5, 62. A calm reading one week later does not make these months safe.
+  Exit-DTE ladder WITH the ±2.5% filter (5-Oct-2026, 300-pt, 45 trades; net / max DD): 17 ₹64,819 / −₹11,416; 18 ₹66,052 / −₹7,527;
+  19 ₹62,376 / −₹7,527; 20 ₹58,490 / −₹7,527; 21 ₹52,829 / −₹7,243; 22 ₹43,972 / −₹7,243; 23 ₹37,508 / −₹9,880; 25 ₹34,074 / −₹7,332.
+  The popular "exit at 21 DTE" costs ₹13.2k for no drawdown gain: for Thursday expiries 18 DTE already means Friday = 20 DTE, and
+  21 DTE is one day earlier (Thursday); for Tuesday expiries it is 3 trading days earlier. Fewer targets reached (11 → 4). Keep 18.
+  "45 DTE entry" = what the backtest did with Thursday expiries (Monday = 45 DTE); 43 DTE is the same Monday for Tuesday expiries.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.

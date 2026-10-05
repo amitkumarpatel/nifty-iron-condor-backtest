@@ -215,11 +215,16 @@ Delayed entry for skipped months tested 5-Oct-2026, NOT adopted (re-check the fi
 IC at 35–38 DTE if inside ±2.5%; strike set d30_nm, --entry-shift 7): 13 of 21 months qualify; 12 run (trade 20 not downloaded):
 5 profit / 7 loss, net −₹22,988 (same months at the original entry −₹19,742; skipping = ₹0). 3 stop-losses (62 −₹11.4k,
 12 −₹6.8k, 8 −₹6.5k); helped 50, 9, 16, hurt 12, 5, 62. A calm reading one week later does not make these months safe.
+Exit-DTE ladder WITH the ±2.5% filter (5-Oct-2026, 300-pt, 45 trades; net / max DD): 17 ₹64,819 / −₹11,416; 18 ₹66,052 / −₹7,527;
+19 ₹62,376 / −₹7,527; 20 ₹58,490 / −₹7,527; 21 ₹52,829 / −₹7,243; 22 ₹43,972 / −₹7,243; 23 ₹37,508 / −₹9,880; 25 ₹34,074 / −₹7,332.
+The popular "exit at 21 DTE" costs ₹13.2k for no drawdown gain: for Thursday expiries 18 DTE already means Friday = 20 DTE, and
+21 DTE is one day earlier (Thursday); for Tuesday expiries it is 3 trading days earlier. Fewer targets reached (11 → 4). Keep 18.
+"45 DTE entry" = what the backtest did with Thursday expiries (Monday = 45 DTE); 43 DTE is the same Monday for Tuesday expiries.
 Calendar bug fixed 5-Oct-2026: download.py --trades rebuilt data/nifty_trading_days.csv from the first selected trade, dropping
 earlier days (then treated as holidays). build_calendar now merges with the existing file. Breeze daily data has gaps: calendar
 lacked 18-Dec-2025, nifty_daily.csv lacked 1-Feb-2023 and 21-Jul-2025 (patched from NSE; trade 26 reading −0.27% → +1.36%, no
-decision changed). Trade 60 needs its 18-Dec-2025 candles (plain `python download.py`, 4 calls) – until then the main report
-shows 44 trades / ₹61,869 instead of 45 / ₹66,052.
+decision changed). Trade 60's 18-Dec-2025 candles downloaded 5-Oct-2026: main report unchanged
+(45 trades / ₹66,052 / −₹7,527).
 10Δ + 500-pt hedges in the filter-skipped months (5-Oct-2026, strike set d10, output/IC_backtest_d10_h500_nofilter.xlsx), NOT
 adopted: only 11 of 21 months could be run – in the other 10 the call hedge 500 pts beyond the 10Δ call had no price at 11:16
 (strikes 300+ pts beyond a 10Δ call mostly do not trade 6 weeks out; puts are fine). The 11 that ran: 5 target / 6 stop-loss,
