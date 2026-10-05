@@ -50,7 +50,11 @@ def build_calendar(api, first: date, last: date):
         if len(df) and date.fromisoformat(df.date.max()) >= min(last, date.today() - timedelta(days=1)):
             print(f"Calendar: {len(df)} trading days (cached)")
             return
-    days, s = set(), first
+    # Keep every day already known: a run for a few trades must never shrink the calendar (load_calendar
+    # treats a day inside the file's range but not in it as a holiday). Start a few days early because
+    # Breeze can leave out the first day of the range.
+    days = set(pd.read_csv(p).date) if p.exists() else set()
+    s = first - timedelta(days=5)
     while s <= last:
         e = min(s + timedelta(days=900), last)
         r = api.hist(interval="1day", from_date=iso(datetime(s.year, s.month, s.day, 9, 15)),
