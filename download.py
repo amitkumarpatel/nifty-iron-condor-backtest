@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Entry point - see README.md. Logic lives in ic/downloader.py."""
-from ic.downloader import main
+from ic.cli import preset
+
+preset()          # --strike-set / --hedge / --filter -> settings, before ic.config loads
+from ic.downloader import main  # noqa: E402
 
 if __name__ == "__main__":
     main()

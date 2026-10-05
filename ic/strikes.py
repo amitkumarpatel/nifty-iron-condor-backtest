@@ -7,6 +7,7 @@ candles are downloaded here (1 call per NIFTY spot day and per candidate strike,
 Result: data/strike_sets/strikes_<name>.csv, used with IC_STRIKE_SET=<name> by download.py/backtest.py.
 
 Run:  python select_strikes.py --ce-delta 0.25 --name ce25
+      python select_strikes.py --ce-delta 0.10 --pe-delta 0.10 --around 3 --step 100 --name d10   (far strikes)
       python select_strikes.py --trend-shift --with-delta 0.20 --name shiftA          (only trend months)
       python select_strikes.py --trend-shift --with-delta 0.20 --against-delta 0.35 --name shiftB
 """
@@ -20,6 +21,9 @@ import pandas as pd
 
 from ic import config as C
 from ic.common import cache_file, contract_key, iso, load_inputs
+
+
+MAX_EXTEND_ROUNDS = 4       # --around: how often the window is extended towards the target delta
 
 
 def _ncdf(x):
@@ -69,6 +73,11 @@ def main():
     ap.add_argument("--name", required=True, help="strike set name -> strikes_<name>.csv")
     ap.add_argument("--range", type=int, default=400, help="search this many points further out than the StockMock strike")
     ap.add_argument("--closer", type=int, default=2, help="also search this many strikes closer than the StockMock strike")
+    ap.add_argument("--around", type=int,
+                    help="search this many strikes each side of a Black-Scholes estimate of the target-delta strike "
+                         "instead of --range/--closer (far fewer API calls for deltas away from 30, e.g. 0.10 or 0.40)")
+    ap.add_argument("--step", type=int, default=C.STRIKE_STEP,
+                    help="strike spacing of the candidates (use 100 for far out-of-the-money strikes)")
     ap.add_argument("--trades", type=int, nargs="*")
     ap.add_argument("--trend-shift", action="store_true",
                     help="only months beyond the trend-filter limit; --with-delta for the leg on the trend side "
@@ -108,48 +117,121 @@ def main():
         per_trade = {tid: targets for tid in trades.trade_id}
     targets = {o: 1 for tg in per_trade.values() for o in tg}          # option types involved (for the summary)
 
-    # ---- work list: spot days and candidate contracts with no entry-day candles yet ----
-    plan, todo_spot, todo_opt = [], set(), []
-    for t in trades.itertuples():
-        day, exp = t.entry_date.date(), t.expiry.strftime("%Y-%m-%d")
-        if not cache_file(C.SPOT_KEY, day).exists():
-            todo_spot.add(day)
-        for opt, tgt in per_trade[t.trade_id].items():
-            ref = int(legs[(legs.trade_id == t.trade_id) & (legs.side == "SELL") & (legs.opt_type == opt)].strike.iloc[0])
-            sgn = 1 if opt == "CE" else -1            # further OTM = higher CE / lower PE strike
-            for k in range(ref - sgn * a.closer * C.STRIKE_STEP, ref + sgn * (a.range + 1), sgn * C.STRIKE_STEP):
-                key = contract_key(exp, k, opt)
-                plan.append((t.trade_id, day, t.expiry, opt, tgt, ref, k, key))
-                if not cache_file(key, day).exists():
-                    todo_opt.append(SimpleNamespace(expiry=exp, opt_type=opt, strike=k, key=key, day=day))
-    print(f"{len(todo_spot) + len(todo_opt)} API calls needed ({len(todo_spot)} spot days, {len(todo_opt)} option-days)")
-    if a.dry_run:
-        return
-    if todo_spot or todo_opt:
+    step = a.step
+    api = None
+
+    def fetch(spot_days, opts):
+        nonlocal api
+        if not spot_days and not opts:
+            return
         from ic.breeze_client import connect
         from ic.downloader import Api, fetch_chunk
-        api = Api(connect())
-        for n, day in enumerate(sorted(todo_spot), 1):
+        api = api or Api(connect())
+        for day in sorted(spot_days):
             fetch_spot_day(api, day)
-        for n, leg in enumerate(todo_opt, 1):
+        for n, leg in enumerate(opts, 1):
             status, msg = fetch_chunk(api, leg, [leg.day])
             if status == "ERROR":
                 print(f"  {leg.key} {leg.day}: {msg}")
             if n % 100 == 0:
-                print(f"  {n}/{len(todo_opt)}")
-        print(f"API calls this run: {api.calls}")
+                print(f"  {n}/{len(opts)}")
 
-    # ---- deltas at entry ----
-    rows = []
-    for tid, day, expiry, opt, tgt, ref, k, key in plan:
-        spot, sq, _ = price_at(C.SPOT_KEY, day, C.ENTRY_TIME)
-        px, q, _ = price_at(key, day, C.ENTRY_TIME)
-        T = (datetime.combine(expiry.date(), datetime.strptime("15:30", "%H:%M").time())
-             - datetime.combine(day, datetime.strptime(C.ENTRY_TIME, "%H:%M").time())) / timedelta(days=365)
-        iv = implied_vol(px, spot, k, T, opt) if px and spot else None
-        delta = abs(bs(spot, k, T, iv, opt)[1]) if iv else None
-        rows.append(dict(trade_id=tid, entry_date=day, opt_type=opt, target=tgt, ref_strike=ref, strike=k, spot=spot,
-                         spot_quality=sq, price=px, quality=q, iv=iv and round(iv, 4), delta=delta and round(delta, 4)))
+    def years(day, expiry):
+        return (datetime.combine(expiry.date(), datetime.strptime("15:30", "%H:%M").time())
+                - datetime.combine(day, datetime.strptime(C.ENTRY_TIME, "%H:%M").time())) / timedelta(days=365)
+
+    def ref_strike(tid, opt):
+        return int(legs[(legs.trade_id == tid) & (legs.side == "SELL") & (legs.opt_type == opt)].strike.iloc[0])
+
+    def centre(t, opt, tgt):
+        """--around: Black-Scholes estimate of the target-delta strike, from the entry spot and the implied
+        volatility of StockMock's sold strike (both cached). None if either is missing."""
+        day, ref = t.entry_date.date(), ref_strike(t.trade_id, opt)
+        spot = price_at(C.SPOT_KEY, day, C.ENTRY_TIME)[0]
+        px = price_at(contract_key(t.expiry.strftime("%Y-%m-%d"), ref, opt), day, C.ENTRY_TIME)[0]
+        T = years(day, t.expiry)
+        iv = implied_vol(px, spot, ref, T, opt) if px and spot else None
+        if not iv:
+            return None
+        grid = range(int(spot * 0.6) // step * step, int(spot * 1.4), step)
+        return min(grid, key=lambda k: abs(abs(bs(spot, k, T, iv, opt)[1]) - tgt))
+
+    def entries(t, opt, tgt, strikes):
+        day, exp = t.entry_date.date(), t.expiry.strftime("%Y-%m-%d")
+        return [(t.trade_id, day, t.expiry, opt, tgt, ref_strike(t.trade_id, opt), k, contract_key(exp, k, opt))
+                for k in strikes]
+
+    def missing(plan_):
+        return [SimpleNamespace(expiry=e.strftime("%Y-%m-%d"), opt_type=o, strike=k, key=key, day=day)
+                for _, day, e, o, _, _, k, key in plan_ if not cache_file(key, day).exists()]
+
+    def deltas(plan_):
+        out = []
+        for tid, day, expiry, opt, tgt, ref, k, key in plan_:
+            spot, sq, _ = price_at(C.SPOT_KEY, day, C.ENTRY_TIME)
+            px, q, _ = price_at(key, day, C.ENTRY_TIME)
+            T = years(day, expiry)
+            iv = implied_vol(px, spot, k, T, opt) if px and spot else None
+            delta = abs(bs(spot, k, T, iv, opt)[1]) if iv else None
+            out.append(dict(trade_id=tid, entry_date=day, opt_type=opt, target=tgt, ref_strike=ref, strike=k, spot=spot,
+                            spot_quality=sq, price=px, quality=q, iv=iv and round(iv, 4), delta=delta and round(delta, 4)))
+        return out
+
+    # ---- work list: spot days and candidate contracts with no entry-day candles yet ----
+    todo_spot = {t.entry_date.date() for t in trades.itertuples() if not cache_file(C.SPOT_KEY, t.entry_date.date()).exists()}
+    if a.dry_run and a.around and todo_spot:
+        print(f"{len(todo_spot)} spot days are not cached, so the --around estimate cannot be made yet; "
+              f"roughly {len(todo_spot)} + {sum(len(v) for v in per_trade.values()) * (2 * a.around + 1)} API calls.")
+        return
+    if not a.dry_run:
+        fetch(todo_spot, [])
+    plan, no_centre = [], []
+    for t in trades.itertuples():
+        for opt, tgt in per_trade[t.trade_id].items():
+            ref, sgn = ref_strike(t.trade_id, opt), (1 if opt == "CE" else -1)   # further OTM = higher CE / lower PE
+            mid = centre(t, opt, tgt) if a.around else None
+            if a.around and mid is None:
+                no_centre.append((t.trade_id, opt))
+            if mid is not None:
+                ks = range(mid - a.around * step, mid + a.around * step + 1, step)
+            else:
+                ks = range(ref - sgn * a.closer * step, ref + sgn * (a.range + 1), sgn * step)
+            plan += entries(t, opt, tgt, ks)
+    todo_opt = missing(plan)
+    print(f"{len(todo_spot) + len(todo_opt)} API calls needed ({len(todo_spot)} spot days, {len(todo_opt)} option-days)"
+          + (f"; --around may add up to {MAX_EXTEND_ROUNDS} more rounds of {a.around} strikes for legs whose "
+             "target is outside the first window" if a.around else ""))
+    if no_centre:
+        print(f"No estimate (StockMock strike has no entry price) for {no_centre}: searched with --range/--closer.")
+    if a.dry_run:
+        return
+    fetch([], todo_opt)
+
+    # ---- deltas at entry; with --around, extend the window while the target delta is not bracketed ----
+    by_trade = {t.trade_id: t for t in trades.itertuples()}
+    for _ in range(MAX_EXTEND_ROUNDS if a.around else 0):
+        got, extra = pd.DataFrame(deltas(plan)), []
+        ok = got[got.delta.notna() & got.quality.isin(["EXACT", "FFILL"])]
+        for (tid, opt), g in ok.groupby(["trade_id", "opt_type"]):
+            tgt, sgn = g.target.iloc[0], (1 if opt == "CE" else -1)
+            have = set(got[(got.trade_id == tid) & (got.opt_type == opt)].strike)
+            if g.delta.min() > tgt:        # every priced strike is still too close to the money -> go further out
+                edge = max(have) if opt == "CE" else min(have)
+                ks = [edge + sgn * step * n for n in range(1, a.around + 1)]
+            elif g.delta.max() < tgt:      # all too far out -> come closer
+                edge = min(have) if opt == "CE" else max(have)
+                ks = [edge - sgn * step * n for n in range(1, a.around + 1)]
+            else:
+                continue
+            extra += entries(by_trade[tid], opt, tgt, ks)
+        if not extra:
+            break
+        print(f"extending the search for {len({(e[0], e[3]) for e in extra})} legs ({len(missing(extra))} more calls)")
+        fetch([], missing(extra))
+        plan += extra
+    if api:
+        print(f"API calls this run: {api.calls}")
+    rows = deltas(plan)
     cand = pd.DataFrame(rows)
     C.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     cand.to_csv(C.OUTPUT_DIR / f"strike_selection_{a.name}.csv", index=False)
@@ -178,4 +260,5 @@ def main():
                   f"further out on average")
     if missing:
         print(f"No strike chosen (no spot/option price at entry): trades {missing} - they keep StockMock's strike")
-    print(f"Next: IC_STRIKE_SET={a.name} python download.py, then IC_STRIKE_SET={a.name} python backtest.py --out ...")
+    print(f"Next: python download.py --strike-set {a.name} --hedge N --dry-run   (count the calls), then without "
+          f"--dry-run, then python backtest.py --strike-set {a.name} --hedge N")

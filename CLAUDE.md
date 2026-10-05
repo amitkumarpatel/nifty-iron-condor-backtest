@@ -81,6 +81,10 @@ python download.py              # fetch candles (API, restart-safe, ~3,100 calls
 python download.py --index      # NIFTY + India VIX daily OHLC only (API, a few calls)
 python select_strikes.py --ce-delta 0.25 --name ce25   # delta-based sold strikes (API) -> IC_STRIKE_SET=ce25
 python backtest.py [--trades ..] [--out path]   # offline, writes output/IC_backtest_report.xlsx
+# variant options on download.py / backtest.py / export_prices.py (ic/cli.py -> IC_STRIKE_SET / IC_HEDGE_WIDTH / IC_TREND_FILTER):
+python select_strikes.py --ce-delta 0.10 --pe-delta 0.10 --around 3 --step 100 --name d10 [--dry-run]   # API, few calls
+python download.py --strike-set d10 --hedge 500 [--dry-run]     # --dry-run: count calls only, no login
+python backtest.py --strike-set d10 --hedge 500 --filter off    # -> output/IC_backtest_d10_h500_nofilter.xlsx
 python export_prices.py [--trades ..] [--out path] # offline, daily leg prices -> output/IC_leg_prices.xlsx
 ```
 
@@ -203,6 +207,13 @@ MDD −₹12.9k; with 10-day filter ≈ ₹64.2k, MDD −₹7.2k (backtest ₹64
 Extra Apr-2026 cycle traded in StockMock (entry 16-Mar-26, PE hedge 400 pts) – not in the backtest.
 Fallback rule used by the user when a strike has no price: nearest strike with a price, sold leg kept
 near 30 delta (prefer 100 pts closer); hedge 300 pts, else next available (e.g. 400).
+
+Variant workflow built 5-Oct-2026 (README §5.3c): any sold delta (select_strikes.py --around = search around a Black-Scholes
+estimate, ~750 calls for 10Δ on all trades vs ~4,100) + any hedge width (--hedge). PENDING TESTS (need the user's Breeze
+session; nothing downloaded yet): (a) 10Δ + 500-pt hedges, first on the 21 filter-skipped months (alternative when the 30Δ
+IC is skipped), strike set d10; (b) 40Δ + 200 and 300-pt hedges, all trades, strike set d40. Record results in README §1a/§7.
+Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
+backtest_strangle.py) reusing ic/engine.py with a 2-leg leg builder; note unlimited risk and much higher margin than the IC.
 
 Action items:
 1. Done: 18-DTE StockMock run reconciled; 10-day filter adopted and built in.

@@ -81,6 +81,15 @@ def main():
     run([sys.executable, "download.py", "--trades", "9", "62"], env5)
     out6 = run([sys.executable, "backtest.py", "--trades", "9", "62", "--out", str(tmp / "output" / "smoke_ce25.xlsx")], env5)
     assert (tmp / "output" / "smoke_ce25.xlsx").exists(), out6
+    # variant options: estimate-centred strike search, --strike-set / --hedge / --filter, own report name
+    out7 = run([sys.executable, "select_strikes.py", "--ce-delta", "0.10", "--pe-delta", "0.10", "--around", "2",
+                "--step", "100", "--name", "smoke10", "--trades", "62", "67"], env)
+    assert (tmp / "data" / "strike_sets" / "strikes_smoke10.csv").exists(), out7
+    var = ["--trades", "62", "67", "--strike-set", "smoke10", "--hedge", "500"]
+    assert "API calls needed" in run([sys.executable, "download.py", *var, "--dry-run"], env)
+    run([sys.executable, "download.py", *var], env)
+    out8 = run([sys.executable, "backtest.py", *var, "--filter", "off"], env)
+    assert (tmp / "output" / "IC_backtest_smoke10_h500_nofilter.xlsx").exists(), out8
     print(out3)
     print(f"SMOKE TEST PASSED  (temp files in {tmp})")
 

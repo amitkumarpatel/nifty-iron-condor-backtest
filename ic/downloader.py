@@ -157,13 +157,31 @@ def fetch_chunk(api, leg, days):
     return "OK", err
 
 
+def chunks(t, leg, cal):
+    """Day pairs of one leg (entry -> time exit / StockMock exit) that are not cached yet - one API call each."""
+    tx = time_exit_day(t.expiry.date(), cal)
+    end = max(tx, t.ref_exit_date.date()) if pd.notna(t.ref_exit_date) else tx
+    days = sorted({t.entry_date.date()} | {d for d in cal if t.entry_date.date() <= d <= end})
+    need = [d for d in days if not cache_file(leg.key, d).exists()]
+    return [need[i:i + 2] for i in range(0, len(need), 2)]
+
+
 def main():
     ap = argparse.ArgumentParser(description="Download Breeze 1-minute candles for all trade legs")
     ap.add_argument("--trades", type=int, nargs="*", help="only these trade ids")
     ap.add_argument("--index", action="store_true", help="only NIFTY + India VIX daily OHLC")
+    ap.add_argument("--dry-run", action="store_true", help="only count the API calls needed (no login, no calls)")
     a = ap.parse_args()
     trades, legs = load_inputs(a.trades)
 
+    if a.dry_run:
+        cal = load_calendar(trades.entry_date.min().date(), trades.expiry.max().date())
+        n = sum(len(chunks(t, leg, cal)) for t in trades.itertuples()
+                for leg in legs[legs.trade_id == t.trade_id].itertuples())
+        print(f"{n} API calls needed for {len(trades)} trades (strike set '{C.STRIKE_SET or 'StockMock'}', hedges "
+              f"{C.HEDGE_WIDTH_CE}/{C.HEDGE_WIDTH_PE} pts); fallback strikes may add a few. "
+              f"Limit per day {C.DAILY_CALL_LIMIT}.")
+        return
     api = Api(connect())
     if a.index:   # ~100 trading days before the first entry, for moving averages
         fetch_index_daily(api, trades.entry_date.min().date() - timedelta(days=150), date.today())
@@ -177,15 +195,8 @@ def main():
         cal = load_calendar(first, trades.expiry.max().date())
 
         # work list: (leg, [day1, day2]) chunks not yet cached
-        todo = []
-        for t in trades.itertuples():
-            tx = time_exit_day(t.expiry.date(), cal)
-            end = max(tx, t.ref_exit_date.date()) if pd.notna(t.ref_exit_date) else tx
-            days = sorted({t.entry_date.date()} | {d for d in cal if t.entry_date.date() <= d <= end})
-            for leg in legs[legs.trade_id == t.trade_id].itertuples():
-                need = [d for d in days if not cache_file(leg.key, d).exists()]
-                for i in range(0, len(need), 2):
-                    todo.append((t.trade_id, leg, need[i:i + 2]))
+        todo = [(t.trade_id, leg, chunk) for t in trades.itertuples()
+                for leg in legs[legs.trade_id == t.trade_id].itertuples() for chunk in chunks(t, leg, cal)]
         print(f"{len(todo)} API calls needed (limit per run {C.DAILY_CALL_LIMIT}, already used {api.calls})")
 
         for n, (tid, leg, chunk) in enumerate(todo, 1):

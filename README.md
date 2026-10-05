@@ -227,6 +227,9 @@ Run every command from the project folder with the virtual environment active
 | `python backtest.py --trades 1 9 23 --out output/x.xlsx` | Selected trades / separate report file | No | the `--out` file |
 | `python export_prices.py [--trades ...] [--out file]` | Daily price of every leg of every trade, entry to exit (11:16 entry, 15:16 checks, day OHLC), incl. filter-skipped months | No | `output/IC_leg_prices.xlsx` |
 | `python select_strikes.py --ce-delta 0.25 --name ce25` | Experiment: choose sold strikes by delta | Yes | `data/strike_sets/` |
+| `python select_strikes.py --ce-delta 0.10 --pe-delta 0.10 --around 3 --step 100 --name d10` | Same, searching around a Black-Scholes estimate of the strike (few calls; for deltas far from 30) | Yes | `data/strike_sets/` |
+| `python download.py --strike-set d10 --hedge 500 [--dry-run]` | Candles for a variant: sold strikes from a strike set, hedges N points out. `--dry-run` only counts the calls (no login) | Yes (no with `--dry-run`) | `data/cache/` |
+| `python backtest.py --strike-set d10 --hedge 500 [--filter off]` | Backtest a variant; report gets its own name | No | `output/IC_backtest_d10_h500[_nofilter].xlsx` |
 
 ### 5.0a Settings you can change per run (environment variables)
 
@@ -305,6 +308,36 @@ trend-filter limit: the leg on the trend side (CE after a rise, PE after a fall)
 other leg at `--against-delta` (unchanged if omitted). `--range`/`--closer` widen the strike search;
 `--dry-run` only counts the API calls; `--append` updates only the given `--trades` in an existing strike set. Experiment only – the adopted rule still skips these months. Hedges follow the new
 sold strikes (`HEDGE_WIDTH`). Trades with no price at entry keep StockMock's strike (listed at the end).
+
+### 5.3c Testing a variant: any sold delta, any hedge width
+Three steps – choose the sold strikes, download their candles, backtest. The variant options work on
+`download.py`, `backtest.py` and `export_prices.py` and need no environment variables:
+
+| Option | Meaning | Same as |
+|---|---|---|
+| `--strike-set NAME` | sold strikes from `data/strike_sets/strikes_NAME.csv` | `IC_STRIKE_SET` |
+| `--hedge N` | bought legs N points beyond the sold legs (200, 300, 400, 500 …) | `IC_HEDGE_WIDTH` |
+| `--filter off` / `--filter 3` | switch the 10-day filter off or change its limit | `IC_TREND_FILTER` |
+
+```bash
+# 1. sold strikes at 10 delta (API, entry-day candles only)
+python select_strikes.py --ce-delta 0.10 --pe-delta 0.10 --around 3 --step 100 --name d10 --dry-run
+python select_strikes.py --ce-delta 0.10 --pe-delta 0.10 --around 3 --step 100 --name d10
+# 2. candles for those strikes with 500-point hedges (API)
+python download.py --strike-set d10 --hedge 500 --dry-run
+python download.py --strike-set d10 --hedge 500
+# 3. backtest (offline) -> output/IC_backtest_d10_h500_nofilter.xlsx
+python backtest.py --strike-set d10 --hedge 500 --filter off
+```
+- `--around N` searches N strikes each side of a Black-Scholes estimate of the target-delta strike (from the
+  entry spot and the implied volatility of StockMock's sold strike, both already cached) and extends the
+  window up to 4 times if the target is outside it. For 10 delta this needs about 750 calls for all trades
+  instead of about 4,100 with `--range 2000`. `--step 100` restricts the candidates to 100-point strikes,
+  which are the liquid ones far from the money.
+- One strike set serves several hedge widths: run steps 2–3 again with another `--hedge`.
+- `--trades ...` limits every step to some trades (e.g. only the months the filter skips).
+- Without `--out`, a variant report is named `IC_backtest_<set>_h<width>[_nofilter].xlsx`, so the main
+  report is never overwritten. All other rules (11:16 entry, 15:16 check, TP 50%, SL 100%, 18 DTE) stay.
 
 ### 5.4 Run the full backtest
 Works offline from the cache – no API calls, no session token needed.
