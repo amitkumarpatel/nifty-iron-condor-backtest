@@ -319,6 +319,7 @@ Three steps – choose the sold strikes, download their candles, backtest. The v
 | `--strike-set NAME` | sold strikes from `data/strike_sets/strikes_NAME.csv` | `IC_STRIKE_SET` |
 | `--hedge N` | bought legs N points beyond the sold legs (200, 300, 400, 500 …) | `IC_HEDGE_WIDTH` |
 | `--filter off` / `--filter 3` | switch the 10-day filter off or change its limit | `IC_TREND_FILTER` |
+| `--entry-shift D` | enter D calendar days after the reference entry (next trading day if a holiday); also on `select_strikes.py`, so the strikes are chosen on that day | `IC_ENTRY_SHIFT` |
 
 ```bash
 # 1. sold strikes at 10 delta (API, entry-day candles only)

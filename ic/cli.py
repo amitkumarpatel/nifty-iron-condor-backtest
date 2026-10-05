@@ -4,6 +4,7 @@ Per-run variant options for the entry scripts, so a test needs no environment va
     --strike-set NAME   sold strikes from data/strike_sets/strikes_NAME.csv   (= IC_STRIKE_SET)
     --hedge N           bought legs N points beyond the sold legs            (= IC_HEDGE_WIDTH)
     --filter X          10-day trend filter limit in %, or `off`             (= IC_TREND_FILTER)
+    --entry-shift D     enter D calendar days after the reference entry      (= IC_ENTRY_SHIFT)
 
 They are turned into the environment variables ic/config.py already reads, so this must run before
 anything imports ic.config. backtest.py and export_prices.py also get a report name of their own for a
@@ -13,7 +14,8 @@ the main report.
 import os
 import sys
 
-OPTIONS = {"--strike-set": "IC_STRIKE_SET", "--hedge": "IC_HEDGE_WIDTH", "--filter": "IC_TREND_FILTER"}
+OPTIONS = {"--strike-set": "IC_STRIKE_SET", "--hedge": "IC_HEDGE_WIDTH", "--filter": "IC_TREND_FILTER",
+           "--entry-shift": "IC_ENTRY_SHIFT"}
 
 
 def preset(out_prefix=None):
@@ -35,4 +37,6 @@ def preset(out_prefix=None):
         if f:
             parts.append("nofilter" if f.lower() == "off" else f"filter{f}")
         out_dir = os.environ.get("IC_OUTPUT_DIR") or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "output")
+        if used.get("--entry-shift"):
+            parts.append(f"shift{used['--entry-shift']}")
         argv += ["--out", os.path.join(out_dir, "_".join(parts) + ".xlsx")]

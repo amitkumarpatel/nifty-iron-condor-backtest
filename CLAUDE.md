@@ -210,6 +210,9 @@ near 30 delta (prefer 100 pts closer); hedge 300 pts, else next available (e.g. 
 
 Variant workflow built 5-Oct-2026 (README §5.3c): any sold delta (select_strikes.py --around = search around a Black-Scholes
 estimate, ~750 calls for 10Δ on all trades vs ~4,100) + any hedge width (--hedge). PENDING TEST (needs the user's Breeze session):
+Delayed entry for skipped months (set up 5-Oct-2026): re-check the filter the next Monday (--entry-shift 7; trade 20: 6), if
+inside ±2.5% enter the 30Δ/300-pt IC that day (35–38 DTE), same exits. 13 of 21 qualify (5, 8, 9, 12, 16, 17, 19, 20, 23, 46,
+50, 57, 62); strike set d30_nm. Also pending:
 40Δ + 200 and 300-pt hedges, all trades, strike set d40. Record results in README §1a/§7.
 10Δ + 500-pt hedges in the filter-skipped months (5-Oct-2026, strike set d10, output/IC_backtest_d10_h500_nofilter.xlsx), NOT
 adopted: only 11 of 21 months could be run – in the other 10 the call hedge 500 pts beyond the 10Δ call had no price at 11:16
