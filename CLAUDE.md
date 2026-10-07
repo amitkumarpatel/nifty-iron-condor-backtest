@@ -265,6 +265,10 @@ worst / PF). 2021–26 (66 trades): no filter ₹47,298 / −₹11,860; ±2.5% 1
 50% −₹4.6k (22 tr); the three big 2021–26 losers sit just under 48. On its own it is worse than the 10-day filter in 2021–26
 (skips 19 filtered trades worth +₹25.8k incl. 6 targets). Ratio rises with VIX (corr 0.37) = sell only when premium is rich.
 Not adopted yet – candidate to shadow-log in the forward test (credit/width at entry).
+Credit/width at 47.5% (7-Oct-2026): ≈ same as 48%. 2021–26 alone 41 tr ₹41,320 / DD −₹10,209 (48%: 38 tr ₹40,295 / −₹9,434); with the
+10-day filter 28 tr ₹40,101 / −₹4,712 / PF 3.77 (48%: 26 tr ₹40,271 / −₹4,003 / 4.72). Only trades 22 (47.58%, −₹3,654), 27 (47.63%,
++₹3,483) and 12 (47.88%, +₹1,195) change; 2019–20 identical (5 tr +₹5,889). 47.0% lets trade 62 (47.13%, −₹8,529) and 2006 back in.
+The useful line is anywhere from 47.2% to 48% – decided by 3–4 trades; do not tune finer.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.

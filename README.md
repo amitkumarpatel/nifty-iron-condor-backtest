@@ -753,6 +753,10 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   50% −₹4.6k (22 tr); the three big 2021–26 losers sit just under 48. On its own it is worse than the 10-day filter in 2021–26
   (skips 19 filtered trades worth +₹25.8k incl. 6 targets). Ratio rises with VIX (corr 0.37) = sell only when premium is rich.
   Not adopted yet – candidate to shadow-log in the forward test (credit/width at entry).
+  Credit/width at 47.5% (7-Oct-2026): ≈ same as 48%. 2021–26 alone 41 tr ₹41,320 / DD −₹10,209 (48%: 38 tr ₹40,295 / −₹9,434); with the
+  10-day filter 28 tr ₹40,101 / −₹4,712 / PF 3.77 (48%: 26 tr ₹40,271 / −₹4,003 / 4.72). Only trades 22 (47.58%, −₹3,654), 27 (47.63%,
+  +₹3,483) and 12 (47.88%, +₹1,195) change; 2019–20 identical (5 tr +₹5,889). 47.0% lets trade 62 (47.13%, −₹8,529) and 2006 back in.
+  The useful line is anywhere from 47.2% to 48% – decided by 3–4 trades; do not tune finer.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
