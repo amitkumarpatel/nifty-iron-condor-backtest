@@ -94,6 +94,7 @@ Sep-2026. Details and tables for each point are in §7.
 | 40Δ sold legs with 200 or 300-pt hedges | **No.** With filter ₹43.9k (300-pt) / ₹23.8k (200-pt) vs ₹66.1k; the 50% target is never reached and the stop cannot trigger |
 | Same rules on 2019–2020 (years not used to choose the rules) | **Loses.** With filter −₹7.6k on 15 trades, max DD −₹18.8k; no filter −₹34.1k. Plan for ≈₹19k drawdown per lot |
 | Credit/width filter: trade only if credit ≥ 48% of the 300-pt width | **Promising, not adopted.** Alone: ₹40.3k / DD −₹9.4k (2021–26), +₹5.9k in 2019–20. With the 10-day filter: ₹40.3k / DD −₹4.0k, 26 trades. Threshold is sharp (46–47% no benefit) |
+| Two-tier rule: credit ≥ 48% with 10-day move within ±2.5%, or credit < 48% only if within ±1% | **Best on paper, not adopted – fitted.** 2019–26: 41 trades ₹70.8k / DD −₹5.5k vs ₹58.5k / −₹18.8k. The 1% limit is a knife edge (1.25% lets the Feb-2020 stop back in). Needs unseen data |
 | 1% gap-up exit at 15:16 | **Helps** (optional, off by default). Gap-*down* exits are harmful. 1.25%/1.5% give ≈ same profit, keep more of 2024–26 (+₹3k) but lose the drawdown cut (−₹7.2k, trade 35) |
 | Exit when NIFTY closes above the bought call | Small help alone; adds nothing once the gap-up exit is on |
 | Exit day | 18–20 DTE best; 15–17 and 21+ worse |
@@ -763,6 +764,17 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   PE>=25% −₹10.9k). Two-sided grids over 2019–26: CE>=23 & PE>=21 ₹46.9k / −₹12.6k; CE>=25 & PE>=22 ₹42.3k / −₹9.3k; CE>=26 & PE>=22
   ₹37.8k / −₹6.1k – none beats the single total>=48% rule (₹46.2k / −₹9.4k) and neighbouring cells jump around. The 2019–20 put-side
   losers (2002, 1907) had normal put credit and very low CALL credit (17.7%, 15.5%), so only the total caught them. Keep the total.
+  Second filter with credit/width (7-Oct-2026, search over 10-day move, 5/20-day moves, VIX level, VIX − realised vol; 300-pt; net / max
+  DD). AND-filters on top of credit>=48% do not add profit (best: & |10d|<=2.5% ₹40.3k / −₹4.0k in 2021–26). What adds profit is a
+  TWO-TIER rule that brings back thin-credit months only when the market is very calm:
+    trade if (credit>=48% and |10d move|<=2.5%) OR (credit<48% and |10d move|<=1%).
+  2021–26: 34 tr ₹58,661 / −₹5,523 / PF 4.59 (10-day only 45 tr ₹66,052 / −₹7,527); 2019–20: 7 tr +₹12,122 / −₹1,688 (10-day only
+  −₹7,579 / −₹18,795); 2019–26: 41 tr ₹70,782 / −₹5,523 / PF 4.92, no stop-loss, no losing year, 0.5-pt slip ₹61.7k (10-day only
+  ₹58,472 / −₹18,795 / ₹44.4k). Without the 2.5% cap on rich-credit trades: 55 tr ₹72,894 / −₹9,434.
+  WARNING – fitted after seeing all the data: the 1% limit is a knife edge. At 1.25% trades 1910 (−1.18%, −₹2.6k) and 2002 (−1.22%,
+  COVID stop −₹11.0k) come in and 2019–20 falls to −₹1.5k / DD −₹12.7k; at 1.5% 2021–26 rises to ₹66.3k. Credit line 47.25–50%
+  all similar. NOT adopted. Honest test = years never looked at (2017–18 if Breeze has them) or forward shadow-logging.
+  VIX level, VIX − realised vol, 5-day and 20-day moves as the second filter: no consistent gain in both periods.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
