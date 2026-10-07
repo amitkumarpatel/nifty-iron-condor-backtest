@@ -781,8 +781,7 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   48% of 400 is too strict (two-tier 25 tr ₹64,970; credit alone 12 tr). Same picture as 300-pt (₹66,052 / −₹7,527 → ₹58,661 /
   −₹5,523): ≈ ₹7–9k less profit, ≈ ₹2–3k less drawdown, 11 fewer trades, no stop-loss. 300-pt file: output/filter_comparison_2021_2026.xlsx.
   User leans towards the two-tier rule (7-Oct-2026); not yet adopted in config – still fitted, see warning above.
-  Trade 60's 18-Dec-2025 candles are missing for the 200 and 400-pt hedges (2 API calls each: python download.py --hedge 400 /
-  --hedge 200); until then --hedge 400 runs drop trade 60 (the comparison above treated that day as a non-check day).
+  Trade 60's 18-Dec-2025 candles for the 200 and 400-pt hedges were downloaded 7-Oct-2026; 400-pt results unchanged.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.

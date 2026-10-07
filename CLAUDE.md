@@ -292,8 +292,7 @@ Two-tier rule on 400-pt hedges, 2021–26 (7-Oct-2026, output/filter_comparison_
 48% of 400 is too strict (two-tier 25 tr ₹64,970; credit alone 12 tr). Same picture as 300-pt (₹66,052 / −₹7,527 → ₹58,661 /
 −₹5,523): ≈ ₹7–9k less profit, ≈ ₹2–3k less drawdown, 11 fewer trades, no stop-loss. 300-pt file: output/filter_comparison_2021_2026.xlsx.
 User leans towards the two-tier rule (7-Oct-2026); not yet adopted in config – still fitted, see warning above.
-Trade 60's 18-Dec-2025 candles are missing for the 200 and 400-pt hedges (2 API calls each: python download.py --hedge 400 /
---hedge 200); until then --hedge 400 runs drop trade 60 (the comparison above treated that day as a non-check day).
+Trade 60's 18-Dec-2025 candles for the 200 and 400-pt hedges were downloaded 7-Oct-2026; 400-pt results unchanged (₹83,114).
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
