@@ -65,8 +65,8 @@ Full user documentation: README.md. All settings: `ic/config.py`.
 - Costs modelled approximately in `config.COSTS` (~₹250 per condor); report gross and net.
 
 ## Layout
-- Entry scripts in root: `login_url.py`, `probe.py`, `download.py`, `backtest.py`, `select_strikes.py`, `export_prices.py`
-- Code in `ic/`: `config.py`, `breeze_client.py`, `common.py`, `downloader.py`, `engine.py`, `export.py`, `fallback.py`, `probe.py`, `strikes.py`
+- Entry scripts in root: `login_url.py`, `probe.py`, `download.py`, `backtest.py`, `select_strikes.py`, `export_prices.py`, `make_trades.py`, `fetch_index_nse.py`
+- Code in `ic/`: `config.py`, `breeze_client.py`, `common.py`, `downloader.py`, `engine.py`, `export.py`, `fallback.py`, `probe.py`, `strikes.py`, `cli.py`, `tradeset.py`, `nse_index.py`
 - Reference data (committed): `data/reference/ic_reference_trades.csv`, `ic_reference_legs.csv`,
   `stockmock_export.xlsx`; validation workbook in `docs/`
 - Generated (git-ignored): `data/cache/` (1-min candles), `data/nifty_trading_days.csv`, `output/`
@@ -236,6 +236,14 @@ adopted: only 11 of 21 months could be run – in the other 10 the call hedge 50
 (strikes 300+ pts beyond a 10Δ call mostly do not trade 6 weeks out; puts are fine). The 11 that ran: 5 target / 6 stop-loss,
 net −₹15,235 vs −₹9,185 for the 30Δ/300-pt condor on the same months. Credit only ≈50 pts (30Δ ≈141), so the 100% stop sits
 close: stops at 1.0–1.7× credit (−₹1.5k to −₹4.9k) against ≈₹1–1.8k per win. Not an alternative for skipped months.
+2019–2020 backtest SET UP 7-Oct-2026 (user request), NOT RUN YET – needs Breeze downloads and Breeze may not have 1-minute option
+data that far back (probe confirmed 2021+ only). README §5.3d. Trade set `2019_2020` (make_trades.py; 24 monthly trades, entry
+months Jan-2019..Dec-2020, ids YYMM, Monday 45 DTE, lot 75; generator reproduces all 66 reference entry/expiry dates). NIFTY/VIX
+daily for Nov-2018..Jan-2021 fetched from NSE (fetch_index_nse.py). Filter would skip 9 of 24: 1905, 1911, 2003 (−14.4%, COVID
+crash), 2004, 2006, 2007, 2010, 2011, 2012. Next: select_strikes.py --trade-set 2019_2020 --ce-delta 0.30 --pe-delta 0.30
+--around 4 --name d30_2019_2020 (first with --trades 1901 2003 as an availability check), download, backtest.
+Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
+(StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
 backtest_strangle.py) reusing ic/engine.py with a 2-leg leg builder; note unlimited risk and much higher margin than the IC.
 

@@ -15,8 +15,11 @@ if load_dotenv:
 DATA_DIR     = Path(os.environ.get("IC_DATA_DIR", ROOT / "data"))
 OUTPUT_DIR   = Path(os.environ.get("IC_OUTPUT_DIR", ROOT / "output"))
 REF_DIR      = ROOT / "data" / "reference"
-TRADES_CSV   = REF_DIR / "ic_reference_trades.csv"
-LEGS_CSV     = REF_DIR / "ic_reference_legs.csv"
+# Trade set: "" = the StockMock reference trades; IC_TRADE_SET=<name> (or --trade-set) = a generated set
+# (python make_trades.py) in ic_trades_<name>.csv / ic_legs_<name>.csv, e.g. years StockMock never ran.
+TRADE_SET    = os.environ.get("IC_TRADE_SET", "")
+TRADES_CSV   = REF_DIR / (f"ic_trades_{TRADE_SET}.csv" if TRADE_SET else "ic_reference_trades.csv")
+LEGS_CSV     = REF_DIR / (f"ic_legs_{TRADE_SET}.csv" if TRADE_SET else "ic_reference_legs.csv")
 CACHE_DIR    = DATA_DIR / "cache"                    # 1-minute candles, one CSV per contract per day
 CALENDAR_CSV = DATA_DIR / "nifty_trading_days.csv"   # NSE trading days (from NIFTY daily candles)
 REPORT_XLSX  = OUTPUT_DIR / "IC_backtest_report.xlsx"
@@ -75,7 +78,8 @@ DIV_YIELD      = 0.0
 # (last expiry date, lot size) - first row whose date >= the trade's expiry applies.
 # 50 -> 25 for contracts from 26-Apr-2024 (NSE); 25 -> 75 for contracts introduced from 20-Nov-2024,
 # existing Dec-2024 and Jan-2025 monthlies kept 25 until expiry; 75 -> 65 from the Jan-2026 expiry.
-LOT_SIZES = [("2024-05-30", 50), ("2025-01-30", 25), ("2025-12-30", 75), ("2099-12-31", 65)]
+# Expiries up to Jan-2021 (generated 2019-2020 trade set): 75, NIFTY's lot size at the time.
+LOT_SIZES = [("2021-01-28", 75), ("2024-05-30", 50), ("2025-01-30", 25), ("2025-12-30", 75), ("2099-12-31", 65)]
 
 # ---- data handling ----
 STALE_WARN_MIN = 15                     # fallback price older than this is flagged STALE

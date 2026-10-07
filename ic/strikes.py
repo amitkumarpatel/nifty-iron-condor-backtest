@@ -151,8 +151,8 @@ def main():
         px = price_at(contract_key(t.expiry.strftime("%Y-%m-%d"), ref, opt), day, C.ENTRY_TIME)[0]
         T = years(day, t.expiry)
         iv = implied_vol(px, spot, ref, T, opt) if px and spot else None
-        if not iv:
-            return None
+        if not iv:                 # no price for the reference strike (generated trade set): start from it
+            return ref // step * step if C.TRADE_SET else None
         grid = range(int(spot * 0.6) // step * step, int(spot * 1.4), step)
         return min(grid, key=lambda k: abs(abs(bs(spot, k, T, iv, opt)[1]) - tgt))
 

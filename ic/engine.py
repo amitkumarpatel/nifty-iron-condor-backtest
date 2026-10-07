@@ -314,6 +314,8 @@ def main():
             return "SKIPPED (filter)"
         if pd.isna(r.exit_date):
             return "NOT RUN"
+        if pd.isna(r.ref_pnl_pts):
+            return "NO REFERENCE"
         same_exit = r.exit_date == r.ref_exit_date and r.exit_reason == r.ref_exit_reason
         if same_exit and abs(r.pts_diff) <= C.RECON_PNL_TOL_PTS:
             return "MATCH"
@@ -408,7 +410,7 @@ def main():
     pd.set_option("display.width", 160)
     print(summ.to_string(float_format=lambda v: f"{v:,.2f}"))
     print("\nReconciliation:", rec.status.value_counts().to_dict())
-    diffs = rec[rec.status != "MATCH"]
+    diffs = rec[~rec.status.isin(["MATCH", "NO REFERENCE"])]
     if len(diffs):
         print(diffs[["trade_id", "ref_exit_date", "ref_exit_reason", "exit_date", "exit_reason", "ref_pnl_pts", "pnl_pts", "expected?"]].to_string(index=False))
     if problems:

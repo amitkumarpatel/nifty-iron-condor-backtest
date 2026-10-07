@@ -230,6 +230,8 @@ Run every command from the project folder with the virtual environment active
 | `python backtest.py` | Replays all trades with the current rules | No | `output/IC_backtest_report.xlsx` |
 | `python backtest.py --trades 1 9 23 --out output/x.xlsx` | Selected trades / separate report file | No | the `--out` file |
 | `python export_prices.py [--trades ...] [--out file]` | Daily price of every leg of every trade, entry to exit (11:16 entry, 15:16 checks, day OHLC), incl. filter-skipped months | No | `output/IC_leg_prices.xlsx` |
+| `python fetch_index_nse.py --from 2018-11-01 --to 2020-08-14` | NIFTY and India VIX daily prices from NSE's website, merged into the daily files and the calendar | No (NSE website) | `data/nifty_daily.csv`, `data/india_vix_daily.csv` |
+| `python make_trades.py --from 2019-01 --to 2020-12 --name 2019_2020` | Generate monthly trades for years without StockMock data (§5.3d) | No | `data/reference/ic_trades_<name>.csv`, `ic_legs_<name>.csv` |
 | `python select_strikes.py --ce-delta 0.25 --name ce25` | Experiment: choose sold strikes by delta | Yes | `data/strike_sets/` |
 | `python select_strikes.py --ce-delta 0.10 --pe-delta 0.10 --around 3 --step 100 --name d10` | Same, searching around a Black-Scholes estimate of the strike (few calls; for deltas far from 30) | Yes | `data/strike_sets/` |
 | `python download.py --strike-set d10 --hedge 500 [--dry-run]` | Candles for a variant: sold strikes from a strike set, hedges N points out. `--dry-run` only counts the calls (no login) | Yes (no with `--dry-run`) | `data/cache/` |
@@ -343,6 +345,32 @@ python backtest.py --strike-set d10 --hedge 500 --filter off
 - `--trades ...` limits every step to some trades (e.g. only the months the filter skips).
 - Without `--out`, a variant report is named `IC_backtest_<set>_h<width>[_nofilter].xlsx`, so the main
   report is never overwritten. All other rules (11:16 entry, 15:16 check, TP 50%, SL 100%, 18 DTE) stay.
+
+### 5.3d Testing other years (a generated trade set)
+The reference trades start in Jan-2021 (StockMock). For earlier years the trades are generated with the same
+pattern – one condor per monthly expiry, entered on the Monday six weeks before it – and the strikes are
+picked from Breeze prices:
+
+```bash
+# 1. NIFTY + India VIX daily history from NSE's website (no login) -> filter, calendar, starting strikes
+python fetch_index_nse.py --from 2018-11-01 --to 2020-08-14
+# 2. the trades: entry months Jan-2019 .. Dec-2020 -> data/reference/ic_trades_2019_2020.csv (+ legs)
+python make_trades.py --from 2019-01 --to 2020-12 --name 2019_2020
+# 3. ~30-delta sold strikes at 11:16 on each entry day (API)
+python select_strikes.py --trade-set 2019_2020 --ce-delta 0.30 --pe-delta 0.30 --around 4 --name d30_2019_2020
+# 4. candles (API), then the backtest (offline)
+python download.py --trade-set 2019_2020 --strike-set d30_2019_2020 --dry-run
+python download.py --trade-set 2019_2020 --strike-set d30_2019_2020
+python backtest.py --trade-set 2019_2020 --strike-set d30_2019_2020
+```
+- `--trade-set NAME` (= `IC_TRADE_SET`) works on every script; the report is named
+  `IC_backtest_<trade set>_<strike set>_h<width>.xlsx`. Trade id = YYMM of the entry month (1901 = Jan-2019).
+- A generated set has no StockMock prices, so there is no reconciliation (status `NO REFERENCE`) and no
+  StockMock fallback price at entry.
+- `make_trades.py` was checked against the reference trades: it reproduces all 66 entry and expiry dates.
+- `fetch_index_nse.py` only adds days that are missing (use `--replace` to overwrite) and also extends the
+  trading calendar. `download.py --index` now merges too, so it no longer drops earlier history.
+- Lot size for expiries up to Jan-2021 is 75 (`LOT_SIZES`).
 
 ### 5.4 Run the full backtest
 Works offline from the cache – no API calls, no session token needed.

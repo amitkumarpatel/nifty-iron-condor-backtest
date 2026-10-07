@@ -5,6 +5,7 @@ Per-run variant options for the entry scripts, so a test needs no environment va
     --hedge N           bought legs N points beyond the sold legs            (= IC_HEDGE_WIDTH)
     --filter X          10-day trend filter limit in %, or `off`             (= IC_TREND_FILTER)
     --entry-shift D     enter D calendar days after the reference entry      (= IC_ENTRY_SHIFT)
+    --trade-set NAME    trades from data/reference/ic_trades_NAME.csv        (= IC_TRADE_SET; python make_trades.py)
 
 They are turned into the environment variables ic/config.py already reads, so this must run before
 anything imports ic.config. backtest.py and export_prices.py also get a report name of their own for a
@@ -15,7 +16,7 @@ import os
 import sys
 
 OPTIONS = {"--strike-set": "IC_STRIKE_SET", "--hedge": "IC_HEDGE_WIDTH", "--filter": "IC_TREND_FILTER",
-           "--entry-shift": "IC_ENTRY_SHIFT"}
+           "--entry-shift": "IC_ENTRY_SHIFT", "--trade-set": "IC_TRADE_SET"}
 
 
 def preset(out_prefix=None):
@@ -32,7 +33,8 @@ def preset(out_prefix=None):
         else:
             i += 1
     if out_prefix and used and not any(a == "--out" or a.startswith("--out=") for a in argv):
-        parts = [out_prefix, used.get("--strike-set") or "sm", f"h{os.environ.get('IC_HEDGE_WIDTH', 'default')}"]
+        parts = [out_prefix] + ([used["--trade-set"]] if used.get("--trade-set") else [])
+        parts += [used.get("--strike-set") or "sm", f"h{os.environ.get('IC_HEDGE_WIDTH', 'default')}"]
         f = used.get("--filter")
         if f:
             parts.append("nofilter" if f.lower() == "off" else f"filter{f}")

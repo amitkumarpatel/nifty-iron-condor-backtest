@@ -90,6 +90,9 @@ def fetch_index_daily(api, first: date, last: date):
         df = pd.DataFrame(rows)
         df["date"] = df["datetime"].astype(str).str[:10]
         df = df[["date"] + [c for c in ["open", "high", "low", "close"] if c in df.columns]]
+        if Path(path).exists():    # keep days this pull does not have (earlier history, days Breeze leaves out)
+            old = pd.read_csv(path)
+            df = pd.concat([df, old[~old.date.isin(df.date)]])
         df = df.drop_duplicates("date").sort_values("date")
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(path, index=False)

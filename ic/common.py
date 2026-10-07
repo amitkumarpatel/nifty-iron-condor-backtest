@@ -17,6 +17,7 @@ def cache_file(key: str, day: date) -> Path:
 
 def load_inputs(trade_ids=None):
     trades = pd.read_csv(C.TRADES_CSV, parse_dates=["entry_date", "expiry", "ref_exit_date"])
+    trades["ref_exit_date"] = pd.to_datetime(trades.ref_exit_date)   # all-empty in a generated trade set
     trades["qty"] = [lot_size(e.date()) for e in trades.expiry]
     legs = pd.read_csv(C.LEGS_CSV)
     if C.ENTRY_SHIFT_DAYS:
