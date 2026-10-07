@@ -34,6 +34,8 @@ Full user documentation: README.md. All settings: `ic/config.py`.
   warning (5 of those 7). Gap-up exit: 300-pt ₹68,023 / −₹5,523; 400-pt ₹88,148 / −₹6,976.
 - Put side: no rule separates losers from winners (sold put crossed → 20/28 still profit); put-side exits double the DD.
 - 400-pt hedges = more profit with a bigger drawdown (₹83,114 / −₹9,814 vs ₹66,052 / −₹7,527); gap-up exit helps both.
+- 2019–2020 (out-of-sample, 7-Oct-2026): the same rules LOST money – with filter −₹7,579 on 15 trades, max DD −₹18,795 (lot 75);
+  no filter −₹34,106. Expect a drawdown near ₹19k per lot; 2021–26 (₹66,052 / −₹7,527) was a kinder period.
 - When a test is finished, add its conclusion to README §1a/§7 so the user does not repeat it.
 
 ## Decisions already made (with the user)
@@ -236,12 +238,15 @@ adopted: only 11 of 21 months could be run – in the other 10 the call hedge 50
 (strikes 300+ pts beyond a 10Δ call mostly do not trade 6 weeks out; puts are fine). The 11 that ran: 5 target / 6 stop-loss,
 net −₹15,235 vs −₹9,185 for the 30Δ/300-pt condor on the same months. Credit only ≈50 pts (30Δ ≈141), so the 100% stop sits
 close: stops at 1.0–1.7× credit (−₹1.5k to −₹4.9k) against ≈₹1–1.8k per win. Not an alternative for skipped months.
-2019–2020 backtest SET UP 7-Oct-2026 (user request), NOT RUN YET – needs Breeze downloads and Breeze may not have 1-minute option
-data that far back (probe confirmed 2021+ only). README §5.3d. Trade set `2019_2020` (make_trades.py; 24 monthly trades, entry
-months Jan-2019..Dec-2020, ids YYMM, Monday 45 DTE, lot 75; generator reproduces all 66 reference entry/expiry dates). NIFTY/VIX
-daily for Nov-2018..Jan-2021 fetched from NSE (fetch_index_nse.py). Filter would skip 9 of 24: 1905, 1911, 2003 (−14.4%, COVID
-crash), 2004, 2006, 2007, 2010, 2011, 2012. Next: select_strikes.py --trade-set 2019_2020 --ce-delta 0.30 --pe-delta 0.30
---around 4 --name d30_2019_2020 (first with --trades 1901 2003 as an availability check), download, backtest.
+2019–2020 OUT-OF-SAMPLE RUN (7-Oct-2026; trade set 2019_2020, strike set d30_2019_2020, lot 75; Breeze has the data;
+output/IC_backtest_2019_2020_d30_2019_2020_h300[_nofilter].xlsx). Same rules (30Δ, 300-pt, TP 50%, SL 100%, 18 DTE).
+With the ±2.5% filter: 15 trades, net −₹7,579, max DD −₹18,795, worst −₹11,002, win 67%, PF 0.76 (2019 −₹1,242, 2020 −₹6,337);
+0 targets, 2 stop-losses: 2002 (entry 10-Feb-2020, COVID crash, −₹11,002) and 1907 (Jul-2019, NIFTY −6.3%, −₹9,478); 1903
+(Mar-2019 rally +4.5%, −₹6,770). No filter: 23 trades −₹34,106 / DD −₹40,887 (2003 crash month −₹18,732; 2004 not run – no
+price). The filter still helps (+₹26.5k) but does not make these years profitable. Gap-up 1% exit makes it worse (−₹9,808 /
+DD −₹22,923). 2019–2026 with filter: 60 trades ₹58,472, max DD −₹18,795, win 72%, PF 1.95 (2021–26 alone: ₹66,052 / −₹7,527 /
+PF 3.20). LESSON: plan for a drawdown of ≈₹19k per lot, not ₹7.5k; a fast 6–9% fall hits the stop even from a calm start.
+Caveats: 300 pts ≈ 2.5–3.5% of NIFTY then (1.2% now); thinner 2019–20 option data (many FFILL/STALE prices).
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
