@@ -327,6 +327,16 @@ fix. Both fixes work by removing trade 35 (credit 41.6%; gap-up 1.09% on 15-Nov-
 credit>=42% 36 tr ₹75,635 / −₹6,976; gap-up 44 tr ₹88,148 / −₹6,976; both 36 tr ₹74,346 / −₹6,976 (no extra gain). 2019–20: credit>=42%
 4 tr +₹9,675 / −₹1,986; gap-up 15 tr −₹11,624 / −₹29,035. 2019–26: credit>=42% 40 tr ₹85,309 / −₹6,976 / PF 4.35 vs gap-up 59 tr
 ₹76,524 / −₹29,035 vs 400 ±2.5% only ₹78,583 / −₹20,046 vs 300-pt final ₹58,472 / −₹18,795. Caveat: the 42% line is set by trade 35.
+Switching hedge width by credit (user idea, 8-Oct-2026; all inside the ±2.5% filter; r4 = credit / 400-pt width; n / net / max DD;
+2021–26 | 2019–20 | 2019–26). Always 300: 45 ₹66,052 −₹7,527 | 15 −₹7,579 −₹18,795 | 60 ₹58,472 −₹18,795. Always 400 (trade 29 at 300):
+45 ₹85,711 −₹9,814 | 15 −₹4,531 −₹20,046 | 60 ₹81,180 −₹20,046.
+SWITCH 400 if r4>=42% else 300: 45 ₹84,645 −₹7,424 [36×400, 9×300] | 15 −₹3,624 −₹16,459 | 60 ₹81,021 −₹16,459 – 400-pt profit with the
+300-pt drawdown in 2021–26; lines 42–46% all give ₹80–85k / −₹7,424. 400 if r4>=42% else SKIP: 36 ₹75,635 −₹6,976 | 4 +₹9,675 −₹1,986 |
+40 ₹85,309 −₹6,976. THREE-WAY 400 if r4>=45%, 300 if 42–45%, skip below 42%: 36 ₹72,249 −₹5,611 | 4 +₹7,040 | 40 ₹79,288 −₹5,611
+(trade 67 at 300-pt −₹5,523 instead of −₹6,976). The thin months (r4<42%) traded at 300-pt: +₹9.0k in 2021–26 (incl. trade 35
+−₹7,243), −₹13.3k in 2019–20 → they are what brings the −₹16k drawdown back. Why wider-when-rich works: 400 beats 300 by ₹13.8k
+on the 19 months with r4>=46% (worst loss −₹1,558) but only by ₹1.1k on the 8 months below 42% (worst −₹9,814). Reverse rule
+(300 when rich) and switching on the 300-pt ratio or on the 10-day move are worse. Signal must be r4, not r3. Not built in.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
