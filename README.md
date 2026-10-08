@@ -95,6 +95,7 @@ Sep-2026. Details and tables for each point are in §7.
 | Same rules on 2019–2020 (years not used to choose the rules) | **Loses.** With filter −₹7.6k on 15 trades, max DD −₹18.8k; no filter −₹34.1k. Plan for ≈₹19k drawdown per lot |
 | Credit/width filter: trade only if credit ≥ 48% of the 300-pt width | **Promising, not adopted.** Alone: ₹40.3k / DD −₹9.4k (2021–26), +₹5.9k in 2019–20. With the 10-day filter: ₹40.3k / DD −₹4.0k, 26 trades. Threshold is sharp (46–47% no benefit) |
 | Two-tier rule: credit ≥ 48% with 10-day move within ±2.5%, or credit < 48% only if within ±1% | **Best on paper, not adopted – fitted.** 2019–26: 41 trades ₹70.8k / DD −₹5.5k vs ₹58.5k / −₹18.8k. The 1% limit is a knife edge (1.25% lets the Feb-2020 stop back in). Needs unseen data |
+| 400-pt hedges with ±2.5% AND credit ≥ 46% of width | **Lowest drawdown found, not adopted.** 19 trades ₹52.6k / DD −₹3.0k (2021–26); stable for credit 45–46.5% and move limit 2–3%. About 3 trades a year; 2019–20 barely tests it |
 | 1% gap-up exit at 15:16 | **Helps** (optional, off by default). Gap-*down* exits are harmful. 1.25%/1.5% give ≈ same profit, keep more of 2024–26 (+₹3k) but lose the drawdown cut (−₹7.2k, trade 35) |
 | Exit when NIFTY closes above the bought call | Small help alone; adds nothing once the gap-up exit is on |
 | Exit day | 18–20 DTE best; 15–17 and 21+ worse |
@@ -793,6 +794,15 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   −₹3,731 / 4.72 (±2.5% alone 45 tr ₹66,052 / −₹7,527); 400-pt & >=46% 19 tr ₹52,633 / −₹2,989 / −₹1,558 / 13.9 (±2.5% alone 44 tr ₹83,114 /
   −₹9,814). 400-pt line is sensitive: & >=45% 23 tr ₹58,379 / −₹4,407 (trade 15 at 45.6% comes in), & >=48% 8 tr ₹24,197 / −₹1,430.
   Roughly 3 trades a year at 400-pt – tiny sample; not run on 2019–20 for 400-pt (300-pt both: 3 tr +₹3,801).
+  400-pt filter tuning (8-Oct-2026, user's pick = ±2.5% AND credit>=46% of 400; n / net / max DD; 2021–26 | 2019–20 | 2019–26):
+  ±2.5 & 46%: 19 ₹52,633 −₹2,989 | 1 −₹1,986 | 20 ₹50,647 −₹2,989.   ±2.5 & 45%: 23 ₹58,379 −₹4,407 | 2 +₹3,821 | 25 ₹62,200 −₹4,407.
+  ±2 & 45%: 18 ₹55,772 −₹1,558 | 2 +₹3,821 | 20 ₹59,593 −₹1,986.     ±2 & 46%: 17 ₹52,127 −₹1,558.   ±3 & 46%: 20 ₹55,045 −₹2,989.
+  Stable plateau: credit 45–46.5% × move limit 2–3% all give ₹52–58k with DD −₹1.6k to −₹4.4k (the only swing trade is 15: 45.6%,
+  +2.49%, −₹4,407). Beyond ±3% or below 45% the DD jumps to −₹7k…−₹15k. The UP limit is what matters (no up limit: DD −₹13k); the
+  down limit hardly matters. Gap-up exit on top: no gain (₹44.4k / −₹3.5k). Two-tier form (rich ±2.5 / thin ±1) at 46%: 30 tr
+  ₹72,333 / −₹6,976 | 7 tr +₹18,831 | 37 tr ₹91,165 / −₹6,976, but thin ±1.25 lets 2002 in (2019–20 +₹2.7k / DD −₹14.1k) – same
+  knife edge as at 300-pt. CAVEATS: ≈3 trades a year, longest idle gap 11 months; in 2019–20 only 1–2 months pass because 400 pts
+  was a much wider hedge at NIFTY 9–12k (ratios 30–46%), so those years do not really test the rule. Not adopted.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
