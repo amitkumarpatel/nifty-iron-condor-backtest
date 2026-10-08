@@ -837,6 +837,10 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   credit>=46%, 1 lot at 42–46%: 2021–26 ₹128,267 / −₹6,976, 2019–26 ₹135,956 / −₹6,976 (worst rich-credit month −₹1,558 per lot;
   at >=45% DD −₹10,488). Doubles margin and the theoretical max loss in those months – user's call. Not tested (need downloads):
   a second index (BANKNIFTY/SENSEX), a second staggered condor per month.
+  Profit target on the finalised 300-pt ±2.5% (8-Oct-2026; 2021–26 net, DD −₹7,527 at every level): 50% ₹66,052 (11 targets); 55% ₹67,349
+  (7); 60% ₹65,004 (4); 65–75% ₹65,472 (1–0). 60% does NOT help at 300-pt (−₹1,048): four trades gain ₹0.5–1.3k each, but trades 26
+  and 60 miss the target and fall back (₹3,476 → ₹1,170; ₹4,183 → ₹1,902). 2019–20 unchanged at every level (no target was hit).
+  The target barely matters (range ₹65.0–67.3k); keep 50% for 300-pt. (400-pt + credit>=42%: 60% gave +₹3.6k.)
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
