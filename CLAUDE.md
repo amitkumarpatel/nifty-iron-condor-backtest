@@ -321,6 +321,12 @@ Do not propose it again. Goal now: lower the 400-pt drawdown and compare with th
 −₹11,624 / −₹29,035); ±1.5% only 27 / ₹71,974 / −₹6,976. Credit line is bumpy between 41 and 45%: 41% −₹9,814 (trade 35 at 41.6%
 still in), 42–43% −₹6,976, 44% −₹8,512 (25 tr ₹50,957), 45% −₹4,407. Floor without a >=44% line = trade 67 (43.6%, flat market,
 −₹6,976). 2019–20: 400 ±2.5% −₹4,531 / −₹20,046; + credit>=42% 4 tr +₹9,675 / −₹1,986; >=45% 2 tr +₹3,821; >=46% 1 tr −₹1,986.
+400-pt: credit>=42% vs gap-up exit (8-Oct-2026; user prefers 400-pt ±2.5% + credit>=42% as the comparable alternative to the 300-pt
+final). The −₹9,814 drawdown of 400-pt ±2.5% is trade 35 (stop-loss), NOT trade 67; trade 67 (−₹6,976) is what remains after either
+fix. Both fixes work by removing trade 35 (credit 41.6%; gap-up 1.09% on 15-Nov-23 → −₹1,179), so they are substitutes: 2021–26
+credit>=42% 36 tr ₹75,635 / −₹6,976; gap-up 44 tr ₹88,148 / −₹6,976; both 36 tr ₹74,346 / −₹6,976 (no extra gain). 2019–20: credit>=42%
+4 tr +₹9,675 / −₹1,986; gap-up 15 tr −₹11,624 / −₹29,035. 2019–26: credit>=42% 40 tr ₹85,309 / −₹6,976 / PF 4.35 vs gap-up 59 tr
+₹76,524 / −₹29,035 vs 400 ±2.5% only ₹78,583 / −₹20,046 vs 300-pt final ₹58,472 / −₹18,795. Caveat: the 42% line is set by trade 35.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
