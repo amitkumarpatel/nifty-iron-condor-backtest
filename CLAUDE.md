@@ -337,6 +337,15 @@ SWITCH 400 if r4>=42% else 300: 45 ₹84,645 −₹7,424 [36×400, 9×300] | 15 
 −₹7,243), −₹13.3k in 2019–20 → they are what brings the −₹16k drawdown back. Why wider-when-rich works: 400 beats 300 by ₹13.8k
 on the 19 months with r4>=46% (worst loss −₹1,558) but only by ₹1.1k on the 8 months below 42% (worst −₹9,814). Reverse rule
 (300 when rich) and switching on the 300-pt ratio or on the 10-day move are worse. Signal must be r4, not r3. Not built in.
+Ideas to add trades/profit to 400-pt ±2.5% & credit>=42% at similar DD (8-Oct-2026; base 2021–26 36 tr ₹75,635 / −₹6,976; 2019–26 40 tr
+₹85,309 / −₹6,976). (1) Rich credit allowed a bigger 10-day move: only ">=48% at any move" helps (2021–26 40 tr ₹84,536 / −₹6,976;
+2019–26 45 tr ₹102,661) but it is 5 trades and a knife edge – at 47% trade 16 (47.9%, −₹6,074) comes in → DD −₹10,481; with a
+3.5–4% cap DD −₹13k to −₹20k. Not reliable. (2) Rich credit after a FALL only (>=46% & move < −2.5%): +1 trade, +₹2.9k, DD same –
+too few (trade 17). After a RISE: DD −₹16k to −₹20k, never. (3) Profit target 60% instead of 50%: ₹79,261 / −₹6,976 (+₹3.6k, 4
+targets instead of 11); 75% = no target ₹79,389 – small gain, DD unchanged, slower exits. (4) SIZING, not a filter: 2 lots when
+credit>=46%, 1 lot at 42–46%: 2021–26 ₹128,267 / −₹6,976, 2019–26 ₹135,956 / −₹6,976 (worst rich-credit month −₹1,558 per lot;
+at >=45% DD −₹10,488). Doubles margin and the theoretical max loss in those months – user's call. Not tested (need downloads):
+a second index (BANKNIFTY/SENSEX), a second staggered condor per month.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
