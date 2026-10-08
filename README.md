@@ -782,6 +782,13 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   −₹5,523): ≈ ₹7–9k less profit, ≈ ₹2–3k less drawdown, 11 fewer trades, no stop-loss. 300-pt file: output/filter_comparison_2021_2026.xlsx.
   User leans towards the two-tier rule (7-Oct-2026); not yet adopted in config – still fitted, see warning above.
   Trade 60's 18-Dec-2025 candles for the 200 and 400-pt hedges were downloaded 7-Oct-2026; 400-pt results unchanged.
+  300 vs 400-pt under each single filter (8-Oct-2026; net / max DD / worst / PF). 2021–26: 300 ±2.5% 45 tr ₹66,052 / −₹7,527 / −₹7,243 /
+  3.20; 400 ±2.5% 44 tr ₹83,114 / −₹9,814 / −₹9,814 / 3.17; 300 credit>=48% 38 tr ₹40,295 / −₹9,434 / −₹5,345 / 2.49; 400 credit>=46% 28 tr
+  ₹49,944 / −₹10,102 / −₹6,954 / 3.32. 2019–20: 300 ±2.5% −₹7,579 / −₹18,795; 400 ±2.5% −₹4,531 / −₹20,046; 300 credit>=48% 5 tr +₹5,889 /
+  −₹1,688; 400 credit>=46% 3 tr −₹2,604 / −₹11,055 (2011: −₹9,068). 2019–26: 300 ±2.5% ₹58,472 / −₹18,795; 400 ±2.5% ₹78,583 / −₹20,046;
+  300 credit>=48% ₹46,184 / −₹9,434; 400 credit>=46% 31 tr ₹47,339 / −₹11,055. 400-pt DD is ≈ ₹1–2.5k (10–30%) deeper than 300-pt
+  under either filter; its worst trade ≈ 30% bigger (max loss/condor 219 vs 154 pts). Credit-only on 400 is not robust: 45%
+  −₹14,509 DD, 46% −₹10,102, 47% −₹6,074, and it did not hold in 2019–20 the way 48% on 300 did.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
