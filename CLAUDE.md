@@ -350,6 +350,17 @@ Profit target on the finalised 300-pt ±2.5% (8-Oct-2026; 2021–26 net, DD −�
 (7); 60% ₹65,004 (4); 65–75% ₹65,472 (1–0). 60% does NOT help at 300-pt (−₹1,048): four trades gain ₹0.5–1.3k each, but trades 26
 and 60 miss the target and fall back (₹3,476 → ₹1,170; ₹4,183 → ₹1,902). 2019–20 unchanged at every level (no target was hit).
 The target barely matters (range ₹65.0–67.3k); keep 50% for 300-pt. (400-pt + credit>=42%: 60% gave +₹3.6k.)
+400-pt StockMock manual run VALIDATED 9-Oct-2026 (data/reference/IC sell 30delta and 400 points hedge with 50%TP, 100%SL and 18DTE
+exit_StockMock.xlsx; output/reconcile_manual400_vs_backtest.xlsx). File checks all clean: 68 trades × 4 legs, entries 11:16, exits
+15:16, expiries = reference, lot sizes = config.LOT_SIZES, leg P&L adds up, every exit obeys the rules (51 time / 16 target / 1 stop,
+no early or late exit), hedges 400 pts except trade 29 CE 350 (18800/19150). StockMock 68 trades gross ₹79,003, MDD −₹12,235.
+Engine vs StockMock on the 65 common trades: same exit reason 65/65, same exit day 64/65 (trade 31: SM target 7-Aug at 50.1%,
+engine 9-Aug), same strikes 59/65; of those 49 within 3 pts and 56 within 5 pts, credit diff avg −0.04 pts. Gross ₹76,213 (SM) vs
+₹77,145 (engine); with ±2.5% filter 44 trades ₹93,662 / DD −₹9,720 (SM) vs ₹93,568 / −₹9,540 (engine gross; net ₹83,114 / −₹9,814).
+Strike differences = user's manual picks 50–100 pts from the reference sold strike: 13 (CE 18600 vs 18650), 33 (CE 20400 vs 20300),
+37 (CE 22700 vs 22750), 38 (PE 21300 vs 21350), 45 (CE 26000 vs 26050), 46 (CE 25900 vs 26000). StockMock-only: 24 (−₹2,725, no
+Breeze data), 29 (+₹3,863, engine has no 400/350-pt call hedge price at 11:16), Apr-2026 cycle (entry 16-Mar-26, +₹1,652, 10-day
+move −9.2% → filtered anyway). 400-pt engine results confirmed.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
