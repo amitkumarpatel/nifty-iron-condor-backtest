@@ -361,6 +361,11 @@ Strike differences = user's manual picks 50–100 pts from the reference sold st
 37 (CE 22700 vs 22750), 38 (PE 21300 vs 21350), 45 (CE 26000 vs 26050), 46 (CE 25900 vs 26000). StockMock-only: 24 (−₹2,725, no
 Breeze data), 29 (+₹3,863, engine has no 400/350-pt call hedge price at 11:16), Apr-2026 cycle (entry 16-Mar-26, +₹1,652, 10-day
 move −9.2% → filtered anyway). 400-pt engine results confirmed.
+StockMock 400-pt file revised by the user 9-Oct-2026 ("…_StockMock-2.xlsx", same folder): only two trades changed, both call
+spreads moved to the engine's strikes – trade 37 (15-Jan-24) CE 22700/23100 → 22750/23150, P&L ₹2,936 → ₹2,650 (engine gross
+₹2,565); trade 46 (14-Oct-24) CE 25900/26300 → 26000/26400, −₹1,547 → −₹1,778 (engine −₹1,661). Overall ₹79,003 → ₹78,486, MDD
+unchanged −₹12,235. Reconciliation with -2: same strikes 61/65; 65 common gross ₹75,696 (SM) vs ₹77,145 (engine); with the ±2.5%
+filter ₹93,376 (SM) vs ₹93,568 (engine). Remaining strike differences: 13, 33, 38, 45.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
