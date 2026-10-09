@@ -390,6 +390,21 @@ through the 400-pt spread. Three patterns: (a) rebound rally after a correction,
 with no 1% day (67). NOTHING known at entry separates them sharply: 10-day move (5 of 10 beyond ±2.5%), credit < 45% (7 of 10),
 VIX − realised vol (1.3 vs 2.3 for winners) only tilt the odds – which is what the two filters already use. VIX level, distance
 from the high, 20-day move, strike distance: no difference between losers and winners.
+Early exits / adjustments for losing trades tested 9-Oct-2026 on 400-pt (base ±2.5% 44 tr ₹83,114 / −₹9,814; ±2.5% & credit>=42% 36 tr
+₹75,635 / −₹6,976), ALL NOT ADOPTED – do not re-test:
+(1) Early loss stop at day N (P&L <= −10/−25/−40% of credit at day 3/5/8/10/12/15): worse in every case (e.g. day 10 & <= −25%:
+    5 trades, 2 final losers, exiting costs ₹22.9k). 30 of 65 trades were at −25% at some point; 11 of them ended in profit.
+(2) Early NIFTY-move exit (|move from entry| >= 2/2.5/3% at day 3–12): worse in every case (day 10 & >= 2.5%: 15 trades, only 3
+    final losers, exiting costs ₹56k). An early move does not predict the final result.
+(3) Lower or stepped profit target: flat TP 20/25/30/35/40% → ±2.5% ₹58.5k/72.5k/71.0k/70.7k/74.6k, DD unchanged −₹9,814; with
+    credit>=42%: TP 25% ₹73,221 / −₹6,192 / worst −₹4,744, win 92%, 14 days held (trade 67 exits at +25% instead of −₹6,976) – costs
+    ₹2.4k for ₹0.8k of DD. 300-pt: TP 20–40% ₹45–56k vs ₹66k. "50% then 25% after day 6–10" = same as flat 25%.
+(4) Buy an extra hedge when NIFTY closes beyond the sold strike / mid-spread / hedge strike: −₹53k to −₹84k added over 65 trades
+    (helps 62 +₹62.8k, 35 +₹22.7k but 30 of 46 crossings reverse and the extra option decays). Much worse.
+Why reactions fail: breaches usually revert before the exit. Timing of the damage: 7 of the 10 worst trades were flat or in
+profit at day 10 (67 was +28%); the loss came in the last 5–8 trading days. Trades that reached −75% of credit never recovered
+(5 of 5) – only late confirmation. Untested (need downloads): rolling the untested side closer, re-centring the condor,
+two half-size condors entered two weeks apart.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.

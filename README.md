@@ -97,6 +97,7 @@ Sep-2026. Details and tables for each point are in §7.
 | Two-tier rule: credit ≥ 48% with 10-day move within ±2.5%, or credit < 48% only if within ±1% | **Discarded by the user 8-Oct-2026.** On paper 2019–26: 41 trades ₹70.8k / DD −₹5.5k, but fitted – the 1% limit is a knife edge (1.25% lets the Feb-2020 stop back in) |
 | 400-pt hedges with ±2.5% AND credit ≥ 46% of width | **Lowest drawdown found, not adopted.** 19 trades ₹52.6k / DD −₹3.0k (2021–26); stable for credit 45–46.5% and move limit 2–3%. About 3 trades a year; 2019–20 barely tests it |
 | Switch hedge width by credit: 400-pt when credit ≥ 42% of 400, else 300-pt (inside ±2.5%) | **Promising, not adopted.** 2021–26: ₹84.6k / DD −₹7.4k (400-pt profit, 300-pt drawdown). 2019–20 still loses (−₹3.6k / −₹16.5k) because thin months are traded; skipping them instead gives 2019–26 ₹85.3k / −₹7.0k |
+| Early exit of losing trades (loss stop at day N, NIFTY-move exit), lower/stepped target, extra hedge on a breach | **No.** All worse or no gain on 400-pt: breaches usually revert before the exit; 7 of the 10 worst trades were still flat or in profit at day 10 |
 | 1% gap-up exit at 15:16 | **Helps** (optional, off by default). Gap-*down* exits are harmful. 1.25%/1.5% give ≈ same profit, keep more of 2024–26 (+₹3k) but lose the drawdown cut (−₹7.2k, trade 35) |
 | Exit when NIFTY closes above the bought call | Small help alone; adds nothing once the gap-up exit is on |
 | Exit day | 18–20 DTE best; 15–17 and 21+ worse |
@@ -881,6 +882,21 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   with no 1% day (67). NOTHING known at entry separates them sharply: 10-day move (5 of 10 beyond ±2.5%), credit < 45% (7 of 10),
   VIX − realised vol (1.3 vs 2.3 for winners) only tilt the odds – which is what the two filters already use. VIX level, distance
   from the high, 20-day move, strike distance: no difference between losers and winners.
+  Early exits / adjustments for losing trades tested 9-Oct-2026 on 400-pt (base ±2.5% 44 tr ₹83,114 / −₹9,814; ±2.5% & credit>=42% 36 tr
+  ₹75,635 / −₹6,976), ALL NOT ADOPTED – do not re-test:
+  (1) Early loss stop at day N (P&L <= −10/−25/−40% of credit at day 3/5/8/10/12/15): worse in every case (e.g. day 10 & <= −25%:
+      5 trades, 2 final losers, exiting costs ₹22.9k). 30 of 65 trades were at −25% at some point; 11 of them ended in profit.
+  (2) Early NIFTY-move exit (|move from entry| >= 2/2.5/3% at day 3–12): worse in every case (day 10 & >= 2.5%: 15 trades, only 3
+      final losers, exiting costs ₹56k). An early move does not predict the final result.
+  (3) Lower or stepped profit target: flat TP 20/25/30/35/40% → ±2.5% ₹58.5k/72.5k/71.0k/70.7k/74.6k, DD unchanged −₹9,814; with
+      credit>=42%: TP 25% ₹73,221 / −₹6,192 / worst −₹4,744, win 92%, 14 days held (trade 67 exits at +25% instead of −₹6,976) – costs
+      ₹2.4k for ₹0.8k of DD. 300-pt: TP 20–40% ₹45–56k vs ₹66k. "50% then 25% after day 6–10" = same as flat 25%.
+  (4) Buy an extra hedge when NIFTY closes beyond the sold strike / mid-spread / hedge strike: −₹53k to −₹84k added over 65 trades
+      (helps 62 +₹62.8k, 35 +₹22.7k but 30 of 46 crossings reverse and the extra option decays). Much worse.
+  Why reactions fail: breaches usually revert before the exit. Timing of the damage: 7 of the 10 worst trades were flat or in
+  profit at day 10 (67 was +28%); the loss came in the last 5–8 trading days. Trades that reached −75% of credit never recovered
+  (5 of 5) – only late confirmation. Untested (need downloads): rolling the untested side closer, re-centring the condor,
+  two half-size condors entered two weeks apart.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
