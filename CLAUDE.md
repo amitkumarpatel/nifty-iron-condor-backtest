@@ -380,6 +380,16 @@ with a worse band between them (43–44%: ₹51–66k, DD −₹7.0k to −₹8.
    −₹20,046, because it sits out the 2019–20 months with ratios 30–39%.
  Limits beyond ±3% or below 40% are worse everywhere; ±1–1.5% starves (≤13 trades in zone B). Differences inside a zone are 1–3
  trades (15, 35, 67) – pick the zone, not the cell. Not adopted; engine has no credit filter setting yet.
+What the big 400-pt losers share (9-Oct-2026, 65 trades 2021–26, no filter). Ten worst: 62 −₹11,604, 35 −₹9,814, 8 −₹7,228, 67 −₹6,976,
+19 −₹6,954, 16 −₹6,074, 30 −₹4,991, 52 −₹4,773, 22 −₹4,744, 15 −₹4,407 (7 call side, 3 put side; 5 of them pass ±2.5%: 35, 67,
+30, 22, 15). The ONE common attribute is what NIFTY did AFTER entry: a one-way move of 4–7.7% by the exit (all ten). Size of the
+entry→exit move vs result: |move| < 2% → 33 trades, 0 losers, +₹132.8k; >= 3% → 25 trades, 21 losers, −₹81.8k; >= 5% → 10 trades,
+10 losers, −₹57.1k (correlation with P&L −0.83). Sold strikes sit ≈3% (call) and ≈2% (put) from spot, so a 4–5% move runs
+through the 400-pt spread. Three patterns: (a) rebound rally after a correction, VIX 18–25, NIFTY 6–13% below its high (15, 19,
+22, 52); (b) low-volatility grind to new highs, VIX 11–13 (8, 30, 35); (c) falls – with gap-downs (62, 16) or a slow drift
+with no 1% day (67). NOTHING known at entry separates them sharply: 10-day move (5 of 10 beyond ±2.5%), credit < 45% (7 of 10),
+VIX − realised vol (1.3 vs 2.3 for winners) only tilt the odds – which is what the two filters already use. VIX level, distance
+from the high, 20-day move, strike distance: no difference between losers and winners.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
