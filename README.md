@@ -861,6 +861,16 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   ±2.5% 23 / ₹58,379 / −₹4,407; ±2% 18 / ₹55,772 / −₹1,558; ±1.5% 13 / ₹44,805 / −₹1,558; ±1% 8 / ₹33,335 / −₹990 (7 winners, 1 loser,
   ₹4,167 per trade; none in 2022 or 2024). Tightening from ±2.5% to ±1% drops 15 trades worth +₹25,044 (4 losers incl. trade 15
   −₹4,407, 11 winners) to save ₹3.4k of drawdown. 2019–20: 2 trades +₹3,821 at ±1% and at ±2.5%. Output: output/hedge400_credit45_trades.xlsx.
+  400-pt grid: credit line 40–47% × 10-day limit ±1–3.5% (9-Oct-2026; 2021–26 n / net / max DD, then 2019–26 net / DD). Two stable zones,
+  with a worse band between them (43–44%: ₹51–66k, DD −₹7.0k to −₹8.5k):
+   ZONE A "more profit" – credit>=42% (41–43) with ±2–2.5%: 31–36 tr, ₹73–76k, DD −₹6,976 (floor = trade 67); 2019–26 ₹83–85k / −₹6,976.
+   ZONE B "low drawdown" – credit>=45–46% with ±2–2.5%: 17–23 tr, ₹52–58k, DD −₹1,558 to −₹4,407; 2019–26 ₹50–62k / −₹2.0k to −₹4.4k.
+     Best cell: 45% & ±2%: 18 tr ₹55,772 / −₹1,558 (2019–26 ₹59,593 / −₹1,986); 45% & ±2.25%: 21 / ₹58,259 / −₹2,989; 45% & ±2.5%: 23 /
+     ₹58,379 / −₹4,407; 46% & ±2.5%: 19 / ₹52,633 / −₹2,989.
+   Light option: credit>=40% & ±2.5%: 43 tr ₹82,714 / −₹9,814 (≈ no credit filter in 2021–26) but 2019–26 ₹92,389 / −₹9,814 vs ₹78,583 /
+     −₹20,046, because it sits out the 2019–20 months with ratios 30–39%.
+   Limits beyond ±3% or below 40% are worse everywhere; ±1–1.5% starves (≤13 trades in zone B). Differences inside a zone are 1–3
+   trades (15, 35, 67) – pick the zone, not the cell. Not adopted; engine has no credit filter setting yet.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
