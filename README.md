@@ -99,6 +99,7 @@ Sep-2026. Details and tables for each point are in §7.
 | Switch hedge width by credit: 400-pt when credit ≥ 42% of 400, else 300-pt (inside ±2.5%) | **Promising, not adopted.** 2021–26: ₹84.6k / DD −₹7.4k (400-pt profit, 300-pt drawdown). 2019–20 still loses (−₹3.6k / −₹16.5k) because thin months are traded; skipping them instead gives 2019–26 ₹85.3k / −₹7.0k |
 | Early exit of losing trades (loss stop at day N, NIFTY-move exit), lower/stepped target, extra hedge on a breach | **No.** All worse or no gain on 400-pt: breaches usually revert before the exit; 7 of the 10 worst trades were still flat or in profit at day 10 |
 | Credit spread in skipped months (put spread after a rise, call spread after a fall; own TP 50%, SL 100% or 200%) | **No.** 2021–26: −₹11.2k (SL 100%) / −₹18.5k (SL 200%); 2019–26 about break-even. Put spread after a rise worked in 2019–23, lost in 2024–26; call spread after a fall is the wrong side |
+| "Option C": 400-pt when 10-day move ≤ ±2% and credit ≥ 45% of width, else 300-pt when move ≤ ±1.5%, else skip | **Candidate (user prefers it), not built in.** 2021–26: 32 trades ₹78.9k / DD −₹5.5k vs current ₹66.1k / −₹7.5k; 2019–26 ₹78.7k / −₹13.0k vs ₹58.5k / −₹18.8k. Three thresholds fitted on this data |
 | 1% gap-up exit at 15:16 | **Helps** (optional, off by default). Gap-*down* exits are harmful. 1.25%/1.5% give ≈ same profit, keep more of 2024–26 (+₹3k) but lose the drawdown cut (−₹7.2k, trade 35) |
 | Exit when NIFTY closes above the bought call | Small help alone; adds nothing once the gap-up exit is on |
 | Exit day | 18–20 DTE best; 15–17 and 21+ worse |
@@ -942,6 +943,14 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   The 27 "remaining" ±2.5% months at 300-pt made +₹25,012 in 2021–26 (19 winners; losers 35 −₹7,243, 67 −₹5,523, 30, 22, 15, 55, 41, 11).
   300-pt alone for reference: ±2.5% 45 ₹66,052 −₹7,527 | 2019–26 ₹58,472 −₹18,795; ±2.5% & r3>=48% 26 ₹40,271 −₹4,003 | 2019–26 ₹44,072 −₹4,003.
   Awaiting the user's choice; nothing built into the engine yet.
+  OPTION C vs the current forward-test rule (10-Oct-2026; user prefers C on 2021–26, not yet adopted/built). C = 400-pt IC if |10d move|
+  <= 2% and credit >= 45% of the 400-pt width; else 300-pt IC if |10d move| <= 1.5%; else skip. Current = 300-pt IC if |10d| <= 2.5%.
+  2021–26: current 45 tr ₹66,052 / DD −₹7,527 / worst −₹7,243 / win 73% / PF 3.20 / 1 losing year / 0.5-pt slip ₹56,492;
+  C 32 tr (18×400 + 14×300) ₹78,916 / −₹5,523 / −₹5,523 / 81% / 7.30 / 0 losing years / slip ₹72,056. Where the +₹12,864 comes from: 18
+  trades moved to 400-pt +₹14,732 (16 of 18 better); 13 trades dropped (10-day move 1.5–2.5% without rich credit) made +₹1,866 in
+  total = 5 losers −₹17.7k (35, 22, 15, 55, 41) and 8 winners +₹19.6k; 14 trades unchanged. 2019–20: current −₹7,579 / −₹18,795; C 9 tr
+  −₹194 / −₹12,988 (still takes the Feb-2020 stop −₹11,002: move −1.22%). 2019–26: current 60 tr ₹58,472 / −₹18,795 / PF 1.95; C 41 tr
+  ₹78,721 / −₹12,988 / PF 3.80. Caveats: 3 thresholds chosen on this data; trade 67 (−₹5,523) is in both; ≈5 trades a year.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.

@@ -449,6 +449,14 @@ ratio, r3 = 300-pt ratio): 400 rule only, rest skipped: 18 ₹55,772 −₹1,558
 The 27 "remaining" ±2.5% months at 300-pt made +₹25,012 in 2021–26 (19 winners; losers 35 −₹7,243, 67 −₹5,523, 30, 22, 15, 55, 41, 11).
 300-pt alone for reference: ±2.5% 45 ₹66,052 −₹7,527 | 2019–26 ₹58,472 −₹18,795; ±2.5% & r3>=48% 26 ₹40,271 −₹4,003 | 2019–26 ₹44,072 −₹4,003.
 Awaiting the user's choice; nothing built into the engine yet.
+OPTION C vs the current forward-test rule (10-Oct-2026; user prefers C on 2021–26, not yet adopted/built). C = 400-pt IC if |10d move|
+<= 2% and credit >= 45% of the 400-pt width; else 300-pt IC if |10d move| <= 1.5%; else skip. Current = 300-pt IC if |10d| <= 2.5%.
+2021–26: current 45 tr ₹66,052 / DD −₹7,527 / worst −₹7,243 / win 73% / PF 3.20 / 1 losing year / 0.5-pt slip ₹56,492;
+C 32 tr (18×400 + 14×300) ₹78,916 / −₹5,523 / −₹5,523 / 81% / 7.30 / 0 losing years / slip ₹72,056. Where the +₹12,864 comes from: 18
+trades moved to 400-pt +₹14,732 (16 of 18 better); 13 trades dropped (10-day move 1.5–2.5% without rich credit) made +₹1,866 in
+total = 5 losers −₹17.7k (35, 22, 15, 55, 41) and 8 winners +₹19.6k; 14 trades unchanged. 2019–20: current −₹7,579 / −₹18,795; C 9 tr
+−₹194 / −₹12,988 (still takes the Feb-2020 stop −₹11,002: move −1.22%). 2019–26: current 60 tr ₹58,472 / −₹18,795 / PF 1.95; C 41 tr
+₹78,721 / −₹12,988 / PF 3.80. Caveats: 3 thresholds chosen on this data; trade 67 (−₹5,523) is in both; ≈5 trades a year.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
