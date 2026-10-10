@@ -924,6 +924,13 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   d25_skip already selected offline (PE avg 143 pts further out, delta 0.249) – candles 173 calls (300-pt) + ≈136 (200) + ≈198 (100);
   20Δ strikes: select_strikes --pe-delta 0.20 --ce-delta 0.20 --around 3 --name d20_skip (3 calls) + candles. Spread simulator is a
   scratch script (not in the repo yet); move it into ic/ if the idea survives.
+  Credit spread in skipped months with a 400-pt hedge (10-Oct-2026; 30Δ sold strike; n / net / max DD / worst). PUT spread after a rise,
+  SL 100%: 2021–26 18 / −₹3,857 / −₹16,472 / −₹7,542 (11 targets, 6 stops, credit 82 pts); 2019–20 7 / +₹25,817 (7 of 7 targets); 2019–26
+  25 / +₹21,960 / −₹16,472 / PF 1.72. SL 200%: 2021–26 −₹14,484 / −₹31,618 / −₹14,923; 2019–26 +₹11,333 / −₹31,618. User rule (plus call
+  spread after a fall): SL 100% 2021–26 −₹11,786 / −₹24,401, 2019–26 +₹10,808; SL 200% 2021–26 −₹21,162 / −₹38,296. Width ladder,
+  put after a rise, SL 100%, 2021–26: 200-pt −₹10,311; 300-pt −₹5,039; 400-pt −₹3,857 – same 11 winners / 6 losers at 300 and 400,
+  wider only scales them. By year (400-pt): 2021 +₹4.7k, 2022 +₹2.7k, 2023 −₹0.2k, 2024 −₹3.7k, 2025 −₹4.6k, 2026 −₹2.8k. No width makes
+  2021–26 profitable; the whole 2019–26 gain is 2019–20. Not adopted.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
