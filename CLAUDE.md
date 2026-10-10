@@ -438,6 +438,17 @@ spread after a fall): SL 100% 2021–26 −₹11,786 / −₹24,401, 2019–26 +
 put after a rise, SL 100%, 2021–26: 200-pt −₹10,311; 300-pt −₹5,039; 400-pt −₹3,857 – same 11 winners / 6 losers at 300 and 400,
 wider only scales them. By year (400-pt): 2021 +₹4.7k, 2022 +₹2.7k, 2023 −₹0.2k, 2024 −₹3.7k, 2025 −₹4.6k, 2026 −₹2.8k. No width makes
 2021–26 profitable; the whole 2019–26 gain is 2019–20. Not adopted.
+USER PLAN 10-Oct-2026: deploy the 400-pt IC when |10d move| <= 2% AND credit >= 45% of the 400-pt width; otherwise a 300-pt IC under a
+filter still to be chosen. Options for the 300-pt part (n (400/300) / net / max DD; 2021–26 | 2019–20 | 2019–26; r4 = 400-pt credit
+ratio, r3 = 300-pt ratio): 400 rule only, rest skipped: 18 ₹55,772 −₹1,558 | 2 +₹3,821 | 20 ₹59,593 −₹1,986.
+ + 300 on the rest inside ±2.5%: 45 (18/27) ₹80,784 −₹7,424 | 15 −₹6,258 −₹19,093 | 60 ₹74,525 −₹19,093 (3 losing years).
+ + 300 on the rest inside ±2.5% & r4>=42%: 36 (18/18) ₹71,774 −₹5,523 | 4 +₹7,040 −₹1,986 | 40 ₹78,814 −₹5,523 (PF 4.71) ← best balance.
+ + 300 inside ±2.5% & r4>=40%: 43 ₹77,329 −₹7,424 | 4 +₹7,040 | 47 ₹84,369 −₹7,424.   + 300 inside ±2%: 38 ₹73,727 −₹9,752 | 2019–26 −₹18,196 DD.
+ + 300 inside ±2.5% & r3>=48%: 27 (18/9) ₹57,403 −₹3,820 | 3 +₹5,122 | 30 ₹62,525 −₹3,820.   r3>=45/46%: ₹61–63k / −₹9,752 (worse).
+ + 300 inside ±1.5%: 32 ₹78,916 −₹5,523 | 9 −₹194 −₹12,988 | 41 ₹78,721 −₹12,988.
+The 27 "remaining" ±2.5% months at 300-pt made +₹25,012 in 2021–26 (19 winners; losers 35 −₹7,243, 67 −₹5,523, 30, 22, 15, 55, 41, 11).
+300-pt alone for reference: ±2.5% 45 ₹66,052 −₹7,527 | 2019–26 ₹58,472 −₹18,795; ±2.5% & r3>=48% 26 ₹40,271 −₹4,003 | 2019–26 ₹44,072 −₹4,003.
+Awaiting the user's choice; nothing built into the engine yet.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
