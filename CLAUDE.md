@@ -405,6 +405,15 @@ Why reactions fail: breaches usually revert before the exit. Timing of the damag
 profit at day 10 (67 was +28%); the loss came in the last 5–8 trading days. Trades that reached −75% of credit never recovered
 (5 of 5) – only late confirmation. Untested (need downloads): rolling the untested side closer, re-centring the condor,
 two half-size condors entered two weeks apart.
+Direction after a strong 10-day move (10-Oct-2026; NIFTY, every Monday Nov-2018..Sep-2026 = 384 weeks; return over the next 18 trading
+days ≈ the holding period). All weeks: avg +0.7%, up 60%, above −2% in 79%. After a RISE > 2.5% (99 weeks): avg +1.5%, up 68%, above
+−2% in 84%, worst −9.1% → mild continuation, supports a PUT credit spread. After a FALL < −2.5% (46 weeks): avg +1.2%, median
++3.2%, up 67%, below +3% in only 50%, worst −22.7% → the market usually BOUNCES, so a CALL spread after a fall is the wrong side.
+Splits after a rise (data-mined, treat as hints): VIX not down >10% in 10 days → up 87% / above −2% 92% (52 wks) vs VIX fell >10%
+→ up 47% / 74% (47 wks); >4% above 50-DMA → 82% / 93% vs 55% / 75%; rise inside a 60-day downtrend → up 48% / 67%. Size of the rise,
+200-DMA, distance from the high: no use. CAVEAT – the edge has faded: after-rise weeks up 80–86% in 2019–2023 but 50% (2024),
+60% (2025), 14% (2026, 7 weeks). No reliable 20–30 day direction call exists; best statement = "after a rise NIFTY stayed above
+−2% about 5 times in 6". Credit-spread rule (TP/SL etc.) still to be confirmed by the user; not backtested yet.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
