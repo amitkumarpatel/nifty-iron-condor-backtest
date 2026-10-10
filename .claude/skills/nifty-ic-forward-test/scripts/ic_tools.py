@@ -35,6 +35,8 @@ import urllib.request
 REQUIRED = ["SKIP_IF_10D_MOVE_PCT", "TREND_LOOKBACK_DAYS", "HEDGE_WIDTH", "TP_FRACTION",
             "SL_FRACTION", "EXIT_DTE", "ENTRY_DTE", "EXPIRY_WEEKDAY", "ENTRY_TIME", "CHECK_TIME"]
 OPTIONAL = ["GAP_UP_EXIT_PCT", "MUHURAT_DAYS", "EXTRA_HOLIDAYS", "NSE_HOLIDAYS"]
+FWD = ["FWD_WIDE_WIDTH", "FWD_WIDE_MOVE_PCT", "FWD_WIDE_MIN_CREDIT_PCT", "FWD_NARROW_MOVE_PCT",
+       "FWD_MIN_CREDIT_PCT", "FWD_WIDE_TP_FRACTION"]
 JOURNAL_TRADES = "journal/forward_trades.csv"
 JOURNAL_DAILY = "journal/forward_daily.csv"
 DAILY_COLS = ["date", "trade_id", "sell_ce", "buy_ce", "sell_pe", "buy_pe", "pnl_pts",
@@ -63,7 +65,7 @@ def load_config():
         from ic import config
     except Exception as e:  # noqa: BLE001
         sys.exit(f"Cannot import ic.config ({e}). Run this from the repo root.")
-    missing = [n for n in REQUIRED if not hasattr(config, n)]
+    missing = [n for n in REQUIRED + FWD if not hasattr(config, n)]
     if missing:
         sys.exit(f"ic/config.py has no {missing}. Constant names changed? Update REQUIRED in ic_tools.py.")
     return config
@@ -185,12 +187,65 @@ def time_exit_date(cfg, expiry, hol):
     return day
 
 
+def fwd_text(cfg):
+    """The forward-test rule set (ic/config.py FWD_*), as plain lines."""
+    w, n = int(cfg.FWD_WIDE_WIDTH), int(cfg.HEDGE_WIDTH)
+    rich, floor = cfg.FWD_WIDE_MIN_CREDIT_PCT * w / 100, cfg.FWD_MIN_CREDIT_PCT * w / 100
+    return [
+        f"1. |10-day move| <= {cfg.FWD_WIDE_MOVE_PCT}% and {w}-pt condor credit >= {rich:.0f} pts ({cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}% of width)"
+        f" -> {w}-pt condor, target {cfg.FWD_WIDE_TP_FRACTION:.0%} of credit",
+        f"2. else |10-day move| <= {cfg.FWD_NARROW_MOVE_PCT}% and {w}-pt condor credit >= {floor:.0f} pts ({cfg.FWD_MIN_CREDIT_PCT:.0f}%)"
+        f" -> {n}-pt condor, target {cfg.TP_FRACTION:.0%} of credit",
+        "3. else skip the month",
+        f"both: stop {cfg.SL_FRACTION:.0%} of credit, one check a day at {cfg.CHECK_TIME}, time exit at expiry - {cfg.EXIT_DTE} days",
+        f"shadow-log every month: the earlier rule ({n}-pt condor if |10-day move| <= {cfg.SKIP_IF_10D_MOVE_PCT}%)",
+    ]
+
+
+def fwd_band(cfg, move):
+    """What the 10-day move alone says the evening before entry."""
+    m = abs(move)
+    w = int(cfg.FWD_WIDE_WIDTH)
+    rich, floor = cfg.FWD_WIDE_MIN_CREDIT_PCT * w / 100, cfg.FWD_MIN_CREDIT_PCT * w / 100
+    if m <= cfg.FWD_NARROW_MOVE_PCT:
+        return (f"TRADE - width decided at entry by the {w}-pt condor credit: >= {rich:.0f} pts -> {w}-pt, "
+                f"{floor:.0f}-{rich:.0f} pts -> {int(cfg.HEDGE_WIDTH)}-pt, below {floor:.0f} pts -> skip")
+    if m <= cfg.FWD_WIDE_MOVE_PCT:
+        return f"TRADE ONLY IF RICH - {w}-pt condor if its credit is >= {rich:.0f} pts at entry, else skip"
+    return f"SKIP - 10-day move beyond +/-{cfg.FWD_WIDE_MOVE_PCT}%"
+
+
+def fwd_decide(cfg, move, wide_credit):
+    """(width or None, reason) under the forward-test rule set."""
+    m, w = abs(move), int(cfg.FWD_WIDE_WIDTH)
+    ratio = wide_credit / w * 100
+    if m <= cfg.FWD_WIDE_MOVE_PCT and ratio >= cfg.FWD_WIDE_MIN_CREDIT_PCT:
+        return w, f"move {move:+.2f}% within +/-{cfg.FWD_WIDE_MOVE_PCT}% and credit {ratio:.1f}% >= {cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}%"
+    if m <= cfg.FWD_NARROW_MOVE_PCT and ratio >= cfg.FWD_MIN_CREDIT_PCT:
+        return int(cfg.HEDGE_WIDTH), (f"move {move:+.2f}% within +/-{cfg.FWD_NARROW_MOVE_PCT}%, credit {ratio:.1f}% between "
+                                      f"{cfg.FWD_MIN_CREDIT_PCT:.0f}% and {cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}%")
+    if m > cfg.FWD_WIDE_MOVE_PCT:
+        return None, f"move {move:+.2f}% beyond +/-{cfg.FWD_WIDE_MOVE_PCT}%"
+    if ratio < cfg.FWD_MIN_CREDIT_PCT:
+        return None, f"credit {ratio:.1f}% below the {cfg.FWD_MIN_CREDIT_PCT:.0f}% floor"
+    return None, (f"move {move:+.2f}% between {cfg.FWD_NARROW_MOVE_PCT}% and {cfg.FWD_WIDE_MOVE_PCT}% needs credit >= "
+                  f"{cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}%, it is {ratio:.1f}%")
+
+
+def tp_fraction(cfg, width):
+    return float(cfg.FWD_WIDE_TP_FRACTION) if width >= int(cfg.FWD_WIDE_WIDTH) else float(cfg.TP_FRACTION)
+
+
 def cmd_rules(cfg, a):
-    for n in REQUIRED + OPTIONAL:
+    print("Forward-test rule set (ic/config.py FWD_*):")
+    for line in fwd_text(cfg):
+        print("  " + line)
+    print("\nConfig values:")
+    for n in REQUIRED + FWD + OPTIONAL:
         v = getattr(cfg, n, "(not set)")
         if n in ("MUHURAT_DAYS", "EXTRA_HOLIDAYS", "NSE_HOLIDAYS") and hasattr(v, "__len__"):
             v = f"{len(v)} dates"
-        print(f"{n:22} {v}")
+        print(f"{n:24} {v}")
     gap = getattr(cfg, "GAP_UP_EXIT_PCT", None)
     print("gap-up exit:", f"ON at >= {gap}%" if gap else "OFF (log-only)")
 
@@ -209,7 +264,9 @@ def cmd_filter(cfg, a):
     verdict = "SKIP" if (lim and abs(move) > float(lim)) else "TRADE"
     print(f"source: {src}")
     print(f"NIFTY close {c1:.2f} on {d1} vs {c0:.2f} on {d0} ({n} trading days earlier)")
-    print(f"move = {move:+.2f}%  limit = +/-{lim}%  ->  {verdict}")
+    print(f"10-day move = {move:+.2f}%")
+    print(f"FORWARD-TEST RULE: {fwd_band(cfg, move)}")
+    print(f"earlier rule (shadow log, {int(cfg.HEDGE_WIDTH)}-pt, limit +/-{lim}%): {verdict}")
     if a.entry_date:
         print(f"valid for an entry on {before} (closes before that day)")
         if (before - d1).days > 4:
@@ -367,63 +424,121 @@ def cmd_strikes(cfg, a):
     if age > 10:
         print(f"WARNING: snapshot is {age:.0f} minutes old (market closed or NSE delay) - not entry prices.")
 
-    width, legs, notes = int(cfg.HEDGE_WIDTH), {}, []
-    for opt, out_ in (("CE", 1), ("PE", -1)):
-        otm = [q for q in chain.values() if q["opt"] == opt and q["delta"] and (q["strike"] - spot) * out_ > 0]
-        if not otm:
-            sys.exit(f"No priced out-of-the-money {opt} strikes in the chain.")
-        best = min(otm, key=lambda q: abs(q["delta"] - a.delta))
-        print(f"\n{opt} strikes near {a.delta:.2f} delta:")
-        print("  strike   delta      bid      ask     last   note")
-        for q in sorted(otm, key=lambda q: abs(q["delta"] - a.delta))[:5]:
-            print(f"  {q['strike']:6d}  {q['delta']:6.3f} {q['bid']:8.2f} {q['ask']:8.2f} {q['last']:8.2f}   "
-                  f"{'<- closest' if q is best else ''} {q['flag']}")
-        # README fallback: a hedge with no usable price (or priced >= the sold leg) moves the whole spread
-        # by FALLBACK_SHIFTS (negative = closer to the money), else the hedge is widened.
-        tries = [(best["strike"], best["strike"] + out_ * width, "")]
-        tries += [(best["strike"] + out_ * s_, best["strike"] + out_ * (s_ + width),
-                   f"spread {abs(s_)} pts {'closer' if s_ < 0 else 'further out'}") for s_ in cfg.FALLBACK_SHIFTS]
-        tries += [(best["strike"], best["strike"] + out_ * (width + e), f"hedge widened to {width + e} pts")
-                  for e in cfg.FALLBACK_HEDGE_EXTRA]
-        for ks, kb, why in tries:
-            s_, b_ = chain.get((ks, opt)), chain.get((kb, opt))
-            if s_ and b_ and s_["px"] and b_["px"] and b_["bid"] > 0 and b_["ask"] > 0 and b_["px"] < s_["px"]:
-                legs[opt] = (s_, b_)
-                if why:
-                    notes.append(f"{opt}: {best['strike']}/{best['strike'] + out_ * width} has no usable hedge "
-                                 f"price -> {ks}/{kb} ({why})")
-                break
-        else:
-            sys.exit(f"{opt}: no usable hedge price for {best['strike']} or its fallback strikes.")
+    def build(width, show):
+        """Legs for one hedge width: {opt: (sold, hedge)}, notes; None if a side has no usable price."""
+        legs, notes = {}, []
+        for opt, out_ in (("CE", 1), ("PE", -1)):
+            otm = [q for q in chain.values() if q["opt"] == opt and q["delta"] and (q["strike"] - spot) * out_ > 0]
+            if not otm:
+                sys.exit(f"No priced out-of-the-money {opt} strikes in the chain.")
+            best = min(otm, key=lambda q: abs(q["delta"] - a.delta))
+            if show:
+                print(f"\n{opt} strikes near {a.delta:.2f} delta:")
+                print("  strike   delta      bid      ask     last   note")
+                for q in sorted(otm, key=lambda q: abs(q["delta"] - a.delta))[:5]:
+                    print(f"  {q['strike']:6d}  {q['delta']:6.3f} {q['bid']:8.2f} {q['ask']:8.2f} {q['last']:8.2f}   "
+                          f"{'<- closest' if q is best else ''} {q['flag']}")
+            # README fallback: a hedge with no usable price (or priced >= the sold leg) moves the whole spread
+            # by FALLBACK_SHIFTS (negative = closer to the money), else the hedge is widened.
+            tries = [(best["strike"], best["strike"] + out_ * width, "")]
+            tries += [(best["strike"] + out_ * s_, best["strike"] + out_ * (s_ + width),
+                       f"spread {abs(s_)} pts {'closer' if s_ < 0 else 'further out'}") for s_ in cfg.FALLBACK_SHIFTS]
+            tries += [(best["strike"], best["strike"] + out_ * (width + e), f"hedge widened to {width + e} pts")
+                      for e in cfg.FALLBACK_HEDGE_EXTRA]
+            for ks, kb, why in tries:
+                s_, b_ = chain.get((ks, opt)), chain.get((kb, opt))
+                if s_ and b_ and s_["px"] and b_["px"] and b_["bid"] > 0 and b_["ask"] > 0 and b_["px"] < s_["px"]:
+                    legs[opt] = (s_, b_)
+                    if why:
+                        notes.append(f"{opt}: {best['strike']}/{best['strike'] + out_ * width} has no usable hedge "
+                                     f"price -> {ks}/{kb} ({why})")
+                    break
+            else:
+                return None, [f"{opt}: no usable hedge price for {best['strike']} or its fallback strikes ({width}-pt)"]
+        return legs, notes
 
-    rows = [("sell_ce", legs["CE"][0]), ("buy_ce", legs["CE"][1]), ("sell_pe", legs["PE"][0]), ("buy_pe", legs["PE"][1])]
-    print(f"\nLegs by the rules ({a.delta:.2f} delta sold, hedges {width} pts out):")
-    print("  leg      strike    delta      bid      ask    price   note")
-    for name, q in rows:
-        dl = f"{q['delta']:6.3f}" if q["delta"] else "     -"
-        print(f"  {name:8} {q['strike']:6d}   {dl} {q['bid']:8.2f} {q['ask']:8.2f} {q['px']:8.2f}   {q['flag']}")
-    for n in notes:
-        print(f"NOTE: {n}")
-    (sc, bc), (sp, bp) = legs["CE"], legs["PE"]
-    credit = sc["px"] + sp["px"] - bc["px"] - bp["px"]
-    worst = sc["bid"] + sp["bid"] - bc["ask"] - bp["ask"]          # sell at bid, buy at ask
-    wmax = max(bc["strike"] - sc["strike"], sp["strike"] - bp["strike"])
-    qty = lot_size(exp)
-    print(f"\ncredit at the prices above {credit:.2f} pts; selling at bid and buying at ask {worst:.2f} pts "
-          f"(slippage {credit - worst:.2f} pts)")
-    print(f"target +{float(cfg.TP_FRACTION) * credit:.2f} pts, stop -{float(cfg.SL_FRACTION) * credit:.2f} pts, "
-          f"max loss at expiry {wmax - credit:.2f} pts; lot size {qty} -> credit Rs {credit * qty:,.0f}, "
-          f"max loss Rs {(wmax - credit) * qty:,.0f}")
-    print("These are the strikes the rules point to, not an instruction to trade. NSE's website chain can lag "
+    def credit_of(legs):
+        (sc, bc), (sp, bp) = legs["CE"], legs["PE"]
+        return sc["px"] + sp["px"] - bc["px"] - bp["px"]
+
+    def report(width, legs, notes, tp_frac, title):
+        rows = [("sell_ce", legs["CE"][0]), ("buy_ce", legs["CE"][1]), ("sell_pe", legs["PE"][0]), ("buy_pe", legs["PE"][1])]
+        print(f"\n{title} ({a.delta:.2f} delta sold, hedges {width} pts out):")
+        print("  leg      strike    delta      bid      ask    price   note")
+        for name, q in rows:
+            dl = f"{q['delta']:6.3f}" if q["delta"] else "     -"
+            print(f"  {name:8} {q['strike']:6d}   {dl} {q['bid']:8.2f} {q['ask']:8.2f} {q['px']:8.2f}   {q['flag']}")
+        for n in notes:
+            print(f"NOTE: {n}")
+        (sc, bc), (sp, bp) = legs["CE"], legs["PE"]
+        credit = credit_of(legs)
+        worst = sc["bid"] + sp["bid"] - bc["ask"] - bp["ask"]          # sell at bid, buy at ask
+        wmax = max(bc["strike"] - sc["strike"], sp["strike"] - bp["strike"])
+        qty = lot_size(exp)
+        print(f"credit {credit:.2f} pts = {credit / width * 100:.1f}% of width; selling at bid and buying at ask "
+              f"{worst:.2f} pts (slippage {credit - worst:.2f} pts)")
+        print(f"target +{tp_frac * credit:.2f} pts ({tp_frac:.0%}), stop -{float(cfg.SL_FRACTION) * credit:.2f} pts, "
+              f"max loss at expiry {wmax - credit:.2f} pts; lot size {qty} -> credit Rs {credit * qty:,.0f}, "
+              f"max loss Rs {(wmax - credit) * qty:,.0f}")
+        return rows
+
+    wide, narrow = int(cfg.FWD_WIDE_WIDTH), int(cfg.HEDGE_WIDTH)
+    legs_w, notes_w = build(wide, show=True)
+    legs_n, notes_n = build(narrow, show=False)
+
+    # 10-day move for the decision: closes before the snapshot day (NSE), unless given with --move
+    if a.move is not None:
+        move, move_src = a.move, "--move"
+    else:
+        n_ = int(cfg.TREND_LOOKBACK_DAYS)
+        # during market hours: closes before today (the entry day); after the close the snapshot is a
+        # preview for the next session, so that day's own close counts too
+        before = ts.date() if ts.time() < dt.time(15, 30) else ts.date() + dt.timedelta(days=1)
+        closes, move_src = get_closes(before, n_ + 1)
+        move = (closes[-1][1] / closes[0][1] - 1) * 100 if len(closes) > n_ else None
+
+    print("\n=== Forward-test decision ===")
+    if move is None:
+        print("10-day move not available - pass it with --move X.XX")
+    else:
+        print(f"10-day move {move:+.2f}% ({move_src})")
+    width = None
+    if legs_w is None:
+        print(f"{wide}-pt condor cannot be priced: {'; '.join(notes_w)}")
+        print("The credit test needs it - check the hedge strikes in the broker terminal and decide by hand.")
+    elif move is not None:
+        cw = credit_of(legs_w)
+        width, why = fwd_decide(cfg, move, cw)
+        print(f"{wide}-pt condor credit {cw:.2f} pts = {cw / wide * 100:.1f}% of width")
+        print(f"DECISION: {'SKIP' if width is None else f'{width}-pt condor'} - {why}")
+    lim = cfg.SKIP_IF_10D_MOVE_PCT
+    if move is not None and lim:
+        print(f"earlier rule (shadow log): {'SKIP' if abs(move) > float(lim) else f'{narrow}-pt condor'} "
+              f"(|10-day move| limit {lim}%)")
+
+    saved = []
+    if legs_w is not None:
+        chosen = width == wide
+        saved += [(wide, r) for r in report(wide, legs_w, notes_w, tp_fraction(cfg, wide),
+                                            f"{wide}-pt condor{' - CHOSEN' if chosen else ' (credit test)'}")]
+    if legs_n is not None:
+        chosen = width == narrow
+        saved += [(narrow, r) for r in report(narrow, legs_n, notes_n, tp_fraction(cfg, narrow),
+                                              f"{narrow}-pt condor{' - CHOSEN' if chosen else ' (shadow log / earlier rule)'}")]
+    else:
+        print(f"\n{narrow}-pt condor cannot be priced: {'; '.join(notes_n)}")
+    print("\nThese are the strikes the rules point to, not an instruction to trade. NSE's website chain can lag "
           "a few minutes; confirm live prices in the broker terminal before paper-filling.")
     if a.save:
         os.makedirs(os.path.dirname(a.save) or ".", exist_ok=True)
         with open(a.save, "w", newline="") as fh:
             w = csv.writer(fh, lineterminator="\n")
-            w.writerow(["snapshot", "expiry", "nifty", "leg", "strike", "delta", "bid", "ask", "price", "last", "note"])
-            for name, q in rows:
-                w.writerow([ts, exp, spot, name, q["strike"], "" if not q["delta"] else f"{q['delta']:.4f}",
-                            q["bid"], q["ask"], f"{q['px']:.2f}", q["last"], q["flag"]])
+            w.writerow(["snapshot", "expiry", "nifty", "move_10d", "decision_width", "width", "leg", "strike", "delta",
+                        "bid", "ask", "price", "last", "note"])
+            for wd, (name, q) in saved:
+                w.writerow([ts, exp, spot, "" if move is None else f"{move:.2f}", width or "SKIP", wd, name, q["strike"],
+                            "" if not q["delta"] else f"{q['delta']:.4f}", q["bid"], q["ask"], f"{q['px']:.2f}",
+                            q["last"], q["flag"]])
         print(f"saved to {a.save}")
 
 
@@ -445,7 +560,9 @@ def cmd_check(cfg, a):
     to_close = now[0] + now[2] - now[1] - now[3]
     pnl = credit - to_close
     pct = pnl / credit * 100 if credit else float("nan")
-    tp, sl = float(cfg.TP_FRACTION) * credit, -float(cfg.SL_FRACTION) * credit
+    width = max(float(t["buy_ce"]) - float(t["sell_ce"]), float(t["sell_pe"]) - float(t["buy_pe"]))
+    tpf = tp_fraction(cfg, width)                    # 60% for the wide condor, TP_FRACTION otherwise
+    tp, sl = tpf * credit, -float(cfg.SL_FRACTION) * credit
     ex = time_exit_date(cfg, d(t["expiry"]), holidays(cfg, a.holiday))
 
     if a.open is not None and not a.prev_close:      # previous close from NSE when not given
@@ -474,7 +591,7 @@ def cmd_check(cfg, a):
 
     print(f"trade {a.trade_id} on {today}: credit {credit:.2f}  cost-to-close {to_close:.2f}  "
           f"P&L {pnl:+.2f} pts ({pct:+.0f}% of credit)")
-    print(f"target {tp:+.2f}, stop {sl:+.2f}, time exit date {ex}")
+    print(f"{width:.0f}-pt condor: target {tp:+.2f} ({tpf:.0%}), stop {sl:+.2f}, time exit date {ex}")
     if gap_pct is not None:
         state = "ON" if gap_rule_on else "OFF - log only"
         print(f"gap {gap_pct:+.2f}% vs prev close; gap-up >= {threshold}%: {'YES' if gap_flag else 'no'} "
@@ -531,6 +648,7 @@ def main():
     x = s.add_parser("strikes")
     x.add_argument("--expiry", required=True)
     x.add_argument("--delta", type=float, default=TARGET_DELTA)
+    x.add_argument("--move", type=float, help="10-day move in percent (default: worked out from NSE closes)")
     x.add_argument("--save", help="write the four legs with bid/ask to this CSV (e.g. journal/entry_quotes_N.csv)")
     x = s.add_parser("check")
     x.add_argument("--trade-id", required=True)

@@ -17,6 +17,19 @@ The rules change often (hedge width, exit DTE and the filter were all revised wi
 
 Do not quote strategy numbers from memory. Take them from the `rules` output.
 
+## The rule set being forward-tested (README section 1b)
+
+`rules` prints it from `ic/config.py` (`FWD_*`). In words:
+
+1. Evening before entry: NIFTY's 10-day move. At 11:16 on the entry day: the net credit of the **400-point** condor.
+2. Move within the wide limit **and** credit at or above the rich line: 400-point condor, with the higher profit target.
+3. Otherwise, move within the narrow limit **and** credit at or above the floor: 300-point condor, with the normal target.
+4. Otherwise skip the month. Below the credit floor there is no condor of either width.
+
+Stop-loss, the daily 15:16 check and the time exit are the same for both widths.
+
+**Shadow log.** The earlier rule (300-point condor whenever the 10-day move is within `SKIP_IF_10D_MOVE_PCT`) is kept for comparison. Every month, also record what it would have done: its decision, and if it would have traded while the forward-test rule skipped or chose the other width, the 300-point condor's entry prices and its daily 15:16 P&L. Use a separate journal row for it and write `shadow` in `notes`.
+
 ## Hard rules
 
 - **Never place, modify or cancel orders.** If a Zerodha Kite MCP is connected, use read-only tools only (for example `get_ltp`, `get_quotes`, `get_ohlc`, `get_historical_data`, `get_positions`). Never call `place_order`, `modify_order`, `cancel_order` or any GTT tool, even if asked mid-session. If the user wants to go live, that is a separate decision they make outside this skill.
@@ -64,7 +77,12 @@ If `plan` prints a NOTE that the expiry is not on the configured weekday, find o
 python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py filter --entry-date YYYY-MM-DD --show
 ```
 
-Prints NIFTY's move over the lookback and **TRADE** or **SKIP**. On SKIP, the month is skipped. Record a row in the journal with a note so the skip is visible later.
+Prints NIFTY's 10-day move and two verdicts:
+
+- **FORWARD-TEST RULE:** `TRADE` (width decided at entry by the credit), `TRADE ONLY IF RICH` (400-point condor only if its credit reaches the rich line at entry, else skip) or `SKIP`.
+- **earlier rule (shadow log):** TRADE or SKIP.
+
+Report both. When the forward-test rule says SKIP, the month is skipped: record a journal row with a note so the skip is visible later. If the earlier rule would have traded, it still needs its shadow row at entry time.
 
 Where the closes come from:
 
@@ -82,7 +100,13 @@ The rules call for ~30-delta sold CE and PE and bought legs `HEDGE_WIDTH` points
 python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py strikes --expiry YYYY-MM-DD --save journal/entry_quotes_N.csv
 ```
 
-It prints the five strikes nearest 0.30 delta on each side (Black-Scholes delta from the bid-ask mid, the same method as the backtest's `select_strikes.py`), the four legs with bid and ask, the credit at those prices and at bid/ask, and the target, stop and maximum loss. If the hedge has no usable price it applies the README fallback and says so.
+It prints the five strikes nearest 0.30 delta on each side (Black-Scholes delta from the bid-ask mid, the same method as the backtest's `select_strikes.py`), then prices **both** the 400-point and the 300-point condor and prints:
+
+- the **forward-test decision**: 400-point condor, 300-point condor or SKIP, with the reason (10-day move and the 400-point credit as points and as a percentage of width);
+- what the **earlier rule** would do, for the shadow log;
+- for each width: the four legs with bid and ask, the credit at those prices and at bid/ask, the target (higher for the 400-point condor), the stop and the maximum loss.
+
+The 10-day move is worked out from NSE closes before the entry day; `--move X.XX` overrides it. If a hedge has no usable price the README fallback is applied and noted. If the 400-point condor cannot be priced at all, the credit test cannot be made: say so and let the user decide from broker quotes.
 
 Limits to state when reporting it:
 
@@ -94,7 +118,8 @@ Then:
 
 - Use read-only Kite quotes if available to confirm bid, ask and LTP for all four legs. Otherwise use the script's output or ask the user.
 - Flag a hedge whose bid-ask spread is wide or whose price is at or above its sold leg (the README calls out BAD_PRICE and the slippage risk on the 300-pt hedges).
-- Write the trade row: strikes, `paper_px_*` (the paper fills, using the 11:16 prices), `bidask_*`, `filter_move_pct`.
+- Write the trade row: strikes, `paper_px_*` (the paper fills, using the 11:16 prices), `bidask_*`, `filter_move_pct`, `rule_decision` (400 / 300 / SKIP), `hedge_width`, `credit_400_pts`, `credit_300_pts` and `earlier_rule_decision`.
+- If the earlier rule would have acted differently (traded when this rule skips, or a 300-point condor when this rule takes 400), add the shadow row for its 300-point condor.
 
 Paper fills are optimistic. Always record real bid and ask at entry so slippage can be estimated later (the README says 1 pt of slippage per leg cuts the 300-pt result to about 11k).
 
@@ -106,7 +131,7 @@ python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py check --trade-id
   --open <NIFTY open today> --prev-close <previous close> --log
 ```
 
-Prices are the 15:16 prices of the four legs. It prints credit, P&L, the target and stop levels and one action:
+Prices are the 15:16 prices of the four legs. The script reads the hedge width from the journal row and uses the matching profit target (the higher one for a 400-point condor). It prints credit, P&L, the target and stop levels and one action:
 
 | Action | Meaning |
 | --- | --- |
@@ -137,6 +162,8 @@ Keep answers short and numeric. For a check, give: action, P&L in points and as 
 ## Known gaps
 
 - The 10-day filter follows the README: last close before the entry day versus the close 10 trading days earlier, either direction. If the README definition changes, update `cmd_filter` in the script.
+- The forward-test rule set lives only in the skill script and `ic/config.py`. `backtest.py` still runs the earlier rule, so after a trade is exported for reconciliation the backtest's 300-point result is the shadow comparison, not a check of a 400-point trade unless it is run with `--hedge 400`.
+- The rule's thresholds were chosen on backtest data and it trades about five times a year. Do not present its backtest results as what to expect.
 - NSE's index file URL (`NSE_INDEX_URL` in the script) can change or be blocked. If the script falls back to the local CSV more than once, tell the user so the source can be fixed.
 - Today's NIFTY open for the gap-up log is not in NSE's file until the evening. Take it from a read-only Kite quote or ask the user.
 - `plan` treats weekdays as trading days except the holidays in config (`NSE_HOLIDAYS`, `EXTRA_HOLIDAYS`, `MUHURAT_DAYS`), because `data/nifty_trading_days.csv` only covers past dates. A holiday announced after the last `holidays --write` is missed until it is refreshed.

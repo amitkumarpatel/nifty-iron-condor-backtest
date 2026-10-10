@@ -66,6 +66,45 @@ Order of checks each day: stop-loss → target → time exit.
 
 ---
 
+## 1b. Forward-test rule set (adopted 10-Oct-2026)
+
+This is the version being paper traded from the October-2026 cycle. It adds a credit test and a wider hedge
+to the rules of §1. Everything not listed here (Monday 11:16 entry, ~30-delta sold strikes, next-month expiry,
+one check a day at 15:16, stop at 100% of credit, time exit at expiry − 18 days, 1 lot, fallback strikes) is
+unchanged. Settings: `FWD_*` in `ic/config.py`. `backtest.py` does **not** use them – its defaults stay the
+earlier rule below, which is kept as the comparison.
+
+**Two readings.** Evening before entry: NIFTY's 10-day move. At 11:16: the net credit of the **400-point**
+condor (sold ~30-delta call and put, hedges 400 points out).
+
+| 10-day move | Credit of the 400-pt condor | Action | Profit target |
+|---|---|---|---|
+| within ±1.5% | 180 points or more (≥ 45% of width) | **400-point condor** | **60%** of credit |
+| within ±1.5% | 160–180 points (40–45%) | **300-point condor** | 50% of credit |
+| within ±1.5% | below 160 points (< 40%) | **Skip** – minimum-credit floor | – |
+| between 1.5% and 2% | 180 points or more | **400-point condor** | **60%** of credit |
+| between 1.5% and 2% | below 180 points | **Skip** | – |
+| beyond ±2% | any | **Skip** | – |
+
+- **60% target for the 400-point condor** (50% stays for the 300-point one). Backtest: +₹3.4k, drawdown unchanged.
+- **Minimum-credit floor:** no condor of either width when the 400-point credit is below 160 points. In the
+  backtest this drops one small winner in 2021–26 and the Feb-2020 stop-loss (credit 35% of width).
+- **Backtest of this rule set** (1 lot, net): 2021–26 31 trades (18 × 400-pt, 13 × 300-pt), ₹81,472, max
+  drawdown −₹5,523, worst trade −₹5,523, win 81%; 2019–26 35 trades, ₹88,512, max drawdown −₹5,523.
+  Earlier rule on the same data: 2021–26 45 trades ₹66,052 / −₹7,527; 2019–26 60 trades ₹58,472 / −₹18,795.
+- **Caution:** three thresholds (2%, 1.5%, 45%) and the floor were chosen on this same data, and the rule trades
+  about five times a year. Treat the backtest edge as an upper bound.
+
+> **Note – the earlier rule is kept as a shadow log.** "300-point condor whenever the 10-day move is within
+> ±2.5%" (§1, the `backtest.py` default) was the version first selected for the forward test. Every month,
+> also record what it would have done (trade or skip, and the 300-point condor's prices and daily P&L), so the
+> two can be compared after a few months.
+
+> **Note – one ±2% limit for both widths was considered and not used.** With the 300-point condor also allowed
+> up to ±2%, the 2021–26 result falls to ₹73,727 with a max drawdown of −₹9,752 (it lets in trades 22, 55 and
+> the Nov-2023 stop-loss). ±1.75% scores higher (₹86,802 / −₹5,523) but sits right next to those losers, so
+> the 300-point limit stays at ±1.5%.
+
 ## 1a. Key lessons – read before testing anything new
 
 All figures: Monday 11:16 entry, ~30Δ sold legs, 18-DTE exit, 50% target, 100% stop, net of costs, Feb-2021 to
@@ -449,30 +488,34 @@ Run it after changing the code. The fake prices are not market data.
 ---
 
 ### 5.10 Monthly routine (paper or live trading)
-**Forward-test plan (3-Oct-2026):** 1 lot for 3–6 months with the default rules – ±2.5% 10-day filter, Monday
-~11:15–11:16 entry (~43 DTE), ~30Δ CE + PE sold, 300-pt hedges, exit at −100% / +50% of credit or 18 DTE, and a
-noted (not acted on) check of the condor at 15:16 on every 1% gap-up day. Later: same rules with 400-pt hedges.
+**Forward-test plan (revised 10-Oct-2026):** 1 lot for 3–6 months with the rule set of §1b – Monday
+~11:15–11:16 entry (~43 DTE), ~30Δ CE + PE sold; a 400-point condor (60% target) when the 10-day move is within
+±2% and its credit is at least 180 points, otherwise a 300-point condor (50% target) when the move is within
+±1.5% and that credit is at least 160 points, otherwise no trade; stop at −100% of credit, time exit at 18 DTE.
+Every month also log what the earlier rule (300-point, ±2.5%) would have done, and note (not act on) the
+condor's 15:16 P&L on every 1% gap-up day.
 
 The project only reads historical data – it never places orders. Each month:
 
 1. **Evening before the planned entry (43 DTE, the Monday six weeks before the Tuesday expiry):** check
-   the 10-day trend filter – NIFTY's last close vs its close 10 trading days earlier. Beyond ±2.5% → skip
-   the month. The forward-test helper does this from NSE's website, no Breeze login needed:
-   `python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py plan --expiry YYYY-MM-DD` (entry and
-   time-exit dates), then `... ic_tools.py filter --entry-date YYYY-MM-DD --show` (TRADE or SKIP).
-   It falls back to `data/nifty_daily.csv` with a warning if NSE cannot be reached.
+   NIFTY's 10-day move (last close vs the close 10 trading days earlier) against the forward-test rule of §1b:
+   within ±1.5% → trade; between 1.5% and 2% → trade only if the 400-point credit is rich; beyond ±2% → skip.
+   `python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py plan --expiry YYYY-MM-DD` gives the entry and
+   time-exit dates, `... ic_tools.py filter --entry-date YYYY-MM-DD --show` gives the reading from NSE's website
+   (no Breeze login), with the verdict of both the forward-test rule and the earlier ±2.5% rule.
    NSE holidays for the entry/exit dates are kept in `NSE_HOLIDAYS` (`ic/config.py`); refresh them each
-   January with `... ic_tools.py holidays --write` (reads the F&O holiday list from NSE's website). Monthly
-   expiries move to the previous trading day when the Tuesday is a holiday (Nov-2026 expiry = Mon 23-Nov).
-   (`python download.py --index` then `python backtest.py` shows the same value as `nifty_10d_move_pct`
-   once the trade is in the reference files.)
-2. **Entry at 11:16:** sell the ~30-delta CE and PE, buy the hedges 300 points further out.
-   `... ic_tools.py strikes --expiry YYYY-MM-DD` reads NSE's option chain and prints the strikes nearest
-   30 delta, the four legs with bid/ask, the credit, target, stop and maximum loss (NSE's chain lags a few
-   minutes – confirm prices in the broker terminal). If a
+   January with `... ic_tools.py holidays --write`. Monthly expiries move to the previous trading day when the
+   Tuesday is a holiday (Nov-2026 expiry = Mon 23-Nov).
+2. **Entry at 11:16:** price the 400-point condor first (sell the ~30-delta CE and PE, hedges 400 points
+   further out); its credit decides between the 400-point condor, the 300-point condor and no trade (§1b).
+   `... ic_tools.py strikes --expiry YYYY-MM-DD` reads NSE's option chain, prices the 400-point and the
+   300-point condor, applies the §1b table (credit of the 400-point condor against 180 / 160 points) and prints
+   the decision, the legs with bid/ask, the credit, the target (60% or 50%), the stop and the maximum loss, plus
+   what the earlier rule would do (NSE's chain lags a few minutes – confirm prices in the broker terminal). If a
    strike has no price, use the fallback rule (spread 50/100 points closer or further, else a
    350/400-point hedge).
-3. **Every day at 15:16:** exit all 4 legs at −100% of the credit (stop) or +50% (target).
+3. **Every day at 15:16:** exit all 4 legs at −100% of the credit (stop) or at the target – +60% for a
+   400-point condor, +50% for a 300-point one.
    Optional (paper trade it first): if NIFTY opened ≥ 1% above the previous close that day, exit
    at 15:16 too (gap-up exit, §7). Log every such day either way.
 4. **Time exit:** 15:16 on the last trading day on/before expiry − 18 days.
@@ -491,12 +534,12 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
 
 | You ask | What Claude does | Command |
 |---|---|---|
-| "What are the current rules?" | Prints the live values from `ic/config.py`, including entry DTE (43) and expiry weekday (Tue) | `rules` |
+| "What are the current rules?" | Prints the forward-test rule set (§1b) and the live values from `ic/config.py` | `rules` |
 | "Plan the November cycle" | Gives one entry date (the Monday six weeks before expiry) and the time-exit date, using the NSE holiday list in config; prints a note when the expiry is not a Tuesday and a warning when a year has no holiday list | `plan --expiry` |
-| "Should I enter this month?" | Reads the last 11 NIFTY closes from NSE's website and reports the 10-day move with TRADE or SKIP; uses `data/nifty_daily.csv` only if NSE is unreachable | `filter --entry-date` |
+| "Should I enter this month?" | Reads the last 11 NIFTY closes from NSE's website and reports the 10-day move with the forward-test verdict (trade / trade only if credit is rich / skip) and the earlier ±2.5% rule's verdict; uses `data/nifty_daily.csv` only if NSE is unreachable | `filter --entry-date` |
 | "Refresh the NSE holidays" | Shows NSE's F&O holiday list and what would change; with your agreement, writes it into `NSE_HOLIDAYS` in `ic/config.py` | `holidays [--write]` |
-| "Which strikes for this expiry?" | Reads NSE's option chain, finds the strikes nearest 30 delta, adds the 300-point hedges (with the fallback rule), and prints bid/ask, credit, target, stop and maximum loss | `strikes --expiry` |
-| "Log today's check" | Takes the four 15:16 leg prices and reports HOLD, TARGET, STOPLOSS, TIME or GAP_UP; fetches the previous close from NSE if it is not given; logs to `journal/forward_daily.csv` | `check --log` |
+| "Which strikes for this expiry?" | Reads NSE's option chain, finds the strikes nearest 30 delta, prices the 400-point and 300-point condors (with the fallback rule), decides the width from the 400-point credit and the 10-day move, and prints bid/ask, credit, target, stop and maximum loss | `strikes --expiry` |
+| "Log today's check" | Takes the four 15:16 leg prices and reports HOLD, TARGET, STOPLOSS, TIME or GAP_UP, with a 60% target for a 400-point condor and 50% for a 300-point one; fetches the previous close from NSE if it is not given; logs to `journal/forward_daily.csv` | `check --log` |
 | "The trade is closed" | Prints the rows for the two backtest reference files; writes nothing until you agree | `export-ref` |
 
 **Rules Claude follows under the skill**

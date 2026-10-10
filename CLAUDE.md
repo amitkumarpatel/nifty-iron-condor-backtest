@@ -29,6 +29,21 @@ Full user documentation: README.md. All settings: `ic/config.py`.
   above the bought call (all 7 losses) had a >= 1% gap-up first; with the gap-up exit max DD −₹7.5k → −₹5.5k and
   profit ₹66,052 → ₹68,023 (300-pt, filter). Late warning: NIFTY closing above the bought call (trades 30, 52 had no gap).
 
+## Forward-test rule set (ADOPTED by the user 10-Oct-2026 for the Oct-2026 cycle onward; README §1b; `FWD_*` in config)
+Used by the forward-test skill only – `backtest.py` defaults stay the earlier rule above (300-pt, ±2.5%), kept as the comparison.
+- Evening before entry: 10-day move. At 11:16: net credit of the 400-pt condor (30Δ sold legs, hedges 400 pts out).
+- |move| <= 2% AND credit >= 180 pts (45% of 400) → 400-pt IC, **target 60%** of credit.
+- else |move| <= 1.5% AND credit >= 160 pts (40% floor) → 300-pt IC, target 50%.
+- else skip. **Minimum-credit floor:** no IC of either width when the 400-pt credit is below 160 pts.
+- Stop 100% of credit, 15:16 daily check, 18-DTE time exit, 1 lot, fallback strikes – unchanged.
+- NOTE: the earlier rule (300-pt IC whenever |move| <= 2.5%) is the SHADOW LOG – record every month what it would have done.
+- NOTE: one ±2% limit for both widths was the user's preference but is worse (2021–26 ₹73,727 / DD −₹9,752 vs ₹78,916 / −₹5,523),
+  so the 300-pt limit stays ±1.5% (±1.75% scores ₹86,802 but sits next to the losers 22, 55, 35).
+- Backtest of the adopted set: 2021–26 31 tr (18×400 + 13×300) ₹81,472 / DD −₹5,523 / worst −₹5,523 / win 81%; 2019–26 35 tr
+  ₹88,512 / −₹5,523. Thresholds were fitted on this data and it trades ≈5 times a year – expect less live.
+- Oct-2026 cycle (entry Mon 12-Oct-2026, expiry Mon 23-Nov-2026): 10-day move −2.35% → forward-test rule SKIPS; the earlier
+  rule would TRADE the 300-pt IC → shadow-log it (time exit Thu 5-Nov-2026).
+
 ## Key lessons (user asked 3-Oct-2026 to keep these as notes – do not re-test; full list in README §1a)
 - Call side: once NIFTY closes above the bought call the trade loses – 7/7 (with filter 4/4). 1% gap-up is the early
   warning (5 of those 7). Gap-up exit: 300-pt ₹68,023 / −₹5,523; 400-pt ₹88,148 / −₹6,976.
@@ -468,6 +483,11 @@ SAFETY FLOOR (best tweak): no 300-pt trade when the 400-pt credit is below 40% o
 Floors 38–41% all similar; 42% cuts 2021–26 to ₹70,664. TP 60% on the 400-pt trades only: ₹82,331 −₹5,523 (+₹3.4k); on both ₹79,532.
 EASY FORM (same trades as C + floor), credit in points of the 400-pt condor: move <= 1.5%: >= 180 pts → 400-pt; 160–180 → 300-pt;
 < 160 → skip. Move 1.5–2%: >= 180 pts → 400-pt, else skip. Move > 2%: skip. Not adopted/built yet – user to confirm.
+Forward-test tools updated 10-Oct-2026: ic_tools.py `rules` prints the FWD rule set; `filter` gives the FWD verdict (trade / trade
+only if rich / skip) plus the earlier rule's; `strikes` prices the 400-pt and 300-pt condors, decides the width from the 400-pt
+credit and the 10-day move (or --move), shows target 60%/50%; `check` uses a 60% target when the journal row is a 400-pt condor.
+Journal template gained rule_decision, hedge_width, credit_400_pts, credit_300_pts, earlier_rule_decision. The engine itself has
+no FWD option – backtest numbers for the adopted set come from combining the 300/400-pt no-filter runs.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
@@ -488,7 +508,8 @@ Action items:
    `git push` in the user's Terminal; never ask for or handle the token.
 6. Review the summary web page (link above).
 7. Returns (~₹11.6k/yr with filter) are far below the 1–1.5%/month target – sizing is the user's call.
-8. FORWARD-TEST PLAN (user's conclusion, 3-Oct-2026), 1 lot, 3–6 months:
+8. FORWARD-TEST PLAN – SUPERSEDED 10-Oct-2026 by the "Forward-test rule set" section near the top (the list below is now
+   the shadow-log rule). Original plan (user's conclusion, 3-Oct-2026), 1 lot, 3–6 months:
    - Skip the month if |NIFTY 10-day move| > 2.5% (close before entry vs close 10 trading days earlier).
    - Monday ~11:15–11:16 entry, ~43 DTE (Tuesday expiries), next-month expiry.
    - Sell ~30Δ CE + PE, buy hedges 300 pts further out (fallback rule if a strike has no price).
