@@ -98,6 +98,7 @@ Sep-2026. Details and tables for each point are in §7.
 | 400-pt hedges with ±2.5% AND credit ≥ 46% of width | **Lowest drawdown found, not adopted.** 19 trades ₹52.6k / DD −₹3.0k (2021–26); stable for credit 45–46.5% and move limit 2–3%. About 3 trades a year; 2019–20 barely tests it |
 | Switch hedge width by credit: 400-pt when credit ≥ 42% of 400, else 300-pt (inside ±2.5%) | **Promising, not adopted.** 2021–26: ₹84.6k / DD −₹7.4k (400-pt profit, 300-pt drawdown). 2019–20 still loses (−₹3.6k / −₹16.5k) because thin months are traded; skipping them instead gives 2019–26 ₹85.3k / −₹7.0k |
 | Early exit of losing trades (loss stop at day N, NIFTY-move exit), lower/stepped target, extra hedge on a breach | **No.** All worse or no gain on 400-pt: breaches usually revert before the exit; 7 of the 10 worst trades were still flat or in profit at day 10 |
+| Credit spread in skipped months (put spread after a rise, call spread after a fall; own TP 50%, SL 100% or 200%) | **No.** 2021–26: −₹11.2k (SL 100%) / −₹18.5k (SL 200%); 2019–26 about break-even. Put spread after a rise worked in 2019–23, lost in 2024–26; call spread after a fall is the wrong side |
 | 1% gap-up exit at 15:16 | **Helps** (optional, off by default). Gap-*down* exits are harmful. 1.25%/1.5% give ≈ same profit, keep more of 2024–26 (+₹3k) but lose the drawdown cut (−₹7.2k, trade 35) |
 | Exit when NIFTY closes above the bought call | Small help alone; adds nothing once the gap-up exit is on |
 | Exit day | 18–20 DTE best; 15–17 and 21+ worse |
@@ -906,6 +907,15 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   200-DMA, distance from the high: no use. CAVEAT – the edge has faded: after-rise weeks up 80–86% in 2019–2023 but 50% (2024),
   60% (2025), 14% (2026, 7 weeks). No reliable 20–30 day direction call exists; best statement = "after a rise NIFTY stayed above
   −2% about 5 times in 6". Credit-spread rule (TP/SL etc.) still to be confirmed by the user; not backtested yet.
+  Credit spread in filter-skipped months TESTED 10-Oct-2026, NOT adopted (user idea: put spread after a 10-day rise > 2.5%, call spread
+  after a fall; same 30Δ sold strike and 300-pt hedge as the IC, entry 11:16, daily 15:16 check, TP 50% of the spread's own credit,
+  18-DTE exit; output/credit_spread_skipped_months.xlsx; n / net / max DD). USER RULE, SL 100%: 2021–26 21 tr −₹11,170 / −₹21,171;
+  2019–20 8 tr +₹13,157; 2019–26 29 tr +₹1,987 / −₹21,171 (PF 1.05). SL 200%: 2021–26 −₹18,454 / −₹31,885; 2019–26 −₹4,060 / −₹31,885.
+  By leg (SL 100%, 2019–26): PUT after a rise 24 tr +₹10,744 / −₹15,040 (17 targets, 6 stops; 2019–20 6 of 6 targets +₹15,783,
+  2021–26 18 tr −₹5,039; by entry year 2021–23 +₹3.7k, 2024–26 −₹8.7k); CALL after a fall 5 tr −₹8,757 (wrong side, as the direction
+  study said); put after a fall 5 tr +₹1,199; call after a rise 24 tr −₹14,586. SL 100% beats SL 200% everywhere (stops overshoot:
+  −₹2.8k to −₹7.0k on ≈₹1.6–2.6k wins). Average credit 65–80 pts on about the same margin as the full IC. Reversal months
+  (16, 50, 62, 48, 12, 33) are the losers. Skipping those months remains the better choice.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
