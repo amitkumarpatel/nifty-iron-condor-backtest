@@ -457,6 +457,17 @@ trades moved to 400-pt +₹14,732 (16 of 18 better); 13 trades dropped (10-day m
 total = 5 losers −₹17.7k (35, 22, 15, 55, 41) and 8 winners +₹19.6k; 14 trades unchanged. 2019–20: current −₹7,579 / −₹18,795; C 9 tr
 −₹194 / −₹12,988 (still takes the Feb-2020 stop −₹11,002: move −1.22%). 2019–26: current 60 tr ₹58,472 / −₹18,795 / PF 1.95; C 41 tr
 ₹78,721 / −₹12,988 / PF 3.80. Caveats: 3 thresholds chosen on this data; trade 67 (−₹5,523) is in both; ≈5 trades a year.
+Option C tweaks tested 10-Oct-2026 (n / net / max DD; 2021–26 | 2019–26). Base C: 32 ₹78,916 −₹5,523 | 41 ₹78,721 −₹12,988.
+STABILITY: 400-pt move limit 1.75/2/2.25/2.5% with credit 45–46% and 300-pt limit 1.25–1.75% all give ₹70–89k / −₹5,523; the only
+cliff is a 300-pt limit of ±2% (−₹9,752: lets in 22 and 55). 300-pt limit 1.25 ₹71.3k, 1.5 ₹78.9k, 1.75 ₹86.8k (adds 51, 58, 40) –
+1.5 sits mid-plateau; keep it. Credit 44% adds a losing year (trade 22).
+SIMPLER FORMS: one move limit ±1.5% for both widths 27 ₹67,950 −₹5,523 (−₹11k: drops rich-credit trades at 1.5–2%); one limit ±2%
+₹73,727 −₹9,752; same months all at 400-pt 32 ₹82,940 −₹6,976 | ₹85,600 −₹14,068; all at 300-pt ₹64,184 −₹5,523.
+SAFETY FLOOR (best tweak): no 300-pt trade when the 400-pt credit is below 40% of width (160 pts): 2021–26 31 ₹78,057 −₹5,523
+(only trade 45 drops) but 2019–20 becomes 4 tr +₹7,040 (Feb-2020 stop had 35.4%) → 2019–26 35 ₹85,097 −₹5,523, no losing year.
+Floors 38–41% all similar; 42% cuts 2021–26 to ₹70,664. TP 60% on the 400-pt trades only: ₹82,331 −₹5,523 (+₹3.4k); on both ₹79,532.
+EASY FORM (same trades as C + floor), credit in points of the 400-pt condor: move <= 1.5%: >= 180 pts → 400-pt; 160–180 → 300-pt;
+< 160 → skip. Move 1.5–2%: >= 180 pts → 400-pt, else skip. Move > 2%: skip. Not adopted/built yet – user to confirm.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
