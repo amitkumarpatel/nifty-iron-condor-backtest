@@ -916,6 +916,14 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   study said); put after a fall 5 tr +₹1,199; call after a rise 24 tr −₹14,586. SL 100% beats SL 200% everywhere (stops overshoot:
   −₹2.8k to −₹7.0k on ≈₹1.6–2.6k wins). Average credit 65–80 pts on about the same margin as the full IC. Reversal months
   (16, 50, 62, 48, 12, 33) are the losers. Skipping those months remains the better choice.
+  Credit spread in skipped months with a 200-pt hedge (10-Oct-2026, 2021–26, 30Δ sold strike, put spread after a rise, 18 trades; net /
+  max DD / worst): SL 100% −₹10,311 / −₹13,358 / −₹4,279 (9 targets, 8 stops, credit 46 pts) vs 300-pt −₹5,039 / −₹15,040 / −₹6,155 (11 / 6,
+  credit 65); SL 200% −₹10,594 / −₹18,489 vs 300-pt −₹13,069 / −₹26,500. User rule incl. call spread after a fall: 200-pt −₹14.4k (SL 100%)
+  / −₹14.3k (SL 200%). Narrower hedge = smaller loss per trade but more stops (trades 1 and 13 flip from target to stop) and smaller
+  wins → worse total. PENDING (need the user's Breeze session): 100-pt hedge on the 30Δ strikes (67 calls); 25Δ strikes – strike set
+  d25_skip already selected offline (PE avg 143 pts further out, delta 0.249) – candles 173 calls (300-pt) + ≈136 (200) + ≈198 (100);
+  20Δ strikes: select_strikes --pe-delta 0.20 --ce-delta 0.20 --around 3 --name d20_skip (3 calls) + candles. Spread simulator is a
+  scratch script (not in the repo yet); move it into ic/ if the idea survives.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
