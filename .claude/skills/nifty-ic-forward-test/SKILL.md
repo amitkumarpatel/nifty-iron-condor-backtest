@@ -15,20 +15,78 @@ The rules change often (hedge width, exit DTE and the filter were all revised wi
 2. For anything not covered by those values, read **README section 1 (Strategy rules)** and **section 7** in the repo.
 3. If this file and `config.py`/README disagree, `config.py`/README win. Tell the user about the mismatch.
 
-Do not quote strategy numbers from memory. Take them from the `rules` output.
+Do not quote strategy numbers from memory. Take them from the `rules` output. The decision table below is a reading aid; it does not replace that check.
 
 ## The rule set being forward-tested (README section 1b)
 
-`rules` prints it from `ic/config.py` (`FWD_*`). In words:
+Adopted on 10-Oct-2026, from the October-2026 cycle. The numbers below are the values at adoption; `rules` prints the live ones from `ic/config.py` (`FWD_*`). If they differ, the `rules` output wins and the user should be told.
 
-1. Evening before entry: NIFTY's 10-day move. At 11:16 on the entry day: the net credit of the **400-point** condor.
-2. Move within the wide limit **and** credit at or above the rich line: 400-point condor, with the higher profit target.
-3. Otherwise, move within the narrow limit **and** credit at or above the floor: 300-point condor, with the normal target.
-4. Otherwise skip the month. Below the credit floor there is no condor of either width.
+### Two readings
 
-Stop-loss, the daily 15:16 check and the time exit are the same for both widths.
+| When | Reading | How to get it |
+|---|---|---|
+| Evening before entry | NIFTY's 10-day move: last close against the close 10 trading days earlier | `filter --entry-date YYYY-MM-DD` |
+| 11:16 on the entry day | Net credit of the **400-point** condor: sold ~30-delta call and put, hedges 400 points further out | `strikes --expiry YYYY-MM-DD` |
 
-**Shadow log.** The earlier rule (300-point condor whenever the 10-day move is within `SKIP_IF_10D_MOVE_PCT`) is kept for comparison. Every month, also record what it would have done: its decision, and if it would have traded while the forward-test rule skipped or chose the other width, the 300-point condor's entry prices and its daily 15:16 P&L. Use a separate journal row for it and write `shadow` in `notes`.
+### Decision table
+
+| 10-day move | Credit of the 400-point condor | Decision | Profit target |
+|---|---|---|---|
+| within ±1.5% | 180 points or more (45% of width or more) | **400-point condor** | 60% of credit |
+| within ±1.5% | 160 to 180 points (40% to 45%) | **300-point condor** | 50% of credit |
+| within ±1.5% | below 160 points (below 40%) | **Skip**: minimum-credit floor | none |
+| between 1.5% and 2% | 180 points or more | **400-point condor** | 60% of credit |
+| between 1.5% and 2% | below 180 points | **Skip** | none |
+| beyond ±2% | any | **Skip** | none |
+
+What the evening reading already tells the user:
+
+- within ±1.5%: a trade is expected; the credit at entry decides the width (or a skip, if it is under the floor).
+- between 1.5% and 2%: a trade only if the premium is rich at entry.
+- beyond ±2%: no trade this month.
+
+### Same for both widths
+
+| Rule | Value |
+|---|---|
+| Entry | Monday, 11:16, next-month expiry (43 DTE for Tuesday expiries) |
+| Sold strikes | ~30 delta call and put; fallback rule if a strike has no price |
+| Stop-loss | P&L at or below minus 100% of the credit |
+| Daily check | once, at 15:16; order is stop-loss, then target, then time exit |
+| Time exit | last trading day on or before expiry minus 18 days |
+| Size | 1 lot; no adjustment, no re-entry |
+| Gap-up exit | off; log every day NIFTY opens 1% or more above the previous close |
+
+### Config names behind the table
+
+| Value | Setting in `ic/config.py` |
+|---|---|
+| 400 points | `FWD_WIDE_WIDTH` |
+| ±2% | `FWD_WIDE_MOVE_PCT` |
+| 45% of width (180 points) | `FWD_WIDE_MIN_CREDIT_PCT` |
+| ±1.5% | `FWD_NARROW_MOVE_PCT` |
+| 40% of width (160 points) | `FWD_MIN_CREDIT_PCT` |
+| 60% target | `FWD_WIDE_TP_FRACTION` |
+| 300 points, 50% target, 100% stop, 18 days | `HEDGE_WIDTH`, `TP_FRACTION`, `SL_FRACTION`, `EXIT_DTE` |
+
+### Shadow log: the earlier rule
+
+The earlier rule is kept for comparison: a 300-point condor whenever the 10-day move is within ±2.5% (`SKIP_IF_10D_MOVE_PCT`), 50% target, same stop and exits. Every month, also record what it would have done.
+
+| Forward-test decision | Earlier rule | What to log |
+|---|---|---|
+| 300-point condor | 300-point condor | One row; both rules agree |
+| 400-point condor | 300-point condor | The real 400-point row, plus a shadow row for the 300-point condor |
+| Skip | 300-point condor | A skip row, plus a shadow row for the 300-point condor |
+| Skip | Skip | A skip row only |
+
+A shadow row holds the 300-point condor's strikes and 11:16 prices and has `shadow` in `notes`. Run the daily `check` for it too, so its exit and P&L can be compared later.
+
+### Notes to keep in mind
+
+- A single ±2% limit for both widths was considered and not used: it lets in three losing trades and deepens the backtest drawdown.
+- The thresholds were chosen on backtest data and the rule trades about five times a year. Do not present its backtest results as what to expect.
+- The credit is only known at 11:16. When the evening reading is between 1.5% and 2%, tell the user the decision is still open until entry.
 
 ## Hard rules
 
