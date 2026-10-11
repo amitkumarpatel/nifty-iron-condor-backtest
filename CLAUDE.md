@@ -488,6 +488,18 @@ only if rich / skip) plus the earlier rule's; `strikes` prices the 400-pt and 30
 credit and the 10-day move (or --move), shows target 60%/50%; `check` uses a 60% target when the journal row is a 400-pt condor.
 Journal template gained rule_decision, hedge_width, credit_400_pts, credit_300_pts, earlier_rule_decision. The engine itself has
 no FWD option – backtest numbers for the adopted set come from combining the 300/400-pt no-filter runs.
+DATA-SOURCE FINDING 11-Oct-2026 (user cross-check): data/nifty_daily.csv from Breeze (download.py --index, 1-day candles) is NOT NSE's
+official close – Breeze's daily close is the last traded index value, NSE's official close is the last-30-minute average.
+On the 134 dates behind the 67 filter readings: average gap 5.7 pts, max 40 pts (e.g. 10-Nov-2023 19,443.45 vs 19,425.35; 13-Nov-2023
+19,440.15 vs 19,443.55). 10-day move differs by 0.04 pts on average, max 0.24. Decisions that flip with NSE official closes:
+±2.5% none (earlier rule and main report unchanged, 45 tr ₹66,052); ±2% three – trade 31 (2.11 → 1.96), 35 (1.99 → 2.01), 38 (1.94 → 2.01);
+±1.5% one – trade 14 (1.41 → 1.60). Adopted forward-test rule (TP 50% basis): Breeze 31 tr ₹78,057 / −₹5,523; NSE 30 tr ₹77,931 /
+−₹5,523 (only trade 38 drops, +₹126). "±2% for both widths, credit 40–45% at 300-pt" variant: Breeze 37 tr ₹72,869 / −₹9,752; NSE
+36 tr ₹82,313 / −₹5,523 – because trade 35 (stop-loss) reads 2.01% and is skipped. So that variant's verdict hangs on 0.02 pts of
+one reading; do not treat ±2% vs ±1.5% for the 300-pt leg as settled. The forward-test skill already uses NSE official closes
+(live readings follow NSE, not Breeze). 2019–Aug-2020 rows in nifty_daily.csv are already NSE. TO DECIDE with the user: replace
+the Breeze rows by NSE official closes (python fetch_index_nse.py --from 2020-08-17 --to <today> --replace; ~1,500 small files,
+no Breeze login) so backtest and forward test use the same source.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.

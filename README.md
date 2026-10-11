@@ -1005,6 +1005,18 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   Floors 38–41% all similar; 42% cuts 2021–26 to ₹70,664. TP 60% on the 400-pt trades only: ₹82,331 −₹5,523 (+₹3.4k); on both ₹79,532.
   EASY FORM (same trades as C + floor), credit in points of the 400-pt condor: move <= 1.5%: >= 180 pts → 400-pt; 160–180 → 300-pt;
   < 160 → skip. Move 1.5–2%: >= 180 pts → 400-pt, else skip. Move > 2%: skip. Not adopted/built yet – user to confirm.
+  DATA-SOURCE FINDING 11-Oct-2026 (user cross-check): data/nifty_daily.csv from Breeze (download.py --index, 1-day candles) is NOT NSE's
+  official close – Breeze's daily close is the last traded index value, NSE's official close is the last-30-minute average.
+  On the 134 dates behind the 67 filter readings: average gap 5.7 pts, max 40 pts (e.g. 10-Nov-2023 19,443.45 vs 19,425.35; 13-Nov-2023
+  19,440.15 vs 19,443.55). 10-day move differs by 0.04 pts on average, max 0.24. Decisions that flip with NSE official closes:
+  ±2.5% none (earlier rule and main report unchanged, 45 tr ₹66,052); ±2% three – trade 31 (2.11 → 1.96), 35 (1.99 → 2.01), 38 (1.94 → 2.01);
+  ±1.5% one – trade 14 (1.41 → 1.60). Adopted forward-test rule (TP 50% basis): Breeze 31 tr ₹78,057 / −₹5,523; NSE 30 tr ₹77,931 /
+  −₹5,523 (only trade 38 drops, +₹126). "±2% for both widths, credit 40–45% at 300-pt" variant: Breeze 37 tr ₹72,869 / −₹9,752; NSE
+  36 tr ₹82,313 / −₹5,523 – because trade 35 (stop-loss) reads 2.01% and is skipped. So that variant's verdict hangs on 0.02 pts of
+  one reading; do not treat ±2% vs ±1.5% for the 300-pt leg as settled. The forward-test skill already uses NSE official closes
+  (live readings follow NSE, not Breeze). 2019–Aug-2020 rows in nifty_daily.csv are already NSE. TO DECIDE with the user: replace
+  the Breeze rows by NSE official closes (python fetch_index_nse.py --from 2020-08-17 --to <today> --replace; ~1,500 small files,
+  no Breeze login) so backtest and forward test use the same source.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
