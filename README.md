@@ -66,7 +66,7 @@ Order of checks each day: stop-loss → target → time exit.
 
 ---
 
-## 1b. Forward-test rule set (adopted 10-Oct-2026)
+## 1b. Forward-test rule set (finalised 11-Oct-2026)
 
 This is the version being paper traded from the October-2026 cycle. It adds a credit test and a wider hedge
 to the rules of §1. Everything not listed here (Monday 11:16 entry, ~30-delta sold strikes, next-month expiry,
@@ -74,40 +74,91 @@ one check a day at 15:16, stop at 100% of credit, time exit at expiry − 18 day
 unchanged. Settings: `FWD_*` in `ic/config.py`. `backtest.py` does **not** use them – its defaults stay the
 earlier rule below, which is kept as the comparison.
 
-**Two readings.** Evening before entry: NIFTY's 10-day move. At 11:16: the net credit of the **400-point**
-condor (sold ~30-delta call and put, hedges 400 points out).
+**Two readings.** Evening before entry: NIFTY's 10-day move (NSE official closes). At 11:16: the net credit of
+the **400-point** condor (sold ~30-delta call and put, hedges 400 points out).
 
 | 10-day move | Credit of the 400-pt condor | Action | Profit target |
 |---|---|---|---|
-| within ±1.5% | 180 points or more (≥ 45% of width) | **400-point condor** | **60%** of credit |
-| within ±1.5% | 160–180 points (40–45%) | **300-point condor** | 50% of credit |
-| within ±1.5% | below 160 points (< 40%) | **Skip** – minimum-credit floor | – |
-| between 1.5% and 2% | 180 points or more | **400-point condor** | **60%** of credit |
-| between 1.5% and 2% | below 180 points | **Skip** | – |
+| within ±2% | 180 points or more (≥ 45% of width) | **400-point condor** | **60%** of credit |
+| within ±2% | 160–180 points (40–45%) | **300-point condor** | 50% of credit |
+| within ±2% | below 160 points (< 40%) | **Skip** – minimum-credit floor | – |
 | beyond ±2% | any | **Skip** | – |
 
+- **One move limit, ±2%, for both widths** (user's decision 11-Oct-2026; the first version of 10-Oct-2026 allowed
+  the 300-point condor only inside ±1.5%).
 - **60% target for the 400-point condor** (50% stays for the 300-point one). Backtest: +₹3.4k, drawdown unchanged.
-- **Minimum-credit floor:** no condor of either width when the 400-point credit is below 160 points. In the
-  backtest this drops one small winner in 2021–26 and the Feb-2020 stop-loss (credit 35% of width).
-- **Backtest of this rule set** (1 lot, net, NSE official closes for the 10-day move): 2021–26 30 trades
-  (17 × 400-pt, 13 × 300-pt), ₹81,346, max drawdown −₹5,523, worst trade −₹5,523, win 80%; 2019–26 34 trades,
-  ₹88,386, max drawdown −₹5,523.
+- **Minimum-credit floor:** no condor of either width when the 400-point credit is below 160 points.
+- **Backtest of this rule set** (1 lot, net, NSE official closes for the 10-day move):
+
+  | | Trades (400 / 300) | Net P&L | Max drawdown | Worst trade | Win rate | Profit factor |
+  |---|---|---|---|---|---|---|
+  | 2021–26 | 36 (17 / 19) | ₹85,729 | −₹5,523 | −₹5,523 | 78% | 5.67 |
+  | 2019–20 | 4 (2 / 2) | ₹7,040 | −₹1,986 | −₹1,986 | 75% | 4.54 |
+  | 2019–26 | 40 (19 / 21) | ₹92,768 | −₹5,523 | −₹5,523 | 78% | 5.56 |
+
   Earlier rule on the same data: 2021–26 45 trades ₹66,052 / −₹7,527; 2019–26 60 trades ₹58,472 / −₹18,795.
-- **Caution:** three thresholds (2%, 1.5%, 45%) and the floor were chosen on this same data, and the rule trades
-  about five times a year. Treat the backtest edge as an upper bound.
+  Full comparison: `output/final_variant_comparison.xlsx`.
 
 > **Note – the earlier rule is kept as a shadow log.** "300-point condor whenever the 10-day move is within
 > ±2.5%" (§1, the `backtest.py` default) was the version first selected for the forward test. Every month,
 > also record what it would have done (trade or skip, and the 300-point condor's prices and daily P&L), so the
 > two can be compared after a few months.
 
-> **Note – one ±2% limit for both widths: not settled (revised 11-Oct-2026).** With the 300-point condor also
-> allowed up to ±2%, the 2021–26 backtest gives 36 trades, ₹85,729 (60% target on 400-pt) with the same
-> −₹5,523 drawdown – ₹4.4k more than the adopted rule. But that depends on the Nov-2023 stop-loss trade (35)
-> reading +2.01%, i.e. 0.01 above the line; with Breeze's closes it read +1.99%, was traded, and the same variant
-> showed ₹76,284 with a −₹9,752 drawdown. The six trades between 1.5% and 2% are three winners (1.57–1.79%) and
-> two losers (1.79–1.90%) plus trade 31 (1.96%, winner). The adopted rule keeps ±1.5% because its result is the
-> same under either data source; ±2% for both is simpler and may be as good – the forward test should log it.
+### Small print behind the final choice
+
+These are the details the backtest numbers above rest on. None changes the rule; each says how much to trust it.
+
+**Months with no result**
+
+- **December 2022 (trade 24) is missing: Breeze has no option data for it.** It would have been a trade: 10-day
+  move −0.09%, StockMock credit 177.7 points (44.4% of width) → 300-point condor. StockMock's result for that
+  condor is a loss of ₹1,925 before costs. Counting it, 2021–26 is about ₹83.5k, 2022 turns from +₹676 into a
+  small losing year (about −₹1.5k), and the drawdown is about −₹5.8k (trades 22 and 24 are back to back).
+- **May 2023 (trade 29) has no 400-point credit:** Breeze has no price for the call hedge at 11:16. No effect –
+  its 10-day move was +2.23%, so the month is skipped anyway.
+- **The April-2026 expiry (entry 16-Mar-2026) is not in the trade list.** No effect – the 10-day move was −9.2%.
+
+**Readings that sit on the ±2% line**
+
+- **The November 2023 stop-loss (trade 35) is skipped by a reading of +2.01%** – 0.01 above the line. Its credit
+  was 41.6%, so at 2.00% it would have been a 300-point trade: −₹7,243, total about ₹78.5k, drawdown about −₹7.4k.
+- **February 2024 (trade 38) also reads +2.01%.** Harmless: credit 47.9%, the 400-point condor made +₹126.
+- **July 2024 (trade 43) reads +2.05%** and is skipped; it made +₹1,937 at 400 points.
+- **Just inside:** April 2021 (trade 4, +1.96%, 400-point, +₹2,469) and July 2023 (trade 31, +1.96%, 300-point,
+  +₹2,328).
+- **The data source decides these.** The readings use NSE's official close (average of the last 30 minutes). With
+  Breeze's last-traded close trade 35 read +1.99% and trade 31 +2.11%, and the same rule showed ₹76,284 with a
+  −₹9,752 drawdown. The forward test uses NSE's official close, so live decisions follow the same source.
+
+**Credits that sit on the 160-point floor or the 180-point line**
+
+- **June 2023 (trade 30) is in by 0.2 of a point:** credit 160.2 points (40.05%). It is the second-largest loss
+  (−₹3,731, 300-point).
+- **July 2023 (trade 31)** is in at 162 points (40.5%), +₹2,328.
+- **September 2024 (trade 45) is out at 158.6 points (39.6%)**, a +₹859 winner. Its call-hedge price at 11:16
+  looks like a bad print, which lowered the credit.
+- **May 2025 (trade 53) is the closest 400-point trade:** 45.7%, +₹3,645 (+₹2,400 at 300 points).
+- **Trades 22 (44.4%) and 55 (44.5%) fall just under 45%**, so they run at 300 points. Both lost, and the
+  narrower hedge made the losses smaller (−₹3,654 instead of −₹4,744; −₹2,178 instead of −₹2,678).
+- **In 2019–20 the floor does most of the work:** only 4 of 23 months pass, because 400 points was a much wider
+  hedge when NIFTY was at 9,000–12,000 (credit 30–39% of width). Those years barely test the rule.
+
+**What widening the 300-point limit from ±1.5% to ±2% changed**
+
+- Six more trades, +₹4,382 in total: winners 51 (+₹3,900), 58 (+₹3,077), 31 (+₹2,328), 40 (+₹908); losers 22
+  (−₹3,654) and 55 (−₹2,178). Same drawdown and same worst trade.
+- Profit factor falls from 7.49 to 5.67 and the win rate from 80% to 78%.
+
+**What the rule does not fix**
+
+- **The worst trade, August 2026 (trade 67, −₹5,523), passes every test:** move −0.07%, credit 43.6%, flat market
+  at entry. Nothing known at entry separates it. It is the drawdown.
+- **Thresholds were chosen on this data.** Four numbers (2%, 45%, 40%, 60% target) and about six trades a year.
+  Treat the backtest as an upper bound and expect less live.
+- **Costs are approximate (about ₹250 per condor) and there is no slippage** in the figures. With 0.5 point per
+  leg: ₹77,669; with 1 point: ₹69,609.
+- **The 400-point condor needs more margin and has a bigger maximum loss** (about 219 points against 154).
+- **The engine has no setting for this rule.** The figures combine the no-filter 300-point and 400-point runs.
 
 ## 1a. Key lessons – read before testing anything new
 
@@ -142,7 +193,7 @@ Sep-2026. Details and tables for each point are in §7.
 | Switch hedge width by credit: 400-pt when credit ≥ 42% of 400, else 300-pt (inside ±2.5%) | **Promising, not adopted.** 2021–26: ₹84.6k / DD −₹7.4k (400-pt profit, 300-pt drawdown). 2019–20 still loses (−₹3.6k / −₹16.5k) because thin months are traded; skipping them instead gives 2019–26 ₹85.3k / −₹7.0k |
 | Early exit of losing trades (loss stop at day N, NIFTY-move exit), lower/stepped target, extra hedge on a breach | **No.** All worse or no gain on 400-pt: breaches usually revert before the exit; 7 of the 10 worst trades were still flat or in profit at day 10 |
 | Credit spread in skipped months (put spread after a rise, call spread after a fall; own TP 50%, SL 100% or 200%) | **No.** 2021–26: −₹11.2k (SL 100%) / −₹18.5k (SL 200%); 2019–26 about break-even. Put spread after a rise worked in 2019–23, lost in 2024–26; call spread after a fall is the wrong side |
-| "Option C": 400-pt when 10-day move ≤ ±2% and credit ≥ 45% of width, else 300-pt when move ≤ ±1.5%, else skip | **Candidate (user prefers it), not built in.** 2021–26: 32 trades ₹78.9k / DD −₹5.5k vs current ₹66.1k / −₹7.5k; 2019–26 ₹78.7k / −₹13.0k vs ₹58.5k / −₹18.8k. Three thresholds fitted on this data |
+| "Option C" (first version, 10-Oct-2026): 400-pt when 10-day move ≤ ±2% and credit ≥ 45% of width, else 300-pt when move ≤ ±1.5%, else skip | **Superseded 11-Oct-2026 by §1b (one ±2% limit for both widths, 160-pt floor).** Figures on Breeze closes: 2021–26: 32 trades ₹78.9k / DD −₹5.5k vs current ₹66.1k / −₹7.5k; 2019–26 ₹78.7k / −₹13.0k vs ₹58.5k / −₹18.8k. Three thresholds fitted on this data |
 | 1% gap-up exit at 15:16 | **Helps** (optional, off by default). Gap-*down* exits are harmful. 1.25%/1.5% give ≈ same profit, keep more of 2024–26 (+₹3k) but lose the drawdown cut (−₹7.2k, trade 35) |
 | Exit when NIFTY closes above the bought call | Small help alone; adds nothing once the gap-up exit is on |
 | Exit day | 18–20 DTE best; 15–17 and 21+ worse |
@@ -519,10 +570,10 @@ Run it after changing the code. The fake prices are not market data.
 ---
 
 ### 5.10 Monthly routine (paper or live trading)
-**Forward-test plan (revised 10-Oct-2026):** 1 lot for 3–6 months with the rule set of §1b – Monday
-~11:15–11:16 entry (~43 DTE), ~30Δ CE + PE sold; a 400-point condor (60% target) when the 10-day move is within
-±2% and its credit is at least 180 points, otherwise a 300-point condor (50% target) when the move is within
-±1.5% and that credit is at least 160 points, otherwise no trade; stop at −100% of credit, time exit at 18 DTE.
+**Forward-test plan (finalised 11-Oct-2026):** 1 lot for 3–6 months with the rule set of §1b – Monday
+~11:15–11:16 entry (~43 DTE), ~30Δ CE + PE sold; trade only when the 10-day move is within ±2%: a 400-point
+condor (60% target) when its credit is at least 180 points, a 300-point condor (50% target) when that credit is
+160–180 points, no trade below 160 points; stop at −100% of credit, time exit at 18 DTE.
 Every month also log what the earlier rule (300-point, ±2.5%) would have done, and note (not act on) the
 condor's 15:16 P&L on every 1% gap-up day.
 
@@ -530,7 +581,7 @@ The project only reads historical data – it never places orders. Each month:
 
 1. **Evening before the planned entry (43 DTE, the Monday six weeks before the Tuesday expiry):** check
    NIFTY's 10-day move (last close vs the close 10 trading days earlier) against the forward-test rule of §1b:
-   within ±1.5% → trade; between 1.5% and 2% → trade only if the 400-point credit is rich; beyond ±2% → skip.
+   within ±2% → trade (the 400-point credit at entry decides the width, or a skip below 160 points); beyond ±2% → skip.
    `python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py plan --expiry YYYY-MM-DD` gives the entry and
    time-exit dates, `... ic_tools.py filter --entry-date YYYY-MM-DD --show` gives the reading from NSE's website
    (no Breeze login), with the verdict of both the forward-test rule and the earlier ±2.5% rule.
@@ -1055,6 +1106,10 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   −₹18,795; both credit rules 4 tr +₹7,040 / −₹1,986. 2019–26: 89 / ₹13,192 / −₹42,721; 60 / ₹58,472 / −₹18,795; 40 / ₹92,768 / −₹5,523 (PF 5.56);
   34 / ₹88,386 / −₹5,523 (PF 7.09). The two credit rules differ by 6 trades with a 1.5–2% move: 51 +₹3,900, 58 +₹3,077, 31 +₹2,328,
   40 +₹908, 22 −₹3,654, 55 −₹2,178 = +₹4,382. Trade 35 (2.01%) is out of both by 0.01.
+  FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
+  Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
+  credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
+  ≈ ₹78.5k / −₹7.4k; trade 30 passes the floor by 0.2 pt (40.05%, −₹3,731); trade 45 fails it at 39.6% (+₹859, odd hedge print).
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.

@@ -19,7 +19,7 @@ Do not quote strategy numbers from memory. Take them from the `rules` output. Th
 
 ## The rule set being forward-tested (README section 1b)
 
-Adopted on 10-Oct-2026, from the October-2026 cycle. The numbers below are the values at adoption; `rules` prints the live ones from `ic/config.py` (`FWD_*`). If they differ, the `rules` output wins and the user should be told.
+Adopted on 10-Oct-2026 and finalised on 11-Oct-2026 (one ±2% limit for both widths), from the October-2026 cycle. The numbers below are the values at adoption; `rules` prints the live ones from `ic/config.py` (`FWD_*`). If they differ, the `rules` output wins and the user should be told.
 
 ### Two readings
 
@@ -32,17 +32,14 @@ Adopted on 10-Oct-2026, from the October-2026 cycle. The numbers below are the v
 
 | 10-day move | Credit of the 400-point condor | Decision | Profit target |
 |---|---|---|---|
-| within ±1.5% | 180 points or more (45% of width or more) | **400-point condor** | 60% of credit |
-| within ±1.5% | 160 to 180 points (40% to 45%) | **300-point condor** | 50% of credit |
-| within ±1.5% | below 160 points (below 40%) | **Skip**: minimum-credit floor | none |
-| between 1.5% and 2% | 180 points or more | **400-point condor** | 60% of credit |
-| between 1.5% and 2% | below 180 points | **Skip** | none |
+| within ±2% | 180 points or more (45% of width or more) | **400-point condor** | 60% of credit |
+| within ±2% | 160 to 180 points (40% to 45%) | **300-point condor** | 50% of credit |
+| within ±2% | below 160 points (below 40%) | **Skip**: minimum-credit floor | none |
 | beyond ±2% | any | **Skip** | none |
 
 What the evening reading already tells the user:
 
-- within ±1.5%: a trade is expected; the credit at entry decides the width (or a skip, if it is under the floor).
-- between 1.5% and 2%: a trade only if the premium is rich at entry.
+- within ±2%: a trade is expected; the credit at entry decides the width (or a skip, if it is under the floor).
 - beyond ±2%: no trade this month.
 
 ### Same for both widths
@@ -62,9 +59,9 @@ What the evening reading already tells the user:
 | Value | Setting in `ic/config.py` |
 |---|---|
 | 400 points | `FWD_WIDE_WIDTH` |
-| ±2% | `FWD_WIDE_MOVE_PCT` |
+| ±2% for the 400-point condor | `FWD_WIDE_MOVE_PCT` |
 | 45% of width (180 points) | `FWD_WIDE_MIN_CREDIT_PCT` |
-| ±1.5% | `FWD_NARROW_MOVE_PCT` |
+| ±2% for the 300-point condor (was ±1.5% until 11-Oct-2026) | `FWD_NARROW_MOVE_PCT` |
 | 40% of width (160 points) | `FWD_MIN_CREDIT_PCT` |
 | 60% target | `FWD_WIDE_TP_FRACTION` |
 | 300 points, 50% target, 100% stop, 18 days | `HEDGE_WIDTH`, `TP_FRACTION`, `SL_FRACTION`, `EXIT_DTE` |
@@ -84,9 +81,10 @@ A shadow row holds the 300-point condor's strikes and 11:16 prices and has `shad
 
 ### Notes to keep in mind
 
-- A single ±2% limit for both widths is an open question, not a rejected idea: with NSE's official closes its backtest is slightly better than the adopted rule, but that rests on one trade reading 2.01%. Log each month what a ±2% limit on the 300-point condor would have done.
-- The thresholds were chosen on backtest data and the rule trades about five times a year. Do not present its backtest results as what to expect.
-- The credit is only known at 11:16. When the evening reading is between 1.5% and 2%, tell the user the decision is still open until entry.
+- The ±2% line is sharp in the backtest: the November 2023 stop-loss read +2.01% and was skipped by 0.01. When a live reading is within about 0.1 of the line, say so, and use NSE's official close only.
+- The 160-point floor is sharp too: one backtest loser passed it by 0.2 of a point. When the live credit is within a few points of 160 or 180, tell the user and let them confirm the prices.
+- The thresholds were chosen on backtest data and the rule trades about six times a year. Do not present its backtest results as what to expect. README section 1b lists the details under "Small print behind the final choice".
+- The credit is only known at 11:16, so an evening reading inside ±2% is not yet a decision on the width.
 
 ## Hard rules
 
