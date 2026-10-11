@@ -37,10 +37,12 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
 - else skip. **Minimum-credit floor:** no IC of either width when the 400-pt credit is below 160 pts.
 - Stop 100% of credit, 15:16 daily check, 18-DTE time exit, 1 lot, fallback strikes – unchanged.
 - NOTE: the earlier rule (300-pt IC whenever |move| <= 2.5%) is the SHADOW LOG – record every month what it would have done.
-- NOTE: one ±2% limit for both widths was the user's preference but is worse (2021–26 ₹73,727 / DD −₹9,752 vs ₹78,916 / −₹5,523),
-  so the 300-pt limit stays ±1.5% (±1.75% scores ₹86,802 but sits next to the losers 22, 55, 35).
-- Backtest of the adopted set: 2021–26 31 tr (18×400 + 13×300) ₹81,472 / DD −₹5,523 / worst −₹5,523 / win 81%; 2019–26 35 tr
-  ₹88,512 / −₹5,523. Thresholds were fitted on this data and it trades ≈5 times a year – expect less live.
+- NOTE (revised 11-Oct-2026 after switching to NSE official closes): one ±2% limit for both widths (the user's preference) is NOT
+  clearly worse – with NSE closes it gives 2021–26 36 tr ₹85,729 / DD −₹5,523 (TP 60% on 400) vs the adopted ₹81,346 / −₹5,523,
+  because trade 35 (Nov-2023 stop) reads +2.01% and is skipped; with Breeze closes it read +1.99% and the variant showed ₹76,284 /
+  −₹9,752. The choice hangs on 0.01 of one reading. Adopted rule keeps ±1.5% (same result under both sources) until the user decides.
+- Backtest of the adopted set (NSE closes): 2021–26 30 tr (17×400 + 13×300) ₹81,346 / DD −₹5,523 / worst −₹5,523 / win 80%;
+  2019–26 34 tr ₹88,386 / −₹5,523. Thresholds were fitted on this data and it trades ≈5 times a year – expect less live.
 - Oct-2026 cycle (entry Mon 12-Oct-2026, expiry Mon 23-Nov-2026): 10-day move −2.35% → forward-test rule SKIPS; the earlier
   rule would TRADE the 300-pt IC → shadow-log it (time exit Thu 5-Nov-2026).
 
@@ -497,9 +499,16 @@ On the 134 dates behind the 67 filter readings: average gap 5.7 pts, max 40 pts 
 −₹5,523 (only trade 38 drops, +₹126). "±2% for both widths, credit 40–45% at 300-pt" variant: Breeze 37 tr ₹72,869 / −₹9,752; NSE
 36 tr ₹82,313 / −₹5,523 – because trade 35 (stop-loss) reads 2.01% and is skipped. So that variant's verdict hangs on 0.02 pts of
 one reading; do not treat ±2% vs ±1.5% for the 300-pt leg as settled. The forward-test skill already uses NSE official closes
-(live readings follow NSE, not Breeze). 2019–Aug-2020 rows in nifty_daily.csv are already NSE. TO DECIDE with the user: replace
-the Breeze rows by NSE official closes (python fetch_index_nse.py --from 2020-08-17 --to <today> --replace; ~1,500 small files,
-no Breeze login) so backtest and forward test use the same source.
+(live readings follow NSE, not Breeze). 2019–Aug-2020 rows in nifty_daily.csv are already NSE. DONE 11-Oct-2026: data/nifty_daily.csv and india_vix_daily.csv
+now hold NSE official values for Aug-2020..9-Oct-2026 incl. the weekend special sessions (fetch_index_nse.py --replace; Breeze
+backup only in the session scratchpad). Breeze vs NSE by year: avg gap 2020 9.7 / 2021 11.5 / 2022 12.3 / 2023 8.0 / 2024 4.9 pts
+(max 245), 2025–26 identical. download.py --index now only fills days the file lacks (never overwrites). Re-run with NSE closes:
+main report unchanged (45 tr ₹66,052 / −₹7,527; 400-pt ±2.5% 44 tr ₹83,114 / −₹9,814); every trade's own P&L unchanged; readings
+that crossed a line: 14 (1.41 → 1.60), 31 (2.11 → 1.96), 35 (1.99 → 2.01), 38 (1.94 → 2.01). Rule results on NSE closes (2021–26, n /
+net / DD): adopted, TP 60% on 400: 30 ₹81,346 −₹5,523; adopted TP 50%: 30 ₹77,931; no floor: 31 ₹78,790; 300-pt limit 1.25%: 27 ₹70,276;
+1.75%: 32 ₹84,909 −₹5,523; ±2% both: 36 ₹82,313 (TP 60%: ₹85,729) −₹5,523; ±2.25% both: 39 ₹77,133 −₹7,424; ±2.5% both: 43 ₹77,804
+−₹7,424. NOTE: all filter/threshold studies above this entry (dated up to 10-Oct-2026) used Breeze closes; anything decided at
+the ±1.5% or ±2% line by trades 14, 31, 35 or 38 should be re-read with that in mind. Working table: scratch sw_nse.pkl.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.

@@ -19,7 +19,7 @@ from ic import config as C
 
 URL = "https://archives.nseindia.com/content/indices/ind_close_all_{:%d%m%Y}.csv"
 NAMES = {"nifty 50": "NIFTY", "india vix": "INDVIX"}
-TRIES, PAUSE_SEC = 3, 0.2
+TRIES, PAUSE_SEC = 6, 0.2      # a failed request is retried after 2, 4, 8 ... seconds
 
 
 def fetch_day(day):
@@ -34,10 +34,10 @@ def fetch_day(day):
             if e.code in (403, 404):
                 return {}
             raise
-        except OSError:
+        except OSError:                  # timeout, connection reset, DNS failure
             if attempt == TRIES - 1:
                 raise
-            time.sleep(2)
+            time.sleep(2 ** (attempt + 1))
     if not text.lstrip().lower().startswith("index name"):
         return {}
     out = {}
@@ -74,7 +74,12 @@ def main():
     n = 0
     while day <= last:
         if day.weekday() < 5:          # special weekend sessions are not fetched
-            for code, v in fetch_day(day).items():
+            try:
+                got = fetch_day(day)
+            except OSError as e:       # network still down after all retries: keep what was fetched
+                print(f"Stopped at {day}: {e}. Saving the days fetched so far - run again from {day} for the rest.")
+                break
+            for code, v in got.items():
                 rows[code].append((day.isoformat(), *v))
             n += 1
             if n % 50 == 0:

@@ -90,9 +90,9 @@ def fetch_index_daily(api, first: date, last: date):
         df = pd.DataFrame(rows)
         df["date"] = df["datetime"].astype(str).str[:10]
         df = df[["date"] + [c for c in ["open", "high", "low", "close"] if c in df.columns]]
-        if Path(path).exists():    # keep days this pull does not have (earlier history, days Breeze leaves out)
-            old = pd.read_csv(path)
-            df = pd.concat([df, old[~old.date.isin(df.date)]])
+        if Path(path).exists():    # days already in the file win: they hold NSE's official closes
+            old = pd.read_csv(path)   # (fetch_index_nse.py); Breeze's daily close is the last traded value,
+            df = pd.concat([old, df[~df.date.isin(old.date)]])   # so it only fills days the file lacks
         df = df.drop_duplicates("date").sort_values("date")
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(path, index=False)

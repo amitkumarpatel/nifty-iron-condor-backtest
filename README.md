@@ -89,8 +89,9 @@ condor (sold ~30-delta call and put, hedges 400 points out).
 - **60% target for the 400-point condor** (50% stays for the 300-point one). Backtest: +₹3.4k, drawdown unchanged.
 - **Minimum-credit floor:** no condor of either width when the 400-point credit is below 160 points. In the
   backtest this drops one small winner in 2021–26 and the Feb-2020 stop-loss (credit 35% of width).
-- **Backtest of this rule set** (1 lot, net): 2021–26 31 trades (18 × 400-pt, 13 × 300-pt), ₹81,472, max
-  drawdown −₹5,523, worst trade −₹5,523, win 81%; 2019–26 35 trades, ₹88,512, max drawdown −₹5,523.
+- **Backtest of this rule set** (1 lot, net, NSE official closes for the 10-day move): 2021–26 30 trades
+  (17 × 400-pt, 13 × 300-pt), ₹81,346, max drawdown −₹5,523, worst trade −₹5,523, win 80%; 2019–26 34 trades,
+  ₹88,386, max drawdown −₹5,523.
   Earlier rule on the same data: 2021–26 45 trades ₹66,052 / −₹7,527; 2019–26 60 trades ₹58,472 / −₹18,795.
 - **Caution:** three thresholds (2%, 1.5%, 45%) and the floor were chosen on this same data, and the rule trades
   about five times a year. Treat the backtest edge as an upper bound.
@@ -100,10 +101,13 @@ condor (sold ~30-delta call and put, hedges 400 points out).
 > also record what it would have done (trade or skip, and the 300-point condor's prices and daily P&L), so the
 > two can be compared after a few months.
 
-> **Note – one ±2% limit for both widths was considered and not used.** With the 300-point condor also allowed
-> up to ±2%, the 2021–26 result falls to ₹73,727 with a max drawdown of −₹9,752 (it lets in trades 22, 55 and
-> the Nov-2023 stop-loss). ±1.75% scores higher (₹86,802 / −₹5,523) but sits right next to those losers, so
-> the 300-point limit stays at ±1.5%.
+> **Note – one ±2% limit for both widths: not settled (revised 11-Oct-2026).** With the 300-point condor also
+> allowed up to ±2%, the 2021–26 backtest gives 36 trades, ₹85,729 (60% target on 400-pt) with the same
+> −₹5,523 drawdown – ₹4.4k more than the adopted rule. But that depends on the Nov-2023 stop-loss trade (35)
+> reading +2.01%, i.e. 0.01 above the line; with Breeze's closes it read +1.99%, was traded, and the same variant
+> showed ₹76,284 with a −₹9,752 drawdown. The six trades between 1.5% and 2% are three winners (1.57–1.79%) and
+> two losers (1.79–1.90%) plus trade 31 (1.96%, winner). The adopted rule keeps ±1.5% because its result is the
+> same under either data source; ±2% for both is simpler and may be as good – the forward test should log it.
 
 ## 1a. Key lessons – read before testing anything new
 
@@ -339,6 +343,15 @@ Failed chunks are listed in
 `output/download_errors.csv` and retried automatically on the next run.
 
 ### 5.3a NIFTY and India VIX daily prices (needed by the trend filter)
+The filter uses **NSE's official closes** (the last-30-minute average NSE publishes as the day's close):
+```bash
+python fetch_index_nse.py --from 2026-09-01 --to 2026-10-09 --replace    # NSE website, no login
+```
+`python download.py --index` (Breeze) only fills days the file does not have yet. Breeze's daily "close" is
+the last traded index value, which differed from the official close by about 6 points on average and up to
+245 points on single days in 2020–2024 (identical from 2025). Since 11-Oct-2026 the whole file holds NSE's
+official values, the same source the forward-test skill reads, so backtest and live readings agree.
+The older Breeze command, kept for the days NSE's site cannot be reached:
 ```bash
 python download.py --index
 ```

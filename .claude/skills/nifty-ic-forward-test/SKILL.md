@@ -84,7 +84,7 @@ A shadow row holds the 300-point condor's strikes and 11:16 prices and has `shad
 
 ### Notes to keep in mind
 
-- A single ±2% limit for both widths was considered and not used: it lets in three losing trades and deepens the backtest drawdown.
+- A single ±2% limit for both widths is an open question, not a rejected idea: with NSE's official closes its backtest is slightly better than the adopted rule, but that rests on one trade reading 2.01%. Log each month what a ±2% limit on the 300-point condor would have done.
 - The thresholds were chosen on backtest data and the rule trades about five times a year. Do not present its backtest results as what to expect.
 - The credit is only known at 11:16. When the evening reading is between 1.5% and 2%, tell the user the decision is still open until entry.
 
