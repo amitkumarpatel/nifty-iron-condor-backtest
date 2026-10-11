@@ -1212,6 +1212,14 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   a fallback strike (53); over all 67 months 6 did, all on the call side. CAVEATS: these 17 months contain only 3 losers, the
   largest −₹1,815, so the test says nothing about a bad month at 500-pt – over all 66 months with no filter 500-pt is ₹71,053 /
   DD −₹16,938 / worst −₹15,031 (400-pt ₹61,439 / −₹14,946 / −₹11,604). More margin. 2019–20 not run at 500-pt. Not adopted – user's call.
+  FIVE-WAY COMPARISON incl. 500-pt (11-Oct-2026, NIFTY 2021–26, NSE closes, net; output/five_variant_comparison_500pt.xlsx; n / net / max DD /
+  worst / PF / 0.5-pt slip). (1) no filter 300-pt 66 / ₹47,298 / −₹11,860 / −₹8,529 / 1.67 / ₹33,318. (2) ±2.5% 300-pt 45 / ₹66,052 / −₹7,527 /
+  −₹7,243 / 3.20 / ₹56,492. (3) FINALISED §1b (±2%; 400-pt TP 60% if credit>=45%, 300-pt if 40–45%) 36 / ₹85,729 / −₹5,523 / −₹5,523 / 5.67 /
+  ₹77,669. (4) ±2%, 500-pt TP 50% on ALL months with credit>=40% 36 / ₹110,219 / −₹9,515 / −₹9,515 (trade 30) / 4.68 / ₹102,159. (5) ±2%; 500-pt
+  TP 60% if credit>=45%, 300-pt if 40–45% 36 / ₹100,287 / −₹5,523 / −₹5,523 / 6.47 / ₹92,227. Credit ratio = 400-pt condor's in all three.
+  (4) vs (5): the 19 thin-credit months make ₹40,015 at 500-pt vs ₹26,668 at 300-pt (15 better), but the 4 losers grow: 30 −₹3,731 →
+  −₹9,515 (stop-loss; fallback call strikes, credit only 142 pts), 67 −₹5,523 → −₹8,527, 22 −₹3,654 → −₹5,794, 55 −₹2,178 → −₹2,880. No losing
+  year in 3, 4, 5. 500-pt max loss/condor ≈ 289 pts (≈ ₹18.8k at lot 65). 2019–20 not run at 500-pt. Nothing adopted – user's call.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.
