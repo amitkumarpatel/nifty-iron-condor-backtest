@@ -112,6 +112,11 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
   trading day early (24, 41, 42 → MANUAL). Hedges 600 on trades 58 (CE) and 61 (both). Entry differs from NIFTY only for trade 42
   (18-Jun-2024). Lots: StockMock 25 for Jul/Aug-2023 expiries (30, 31) vs NSE 15 (circular FAOP56233) – engine uses 15
   (StockMock total at engine lots ₹24,690). Config set from it: hedge_width 500, ref_exit_dte 18; expiry weekdays confirmed.
+- data/banknifty_daily.csv fetched 11-Oct-2026 (NSE official, 1-Oct-2018..9-Oct-2026, 1,987 days = same dates as nifty_daily.csv).
+  fetch_index_nse.py skips weekends, so the 7 special weekend sessions were added by hand with ic.nse_index.fetch_day – repeat for
+  any new index. make_trades --symbol banknifty reproduces all 67 entry and expiry dates of the report.
+- PREVIEW ONLY (StockMock P&L at engine lots, BANKNIFTY's own 10-day move; not an engine result): no filter 67 tr ₹24,690 / DD −₹10,836;
+  ±2.5% 37 tr ₹23,031 / −₹6,080; ±2% 28 tr ₹30,130 / −₹5,277; ±3% 46 tr ₹18,848 / −₹9,406. Trade 62 reads +3.03% (skipped at 2.5 and 3).
 - STILL PROVISIONAL: Breeze code `CNXBAN` (probe). Download ≈ 2,608 calls (`download.py --symbol banknifty`) – needs the user's session.
 - The `FWD_*` forward-test rule and the skill are NIFTY only. Do not apply NIFTY-fitted thresholds to BANKNIFTY without a test.
 
