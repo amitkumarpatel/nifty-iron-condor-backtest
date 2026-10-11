@@ -79,7 +79,11 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
 - Trade 23 was exited manually in StockMock → expected reconciliation mismatch.
 - April-2026 cycle is not traded (StockMock had no data).
 - Trade 9 (Sep-2021) has thin data – judge it using Data_Quality.
-- Data source: ICICI Breeze (free, exact strike+expiry, 1-min). Probe run confirmed coverage
+- NIFTY daily close for the 10-day filter = NSE's OFFICIAL close (last-30-minute average), from NSE's daily index file
+  (archives.nseindia.com/content/indices/ind_close_all_DDMMYYYY.csv, "Nifty 50" / "Closing Index Value") – backtest file
+  data/nifty_daily.csv via `fetch_index_nse.py`, forward test via ic_tools.py (same file, read live). Switched from Breeze daily
+  candles (last traded value) on 11-Oct-2026 after the user's cross-check; `download.py --index` only fills missing days.
+- Option-price data source: ICICI Breeze (free, exact strike+expiry, 1-min). Probe run confirmed coverage
   2022–2026 fully, 2021 mostly; prices within a few tenths of StockMock; net credit within ~1.5 pts.
 - Costs modelled approximately in `config.COSTS` (~₹250 per condor); report gross and net.
 
@@ -97,7 +101,8 @@ python tests/smoke_test.py      # offline end-to-end test (fake Breeze) – run 
 python login_url.py             # daily Breeze login URL
 python probe.py [--trades ..]   # data availability check (API)
 python download.py              # fetch candles (API, restart-safe, ~3,100 calls)
-python download.py --index      # NIFTY + India VIX daily OHLC only (API, a few calls)
+python fetch_index_nse.py --from YYYY-MM-DD --to YYYY-MM-DD [--replace]   # NIFTY + VIX OFFICIAL daily closes from NSE (no login)
+python download.py --index      # Breeze daily OHLC – only fills days the files lack (not the official close)
 python select_strikes.py --ce-delta 0.25 --name ce25   # delta-based sold strikes (API) -> IC_STRIKE_SET=ce25
 python backtest.py [--trades ..] [--out path]   # offline, writes output/IC_backtest_report.xlsx
 # variant options on download.py / backtest.py / export_prices.py (ic/cli.py -> IC_STRIKE_SET / IC_HEDGE_WIDTH / IC_TREND_FILTER):

@@ -21,7 +21,7 @@ cp .env.example .env                 # add BREEZE_API_KEY and BREEZE_API_SECRET
 python tests/smoke_test.py           # offline check that everything works (no API needed)
 
 python login_url.py                  # log in, put today's apisession value in .env (BREEZE_SESSION)
-python download.py --index           # NIFTY + India VIX daily prices (a few API calls)
+python fetch_index_nse.py --from 2020-08-17 --to 2026-10-09   # NIFTY + India VIX official daily closes from NSE's website (no login)
 python download.py                   # 1-minute option candles (~3,500 API calls, restart-safe)
 python backtest.py                   # offline -> output/IC_backtest_report.xlsx
 ```
@@ -188,8 +188,8 @@ nifty-iron-condor-backtest/
 │   │   └── ic_reference_legs.csv
 │   ├── strike_sets/        # strikes chosen by select_strikes.py (experiments)
 │   ├── cache/              # NOT committed: downloaded candles (one CSV per contract per day)
-│   ├── nifty_daily.csv     # NOT committed: NIFTY daily OHLC (trend filter) – download.py --index
-│   ├── india_vix_daily.csv # NOT committed: India VIX daily OHLC – download.py --index
+│   ├── nifty_daily.csv     # NOT committed: NIFTY daily OHLC, NSE official closes (trend filter) – fetch_index_nse.py
+│   ├── india_vix_daily.csv # NOT committed: India VIX daily OHLC from NSE – fetch_index_nse.py
 │   └── nifty_trading_days.csv   # NOT committed: NSE calendar built by download.py
 ├── output/                 # NOT committed: reports, probe results, error logs
 ├── logs/                   # NOT committed: Breeze SDK logs
@@ -276,12 +276,12 @@ Run every command from the project folder with the virtual environment active
 | `python tests/smoke_test.py` | Offline end-to-end test with a fake Breeze client (run after any code change) | No | console, temp folder |
 | `python login_url.py` | Prints today's Breeze login URL | No | console |
 | `python probe.py [--trades 9 67] [--all]` | Checks that Breeze has the data and prices match StockMock | Yes (~64 calls) | `output/probe/` |
-| `python download.py --index` | NIFTY and India VIX daily prices (needed by the trend filter) | Yes (a few calls) | `data/nifty_daily.csv`, `data/india_vix_daily.csv` |
+| `python download.py --index` | NIFTY and India VIX daily prices from Breeze – only fills days the files lack; the official closes come from `fetch_index_nse.py` (§5.3a) | Yes (a few calls) | `data/nifty_daily.csv`, `data/india_vix_daily.csv` |
 | `python download.py [--trades ...]` | 1-minute candles for every leg, plus fallback strikes; restart-safe | Yes (~3,500 calls first time) | `data/cache/` |
 | `python backtest.py` | Replays all trades with the current rules | No | `output/IC_backtest_report.xlsx` |
 | `python backtest.py --trades 1 9 23 --out output/x.xlsx` | Selected trades / separate report file | No | the `--out` file |
 | `python export_prices.py [--trades ...] [--out file]` | Daily price of every leg of every trade, entry to exit (11:16 entry, 15:16 checks, day OHLC), incl. filter-skipped months | No | `output/IC_leg_prices.xlsx` |
-| `python fetch_index_nse.py --from 2018-11-01 --to 2020-08-14` | NIFTY and India VIX daily prices from NSE's website, merged into the daily files and the calendar | No (NSE website) | `data/nifty_daily.csv`, `data/india_vix_daily.csv` |
+| `python fetch_index_nse.py --from 2026-09-01 --to 2026-10-09 [--replace]` | **Source of the NIFTY close used by the filter:** NSE's official daily closes for NIFTY and India VIX, merged into the daily files and the calendar (`--replace` overwrites days already there) | No (NSE website) | `data/nifty_daily.csv`, `data/india_vix_daily.csv` |
 | `python make_trades.py --from 2019-01 --to 2020-12 --name 2019_2020` | Generate monthly trades for years without StockMock data (§5.3d) | No | `data/reference/ic_trades_<name>.csv`, `ic_legs_<name>.csv` |
 | `python select_strikes.py --ce-delta 0.25 --name ce25` | Experiment: choose sold strikes by delta | Yes | `data/strike_sets/` |
 | `python select_strikes.py --ce-delta 0.10 --pe-delta 0.10 --around 3 --step 100 --name d10` | Same, searching around a Black-Scholes estimate of the strike (few calls; for deltas far from 30) | Yes | `data/strike_sets/` |
@@ -328,8 +328,8 @@ python download.py
 - Downloads 1-minute candles for all 4 legs of all 67 trades, for every trading day from entry to
   the latest possible exit, plus the fallback strikes for legs with no price at entry
   (~3,500 API calls, 2 trading days per call, ~40 minutes).
-- Run `python download.py --index` as well (section 5.3a) – the backtest needs NIFTY daily prices
-  for the trend filter.
+- Run `python fetch_index_nse.py` as well (section 5.3a) – the backtest needs NIFTY's official daily
+  closes for the trend filter.
 - Breeze allows 5,000 calls/day; the script stops at 4,800 to keep a margin.
 
 ### 5.3 Resume an interrupted download
@@ -351,13 +351,31 @@ python fetch_index_nse.py --from 2026-09-01 --to 2026-10-09 --replace    # NSE w
 the last traded index value, which differed from the official close by about 6 points on average and up to
 245 points on single days in 2020–2024 (identical from 2025). Since 11-Oct-2026 the whole file holds NSE's
 official values, the same source the forward-test skill reads, so backtest and live readings agree.
+**Where each NIFTY number comes from**
+
+| Number | Used for | Source | When it is available |
+|---|---|---|---|
+| NIFTY daily close (official) | 10-day move in the backtest (`data/nifty_daily.csv`) | NSE daily index file `archives.nseindia.com/content/indices/ind_close_all_DDMMYYYY.csv`, row "Nifty 50", column "Closing Index Value" – `fetch_index_nse.py` | Evening of each trading day |
+| NIFTY daily close (official) | 10-day move in the forward test (`ic_tools.py filter`, `strikes`), previous close for the gap-up log (`check`) | The same NSE file, read live for the last 11 sessions | Evening of each trading day |
+| NIFTY daily open | Gap-up reading in the backtest | Same NSE file, "Open Index Value" | Same |
+| India VIX daily | Studies only (not in the rules) | Same NSE file, row "India VIX" | Same |
+| NIFTY spot at 11:16 | Delta of the strikes in `select_strikes.py` | Breeze 1-minute candles | Needs a Breeze session |
+| Option prices at 11:16 / 15:16 | Every trade's entry, daily check and exit in the backtest | Breeze 1-minute candles | Needs a Breeze session |
+| Live option chain | `ic_tools.py strikes` in the forward test | NSE website option chain (lags a few minutes) | Market hours |
+
+- The official close is NSE's average over the last 30 minutes of the session; it is the figure quoted as "the close".
+  It is **not** the last traded value, which is what Breeze's daily candle gives.
+- The 10-day move for an entry day uses the official close of the previous trading day and the official close 10
+  trading days before that. Special sessions (Diwali Muhurat, a Budget-day Saturday/Sunday) count as trading days.
+- If NSE's site cannot be reached, the forward-test `filter` falls back to `data/nifty_daily.csv` and prints a warning.
+
 The older Breeze command, kept for the days NSE's site cannot be reached:
 ```bash
 python download.py --index
 ```
-A handful of API calls. Saves daily OHLC to `data/nifty_daily.csv` and `data/india_vix_daily.csv`
-(`config.INDEX_DAILY`). The backtest needs `nifty_daily.csv` for the trend filter; re-run this
-command to extend it before backtesting new months.
+A handful of API calls. Adds any days missing from `data/nifty_daily.csv` and `data/india_vix_daily.csv`
+(`config.INDEX_DAILY`); it never overwrites a day that is already there. To extend the files before
+backtesting new months, use `fetch_index_nse.py` so the new days carry the official close.
 
 ### 5.3b Delta-based strikes (e.g. a 25-delta call)
 ```bash
@@ -1064,7 +1082,7 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
 | `Stopped at the daily call limit` | Run again tomorrow with a new session token; progress is saved |
 | Many `No Data Found` | Check one file in `output/probe/raw/` (expiry/strike format) |
 | `No downloaded data found` | Run `python download.py` before `backtest.py` |
-| `data/nifty_daily.csv not found` | Run `python download.py --index` (or `IC_TREND_FILTER=off`) |
+| `data/nifty_daily.csv not found` | Run `python fetch_index_nse.py --from 2020-08-17 --to <today>` (or `IC_TREND_FILTER=off`) |
 | Trades not run: `NOT_DOWNLOADED (run download.py)` | Some days or fallback strikes aren't downloaded yet – run `python download.py` |
 | `Strike set '...' not found` | Run `select_strikes.py` for that name first, or unset `IC_STRIKE_SET` |
 | `Operation not permitted` reading a file in Downloads | macOS privacy protection – copy the file into the project folder |
