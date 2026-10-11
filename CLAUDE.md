@@ -577,6 +577,14 @@ TP 60% if credit>=45%, 300-pt if 40–45% 36 / ₹100,287 / −₹5,523 / −₹
 (4) vs (5): the 19 thin-credit months make ₹40,015 at 500-pt vs ₹26,668 at 300-pt (15 better), but the 4 losers grow: 30 −₹3,731 →
 −₹9,515 (stop-loss; fallback call strikes, credit only 142 pts), 67 −₹5,523 → −₹8,527, 22 −₹3,654 → −₹5,794, 55 −₹2,178 → −₹2,880. No losing
 year in 3, 4, 5. 500-pt max loss/condor ≈ 289 pts (≈ ₹18.8k at lot 65). 2019–20 not run at 500-pt. Nothing adopted – user's call.
+VARIANT 5 TWEAKS (11-Oct-2026; user prefers variant 5 = ±2%, 500-pt TP 60% if 400-pt credit>=45%, 300-pt if 40–45%: 36 tr ₹100,287 / DD −₹5,523;
+all from cached data; net / max DD) – NOTHING beats it at the same drawdown, do not re-test: target on the 500-pt trades 50% ₹96,872,
+60% ₹100,287, 70% or none ₹100,953 (all −₹5,523). Credit line for 500-pt: >=42/43% ₹109k / −₹8,527 (trade 67 goes to 500-pt); >=44% ₹97,444 /
+−₹5,794 + a losing year (trade 22); >=44.5% ₹99,585; >=46% ₹97,974; >=47% ₹92,533. Three tiers 500/400/300: 400-pt for 42–45% or 43–45% ₹103.5–104.3k /
+−₹6,976 + losing year; 400-pt for the whole 40–45% tier ₹108,973 / −₹6,976 + losing year. Move limit for the 500-pt trades: ±1.75% ₹95,268; ±2.25%
+₹103,210 / −₹5,523 (adds trades 38 and 43, readings 2.01 and 2.05); ±2.5% ₹105,507 / −₹6,211 + losing year (15, 41). Floor 38–39% ₹101,146 (adds 45);
+41% ₹98,613; 42% ₹87,489. Plateau: credit line 44.5–46%, move limit 2–2.25%. Untested (needs downloads): 600-pt on the 17 rich months
+(349 calls; all 67 months 1,259), 500-pt in 2019–20. Sizing (2 lots in rich months) is the user's call, not a filter.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
