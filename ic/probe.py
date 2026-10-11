@@ -37,7 +37,7 @@ def fetch(breeze, leg, center: datetime):
     end = center + timedelta(minutes=WINDOW_MIN)
     expiry = datetime.fromisoformat(leg.expiry).replace(hour=6)
     params = dict(interval="1minute", from_date=iso(start), to_date=iso(end),
-                  stock_code="NIFTY", exchange_code="NFO", product_type="options",
+                  stock_code=C.BREEZE_CODE, exchange_code="NFO", product_type="options",
                   expiry_date=iso(expiry), right="call" if leg.opt_type == "CE" else "put",
                   strike_price=str(leg.strike))
     try:

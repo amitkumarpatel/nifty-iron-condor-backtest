@@ -12,6 +12,7 @@ data/cache/
 data/nifty_trading_days.csv
 data/nifty_daily.csv
 data/india_vix_daily.csv
+data/banknifty_daily.csv
 output/
 
 # forward-test journal (personal trade records)

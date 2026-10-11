@@ -18,7 +18,7 @@ import pandas as pd
 from ic import config as C
 
 URL = "https://archives.nseindia.com/content/indices/ind_close_all_{:%d%m%Y}.csv"
-NAMES = {"nifty 50": "NIFTY", "india vix": "INDVIX"}
+NAMES = {"india vix": "INDVIX", **{v["nse_name"]: k for k, v in C.INDEXES.items()}}   # name in NSE's file -> our code
 TRIES, PAUSE_SEC = 6, 0.2      # a failed request is retried after 2, 4, 8 ... seconds
 
 
@@ -70,7 +70,7 @@ def main():
     ap.add_argument("--to", dest="last", required=True, help="YYYY-MM-DD")
     ap.add_argument("--replace", action="store_true", help="overwrite days already in the files (default: only add)")
     a = ap.parse_args()
-    day, last, rows = date.fromisoformat(a.first), date.fromisoformat(a.last), {"NIFTY": [], "INDVIX": []}
+    day, last, rows = date.fromisoformat(a.first), date.fromisoformat(a.last), {c: [] for c in NAMES.values()}
     n = 0
     while day <= last:
         if day.weekday() < 5:          # special weekend sessions are not fetched

@@ -90,6 +90,24 @@ def main():
     run([sys.executable, "download.py", *var], env)
     out8 = run([sys.executable, "backtest.py", *var, "--filter", "off"], env)
     assert (tmp / "output" / "IC_backtest_smoke10_h500_nofilter.xlsx").exists(), out8
+    # second index: same engine with --symbol banknifty, its own reference files, cache folders and report names
+    import shutil
+    ref = tmp / "ref"
+    ref.mkdir()
+    for f in ("ic_reference_trades.csv", "ic_reference_legs.csv"):      # NIFTY rows stand in for a BANKNIFTY report
+        shutil.copy(ROOT / "data" / "reference" / f, ref / f"banknifty_{f}")
+    envb = dict(env, IC_REF_DIR=str(ref))
+    bn = ["--symbol", "banknifty", "--trades", "9", "62"]
+    run([sys.executable, "download.py", *bn, "--index"], envb)
+    assert (tmp / "data" / "banknifty_daily.csv").exists(), "BANKNIFTY daily file not written"
+    run([sys.executable, "download.py", *bn, "--hedge", "300"], envb)
+    assert any(d.name.startswith("BANKNIFTY_") for d in (tmp / "data" / "cache").iterdir()), "no BANKNIFTY cache folders"
+    outb = run([sys.executable, "backtest.py", *bn, "--hedge", "300"], envb)
+    assert (tmp / "output" / "BANKNIFTY_IC_backtest_sm_h300.xlsx").exists(), outb
+    wb = openpyxl.load_workbook(tmp / "output" / "BANKNIFTY_IC_backtest_sm_h300.xlsx")
+    assert any("BANKNIFTY lot size" in str(c.value) for r in wb["Summary"].iter_rows() for c in r), "report should name the index"
+    assert report.stat().st_mtime < (tmp / "output" / "BANKNIFTY_IC_backtest_sm_h300.xlsx").stat().st_mtime
+    assert openpyxl.load_workbook(report).sheetnames == names, "NIFTY report must be untouched by the BANKNIFTY run"
     print(out3)
     print(f"SMOKE TEST PASSED  (temp files in {tmp})")
 

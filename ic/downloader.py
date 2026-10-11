@@ -72,8 +72,9 @@ def build_calendar(api, first: date, last: date):
 
 
 def fetch_index_daily(api, first: date, last: date):
-    """Daily OHLC of NIFTY and India VIX (config.INDEX_DAILY), for trend/VIX filter studies."""
-    for code, path in C.INDEX_DAILY.items():
+    """Daily OHLC of NIFTY, India VIX and the traded index (config.INDEX_DAILY), for trend/VIX filter studies."""
+    for name in dict.fromkeys(["NIFTY", "INDVIX", C.INDEX]):
+        code, path = C.DAILY_BREEZE_CODES[name], C.INDEX_DAILY[name]
         rows, s = [], first
         while s <= last:
             e = min(s + timedelta(days=900), last)
@@ -144,7 +145,7 @@ def fetch_chunk(api, leg, days):
     r = api.hist(interval="1minute",
                  from_date=iso(datetime(d1.year, d1.month, d1.day, 9, 15)),
                  to_date=iso(datetime(d2.year, d2.month, d2.day, 15, 30)),
-                 stock_code="NIFTY", exchange_code="NFO", product_type="options",
+                 stock_code=C.BREEZE_CODE, exchange_code="NFO", product_type="options",
                  expiry_date=iso(datetime(exp.year, exp.month, exp.day, 6, 0)),
                  right="call" if leg.opt_type == "CE" else "put", strike_price=str(int(leg.strike)))
     err = str(r.get("Error") or "")
@@ -176,7 +177,7 @@ def chunks(t, leg, cal):
 def main():
     ap = argparse.ArgumentParser(description="Download Breeze 1-minute candles for all trade legs")
     ap.add_argument("--trades", type=int, nargs="*", help="only these trade ids")
-    ap.add_argument("--index", action="store_true", help="only NIFTY + India VIX daily OHLC")
+    ap.add_argument("--index", action="store_true", help="only daily OHLC of NIFTY, India VIX and the traded index")
     ap.add_argument("--dry-run", action="store_true", help="only count the API calls needed (no login, no calls)")
     a = ap.parse_args()
     trades, legs = load_inputs(a.trades)

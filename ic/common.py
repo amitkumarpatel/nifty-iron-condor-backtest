@@ -8,7 +8,7 @@ from ic import config as C
 
 
 def contract_key(expiry: str, strike: int, opt_type: str) -> str:
-    return f"NIFTY_{expiry}_{int(strike)}{opt_type}"
+    return f"{C.INDEX}_{expiry}_{int(strike)}{opt_type}"
 
 
 def cache_file(key: str, day: date) -> Path:
@@ -43,7 +43,7 @@ def shift_entry(day: date, days: int) -> date:
 
 
 def lot_size(expiry: date) -> int:
-    """NIFTY lot size for a contract expiring on `expiry` (config.LOT_SIZES)."""
+    """Lot size of the index for a contract expiring on `expiry` (config.LOT_SIZES)."""
     return next(q for last, q in C.LOT_SIZES if expiry <= date.fromisoformat(last))
 
 
@@ -105,10 +105,10 @@ def iso(dt: datetime) -> str:
 
 
 def trend_moves(entry_dates) -> pd.Series:
-    """NIFTY % move over TREND_LOOKBACK_DAYS trading days, at the last close before each entry date."""
-    f = Path(C.INDEX_DAILY["NIFTY"])
+    """% move of the index over TREND_LOOKBACK_DAYS trading days, at the last close before each entry date."""
+    f = Path(C.INDEX_DAILY_CSV)
     if not f.exists():
-        raise SystemExit(f"{f} not found - run `python download.py --index` (needed by the trend filter), "
+        raise SystemExit(f"{f} not found - run `python fetch_index_nse.py` (needed by the trend filter), "
                          "or set IC_TREND_FILTER=off.")
     c = pd.read_csv(f, parse_dates=["date"]).set_index("date").close.sort_index()
     out = {}

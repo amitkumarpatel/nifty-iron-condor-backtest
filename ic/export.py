@@ -29,13 +29,13 @@ def day_ohlc(key, day):
 def main():
     ap = argparse.ArgumentParser(description="Export daily option prices of every trade leg")
     ap.add_argument("--trades", type=int, nargs="*")
-    ap.add_argument("--out", default=str(C.OUTPUT_DIR / "IC_leg_prices.xlsx"))
+    ap.add_argument("--out", default=str(C.OUTPUT_DIR / (C.FILE_PREFIX.upper() + "IC_leg_prices.xlsx")))
     a = ap.parse_args()
 
     trades, legs = load_inputs(a.trades)
     cal = load_calendar(trades.entry_date.min().date(), trades.expiry.max().date())
-    nifty = pd.read_csv(C.INDEX_DAILY["NIFTY"], parse_dates=["date"]).set_index("date").close \
-        if C.INDEX_DAILY["NIFTY"].exists() else None
+    nifty = pd.read_csv(C.INDEX_DAILY_CSV, parse_dates=["date"]).set_index("date").close \
+        if C.INDEX_DAILY_CSV.exists() else None
     moves = trend_moves(trades.entry_date) if nifty is not None else None
 
     wide, long, summary = [], [], []
@@ -48,7 +48,7 @@ def main():
                   and abs(mv) > C.SKIP_IF_10D_MOVE_PCT else "taken")
         row, mtm, _, run_status = E.run_trade(t, tl, cal)
         summary.append(dict(trade_id=t.trade_id, entry_date=t.entry_date.date(), expiry=t.expiry.date(),
-                            filter_status=status, nifty_10d_move_pct=None if mv is None else round(mv, 2),
+                            filter_status=status, **{f"{C.INDEX.lower()}_10d_move_pct": None if mv is None else round(mv, 2)},
                             strike_note=note, exit_date=row["exit_date"] if row else None,
                             exit_reason=row["exit_reason"] if row else run_status,
                             credit=row["credit"] if row else None, pnl_pts=row["pnl_pts"] if row else None,
@@ -60,7 +60,7 @@ def main():
         for d in days:
             tm = C.ENTRY_TIME if d == t.entry_date.date() else C.CHECK_TIME
             w = dict(trade_id=t.trade_id, filter_status=status, date=d, time=tm, dte=(t.expiry.date() - d).days,
-                     nifty_close=None if nifty is None or pd.Timestamp(d) not in nifty.index else nifty[pd.Timestamp(d)])
+                     **{f"{C.INDEX.lower()}_close": None if nifty is None or pd.Timestamp(d) not in nifty.index else nifty[pd.Timestamp(d)]})
             for r in tl.itertuples():
                 name = LEG_NAMES[(r.side, r.opt_type)]
                 px, q, m = E.price_at(r.key, d, tm)

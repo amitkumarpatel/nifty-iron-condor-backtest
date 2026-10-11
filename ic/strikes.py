@@ -53,7 +53,7 @@ def implied_vol(px, S, K, T, opt):
 def fetch_spot_day(api, day):
     r = api.hist(interval="1minute", from_date=iso(datetime(day.year, day.month, day.day, 9, 15)),
                  to_date=iso(datetime(day.year, day.month, day.day, 15, 30)),
-                 stock_code="NIFTY", exchange_code="NSE", product_type="cash")
+                 stock_code=C.BREEZE_CODE, exchange_code="NSE", product_type="cash")
     rows = r.get("Success") or []
     df = pd.DataFrame(rows)
     f = cache_file(C.SPOT_KEY, day)

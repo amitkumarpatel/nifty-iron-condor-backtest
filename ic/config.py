@@ -11,21 +11,66 @@ ROOT = Path(__file__).resolve().parent.parent
 if load_dotenv:
     load_dotenv(ROOT / ".env")
 
-# ---- folders & files (IC_DATA_DIR / IC_OUTPUT_DIR override them; used by the smoke test) ----
+# ---- index (IC_INDEX=BANKNIFTY or --symbol banknifty on any script; default NIFTY) ----
+# Everything that differs between indices lives in this table. The rules below (entry, exits, filter) are
+# shared. NIFTY's values are the ones the project has always used; with IC_INDEX unset nothing changes.
+#   breeze_code     ICICI Breeze stock code of the index (options and 1-minute spot)
+#   nse_name        the index's name in NSE's daily index file (official close; ic/nse_index.py)
+#   strike_step     option strike spacing
+#   hedge_width     default distance of the bought legs (IC_HEDGE_WIDTH / --hedge overrides it)
+#   ref_hedge_width hedge width of the StockMock reference run (reconciliation labels)
+#   fallback_*      ic/fallback.py: spread shifts (negative = closer to the money) and extra hedge width
+#   start_vol_factor  make_trades.py only: index volatility as a multiple of India VIX (rough start strikes)
+#   expiry_weekdays (last month that uses it, weekday of the monthly expiry: Mon=0 .. Thu=3) - make_trades.py only
+#   lot_sizes       (last expiry date, lot size) - first row whose date >= the trade's expiry applies
+INDEX = os.environ.get("IC_INDEX", "NIFTY").upper()
+INDEXES = {
+    "NIFTY": dict(
+        breeze_code="NIFTY", nse_name="nifty 50", strike_step=50, hedge_width=300, ref_hedge_width=200,
+        fallback_shifts=[-50, 50, -100, 100], fallback_hedge_extra=[50, 100], start_vol_factor=1.0,
+        expiry_weekdays=[("2025-08", 3), ("2099-12", 1)],          # Thursday, Tuesday from Sep-2025
+        # 50 -> 25 for contracts from 26-Apr-2024 (NSE); 25 -> 75 for contracts introduced from 20-Nov-2024,
+        # existing Dec-2024 and Jan-2025 monthlies kept 25 until expiry; 75 -> 65 from the Jan-2026 expiry.
+        # Expiries up to Jan-2021 (generated 2019-2020 trade set): 75, NIFTY's lot size at the time.
+        lot_sizes=[("2021-01-28", 75), ("2024-05-30", 50), ("2025-01-30", 25), ("2025-12-30", 75), ("2099-12-31", 65)],
+    ),
+    # BANKNIFTY added 11-Oct-2026. PROVISIONAL until checked against the user's StockMock report and NSE
+    # circulars: breeze_code (confirm with probe.py), hedge_width / ref_hedge_width (NIFTY's 300 pts scaled by
+    # the index level, about 2.3x), expiry_weekdays and lot_sizes (from memory of the NSE circulars).
+    "BANKNIFTY": dict(
+        breeze_code="CNXBAN", nse_name="nifty bank", strike_step=100, hedge_width=700, ref_hedge_width=700,
+        fallback_shifts=[-100, 100, -200, 200], fallback_hedge_extra=[100, 200], start_vol_factor=1.25,
+        # Thursday; Wednesday Mar-2024..Dec-2024; Thursday Jan..Aug-2025; Tuesday from Sep-2025
+        expiry_weekdays=[("2024-02", 3), ("2024-12", 2), ("2025-08", 3), ("2099-12", 1)],
+        lot_sizes=[("2020-06-25", 20), ("2023-06-29", 25), ("2025-01-30", 15), ("2025-06-26", 30),
+                   ("2025-12-30", 35), ("2099-12-31", 30)],
+    ),
+}
+if INDEX not in INDEXES:
+    raise SystemExit(f"Unknown index '{INDEX}' (IC_INDEX / --symbol). Known: {', '.join(INDEXES)}")
+_IDX = INDEXES[INDEX]
+BREEZE_CODE = _IDX["breeze_code"]
+# File names: NIFTY keeps the original names; another index gets its name in front (banknifty_..., BANKNIFTY_...).
+FILE_PREFIX = "" if INDEX == "NIFTY" else INDEX.lower() + "_"
+
+# ---- folders & files (IC_DATA_DIR / IC_OUTPUT_DIR / IC_REF_DIR override them; used by the smoke test) ----
 DATA_DIR     = Path(os.environ.get("IC_DATA_DIR", ROOT / "data"))
 OUTPUT_DIR   = Path(os.environ.get("IC_OUTPUT_DIR", ROOT / "output"))
-REF_DIR      = ROOT / "data" / "reference"
+REF_DIR      = Path(os.environ.get("IC_REF_DIR", ROOT / "data" / "reference"))
 # Trade set: "" = the StockMock reference trades; IC_TRADE_SET=<name> (or --trade-set) = a generated set
 # (python make_trades.py) in ic_trades_<name>.csv / ic_legs_<name>.csv, e.g. years StockMock never ran.
 TRADE_SET    = os.environ.get("IC_TRADE_SET", "")
-TRADES_CSV   = REF_DIR / (f"ic_trades_{TRADE_SET}.csv" if TRADE_SET else "ic_reference_trades.csv")
-LEGS_CSV     = REF_DIR / (f"ic_legs_{TRADE_SET}.csv" if TRADE_SET else "ic_reference_legs.csv")
+TRADES_CSV   = REF_DIR / (FILE_PREFIX + (f"ic_trades_{TRADE_SET}.csv" if TRADE_SET else "ic_reference_trades.csv"))
+LEGS_CSV     = REF_DIR / (FILE_PREFIX + (f"ic_legs_{TRADE_SET}.csv" if TRADE_SET else "ic_reference_legs.csv"))
 CACHE_DIR    = DATA_DIR / "cache"                    # 1-minute candles, one CSV per contract per day
-CALENDAR_CSV = DATA_DIR / "nifty_trading_days.csv"   # NSE trading days (from NIFTY daily candles)
-REPORT_XLSX  = OUTPUT_DIR / "IC_backtest_report.xlsx"
+CALENDAR_CSV = DATA_DIR / "nifty_trading_days.csv"   # NSE trading days (from NIFTY daily candles; all indices)
+REPORT_XLSX  = OUTPUT_DIR / (FILE_PREFIX.upper() + "IC_backtest_report.xlsx")
 INDEX_DAILY  = {"NIFTY": DATA_DIR / "nifty_daily.csv",       # daily OHLC for trend/VIX filters
-                "INDVIX": DATA_DIR / "india_vix_daily.csv"}   # (python download.py --index)
-PROBE_DIR    = OUTPUT_DIR / "probe"
+                "INDVIX": DATA_DIR / "india_vix_daily.csv",   # (python fetch_index_nse.py / download.py --index)
+                "BANKNIFTY": DATA_DIR / "banknifty_daily.csv"}
+INDEX_DAILY_CSV = INDEX_DAILY[INDEX]                 # the traded index: trend filter, gap-up and breach exits
+DAILY_BREEZE_CODES = {"NIFTY": "NIFTY", "INDVIX": "INDVIX", "BANKNIFTY": INDEXES["BANKNIFTY"]["breeze_code"]}
+PROBE_DIR    = OUTPUT_DIR / ("probe" if INDEX == "NIFTY" else f"probe_{INDEX.lower()}")
 
 # ---- strategy rules ----
 ENTRY_TIME   = os.environ.get("IC_ENTRY_TIME", "11:16")   # close of the 1-minute candle labelled 11:16
@@ -53,11 +98,11 @@ TP_FRACTION  = 0.50         # exit when P&L >= 50% of initial credit
 SL_FRACTION  = 1.00         # exit when loss >= 100% of initial credit
 EXIT_DTE     = 18           # exit on last trading day on/before (expiry - 18 calendar days)
 REF_EXIT_DTE = 15           # exit DTE used in the StockMock reference run (for reconciliation labels)
-HEDGE_WIDTH  = int(os.environ.get("IC_HEDGE_WIDTH", 300))  # bought strike = sold strike +/- this many points
-                           # (chosen 27-Sep-2026; StockMock reference = 200; each width needs its own download)
+HEDGE_WIDTH  = int(os.environ.get("IC_HEDGE_WIDTH", _IDX["hedge_width"]))  # bought strike = sold strike +/- this many
+                           # points (NIFTY 300, chosen 27-Sep-2026; StockMock reference = 200; each width needs its own download)
 HEDGE_WIDTH_CE = int(os.environ.get("IC_HEDGE_WIDTH_CE", HEDGE_WIDTH))   # per-side override (call hedge)
 HEDGE_WIDTH_PE = int(os.environ.get("IC_HEDGE_WIDTH_PE", HEDGE_WIDTH))   # per-side override (put hedge)
-REF_HEDGE_WIDTH = 200       # hedge width used in the StockMock reference run (for reconciliation labels)
+REF_HEDGE_WIDTH = _IDX["ref_hedge_width"]   # hedge width used in the StockMock reference run (NIFTY 200; reconciliation labels)
 # Entry filter (adopted 28-Sep-2026): skip the month if NIFTY moved more than this % (up or down) over the
 # last TREND_LOOKBACK_DAYS trading days, measured at the close before entry. None = no filter.
 # Needs data/nifty_daily.csv (python download.py --index).
@@ -83,18 +128,16 @@ ENTRY_SHIFT_DAYS = int(os.environ.get("IC_ENTRY_SHIFT", 0))
 
 # ---- delta-based strike sets (python select_strikes.py; IC_STRIKE_SET=<name> to use one) ----
 STRIKE_SET     = os.environ.get("IC_STRIKE_SET", "")   # "" = StockMock's sold strikes
-STRIKE_SETS_DIR = DATA_DIR / "strike_sets"             # strikes_<name>.csv: trade_id, opt_type, strike
-SPOT_KEY       = "NIFTY_SPOT"                          # cache folder for NIFTY 1-minute spot candles
-STRIKE_STEP    = 50                                    # NIFTY option strike spacing
+STRIKE_SETS_DIR = DATA_DIR / "strike_sets" / ("" if INDEX == "NIFTY" else INDEX.lower())   # strikes_<name>.csv
+SPOT_KEY       = f"{INDEX}_SPOT"                       # cache folder for the index's 1-minute spot candles
+STRIKE_STEP    = _IDX["strike_step"]                   # option strike spacing (NIFTY 50)
 RISK_FREE_RATE = 0.065                                 # Black-Scholes inputs for delta at entry
 DIV_YIELD      = 0.0
 
-# ---- NIFTY lot size by expiry (1 lot per trade) ----
-# (last expiry date, lot size) - first row whose date >= the trade's expiry applies.
-# 50 -> 25 for contracts from 26-Apr-2024 (NSE); 25 -> 75 for contracts introduced from 20-Nov-2024,
-# existing Dec-2024 and Jan-2025 monthlies kept 25 until expiry; 75 -> 65 from the Jan-2026 expiry.
-# Expiries up to Jan-2021 (generated 2019-2020 trade set): 75, NIFTY's lot size at the time.
-LOT_SIZES = [("2021-01-28", 75), ("2024-05-30", 50), ("2025-01-30", 25), ("2025-12-30", 75), ("2099-12-31", 65)]
+# ---- lot size by expiry (1 lot per trade): the index's table in INDEXES above ----
+LOT_SIZES = _IDX["lot_sizes"]
+EXPIRY_WEEKDAYS  = _IDX["expiry_weekdays"]      # make_trades.py
+START_VOL_FACTOR = _IDX["start_vol_factor"]     # make_trades.py
 
 # ---- data handling ----
 STALE_WARN_MIN = 15                     # fallback price older than this is flagged STALE
@@ -103,8 +146,8 @@ MAX_AFTER_MIN_AT_ENTRY = 15             # entry price from a trade later than th
 # Fallback strikes (ic/fallback.py): a side with no usable entry price moves its whole spread to the nearest
 # priced strikes (closer first), else widens the hedge. IC_FALLBACK=off to disable.
 FALLBACK_STRIKES       = os.environ.get("IC_FALLBACK", "").lower() != "off"
-FALLBACK_SHIFTS        = [-50, 50, -100, 100]   # points; negative = closer to the money
-FALLBACK_HEDGE_EXTRA   = [50, 100]   # widen the hedge by this much (350/400 for 300-pt hedges)
+FALLBACK_SHIFTS        = _IDX["fallback_shifts"]        # points; negative = closer to the money (NIFTY -50/+50/-100/+100)
+FALLBACK_HEDGE_EXTRA   = _IDX["fallback_hedge_extra"]   # widen the hedge by this much (NIFTY 350/400 for 300-pt hedges)
 EXTRA_HOLIDAYS = ["2026-09-14"]         # confirmed holidays, always removed from the calendar
 # Diwali Muhurat sessions (special ~1-hour session, no 15:16 candle). Treated as non-trading days:
 # no daily check and never a time-exit day. Add each new year's date once NSE announces it.

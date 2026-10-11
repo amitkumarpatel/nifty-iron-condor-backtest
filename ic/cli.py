@@ -6,6 +6,7 @@ Per-run variant options for the entry scripts, so a test needs no environment va
     --filter X          10-day trend filter limit in %, or `off`             (= IC_TREND_FILTER)
     --entry-shift D     enter D calendar days after the reference entry      (= IC_ENTRY_SHIFT)
     --trade-set NAME    trades from data/reference/ic_trades_NAME.csv        (= IC_TRADE_SET; python make_trades.py)
+    --symbol NAME       index to work on: nifty (default) or banknifty       (= IC_INDEX)
 
 They are turned into the environment variables ic/config.py already reads, so this must run before
 anything imports ic.config. backtest.py and export_prices.py also get a report name of their own for a
@@ -16,7 +17,7 @@ import os
 import sys
 
 OPTIONS = {"--strike-set": "IC_STRIKE_SET", "--hedge": "IC_HEDGE_WIDTH", "--filter": "IC_TREND_FILTER",
-           "--entry-shift": "IC_ENTRY_SHIFT", "--trade-set": "IC_TRADE_SET"}
+           "--entry-shift": "IC_ENTRY_SHIFT", "--trade-set": "IC_TRADE_SET", "--symbol": "IC_INDEX"}
 
 
 def preset(out_prefix=None):
@@ -32,8 +33,11 @@ def preset(out_prefix=None):
             os.environ[OPTIONS[name]] = used[name] = val
         else:
             i += 1
+    used.pop("--symbol", None)        # the index alone is not a variant: config names its report itself
+    index = os.environ.get("IC_INDEX", "NIFTY").upper()
     if out_prefix and used and not any(a == "--out" or a.startswith("--out=") for a in argv):
-        parts = [out_prefix] + ([used["--trade-set"]] if used.get("--trade-set") else [])
+        parts = ([] if index == "NIFTY" else [index]) + [out_prefix]
+        parts += [used["--trade-set"]] if used.get("--trade-set") else []
         parts += [used.get("--strike-set") or "sm", f"h{os.environ.get('IC_HEDGE_WIDTH', 'default')}"]
         f = used.get("--filter")
         if f:

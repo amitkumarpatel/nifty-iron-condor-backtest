@@ -93,10 +93,23 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
 
 ## Layout
 - Entry scripts in root: `login_url.py`, `probe.py`, `download.py`, `backtest.py`, `select_strikes.py`, `export_prices.py`, `make_trades.py`, `fetch_index_nse.py`
-- Code in `ic/`: `config.py`, `breeze_client.py`, `common.py`, `downloader.py`, `engine.py`, `export.py`, `fallback.py`, `probe.py`, `strikes.py`, `cli.py`, `tradeset.py`, `nse_index.py`
+- Code in `ic/` (index-aware via `config.INDEX`): `config.py`, `breeze_client.py`, `common.py`, `downloader.py`, `engine.py`, `export.py`, `fallback.py`, `probe.py`, `strikes.py`, `cli.py`, `tradeset.py`, `nse_index.py`
 - Reference data (committed): `data/reference/ic_reference_trades.csv`, `ic_reference_legs.csv`,
   `stockmock_export.xlsx`; validation workbook in `docs/`
 - Generated (git-ignored): `data/cache/` (1-min candles), `data/nifty_trading_days.csv`, `output/`
+
+## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
+- `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `ic/config.py`
+  (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.
+- NIFTY must stay byte-identical: checked 11-Oct-2026 (main report, 2019–20 set, 400-pt no-filter, leg prices, make_trades output
+  all identical before/after). Re-run that comparison after any further change to shared code.
+- BANKNIFTY files: `data/reference/banknifty_ic_reference_trades.csv` / `_legs.csv`, `banknifty_ic_trades_<set>.csv`,
+  `data/strike_sets/banknifty/`, cache `BANKNIFTY_<expiry>_<strike>`, `data/banknifty_daily.csv` (NSE official closes, "Nifty Bank"),
+  reports `output/BANKNIFTY_IC_backtest_*.xlsx`. Calendar, Muhurat days, costs shared.
+- PROVISIONAL (not yet verified): Breeze code `CNXBAN`; default hedge 700 pts; lot sizes 20/25/15/30/35/30 and the Wednesday
+  monthly expiry Mar–Dec 2024 are from memory – check against the user's StockMock BANKNIFTY report and NSE circulars.
+- The `FWD_*` forward-test rule and the skill are NIFTY only. Do not apply NIFTY-fitted thresholds to BANKNIFTY without a test.
+- Waiting for: the user's StockMock BANKNIFTY report → build the reference CSVs, set hedge width / lot sizes, probe, download.
 
 ## Commands
 ```bash

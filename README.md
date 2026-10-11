@@ -355,7 +355,8 @@ Permanent changes go in `ic/config.py`.
 | `IC_STRIKE_SET` | – | use strikes from `data/strike_sets/strikes_<name>.csv` (select_strikes.py) |
 | `IC_ENTRY_SHIFT` | `0` | experiment: shift the entry N calendar days from StockMock's Monday (2 = Wednesday, −3 = previous Friday; holidays move forward / back). Use with a strike set chosen on that day |
 | `IC_ENTRY_TIME` | `11:16` | entry time, e.g. `15:16` for the Friday roll test (exit old and enter new at the same check) |
-| `IC_DATA_DIR`, `IC_OUTPUT_DIR` | `data/`, `output/` | alternative folders (used by the smoke test) |
+| `IC_INDEX` | `NIFTY` | index to work on: `NIFTY` or `BANKNIFTY` (same as `--symbol banknifty`); see §5.3e |
+| `IC_DATA_DIR`, `IC_OUTPUT_DIR`, `IC_REF_DIR` | `data/`, `output/`, `data/reference/` | alternative folders (used by the smoke test) |
 | `IC_PAUSE_SEC` | `0.65` | pause between API calls (stays under 100 calls/min) |
 
 
@@ -500,6 +501,48 @@ python backtest.py --trade-set 2019_2020 --strike-set d30_2019_2020
 - `fetch_index_nse.py` only adds days that are missing (use `--replace` to overwrite) and also extends the
   trading calendar. `download.py --index` now merges too, so it no longer drops earlier history.
 - Lot size for expiries up to Jan-2021 is 75 (`LOT_SIZES`).
+
+### 5.3e Another index: BANKNIFTY (added 11-Oct-2026)
+
+The same engine and the same rules run on a second index. Add `--symbol banknifty` to any script (or set
+`IC_INDEX=BANKNIFTY`). Without it everything works on NIFTY exactly as before – the NIFTY reports were compared
+before and after the change and are identical.
+
+**What is separate per index** (table `INDEXES` in `ic/config.py`):
+
+| Item | NIFTY | BANKNIFTY |
+|---|---|---|
+| Breeze stock code | `NIFTY` | `CNXBAN` – *to confirm with the probe* |
+| Strike spacing | 50 | 100 |
+| Default hedge width | 300 | 700 – *placeholder until the StockMock report is in* |
+| Fallback strike shifts | −50, +50, −100, +100; hedge +50, +100 | −100, +100, −200, +200; hedge +100, +200 |
+| Lot size by expiry | as before | 20 → 25 → 15 → 30 → 35 → 30 – *to check against the StockMock report* |
+| Monthly expiry day (`make_trades.py` only) | Thursday, Tuesday from Sep-2025 | Thursday; Wednesday Mar–Dec 2024; Thursday; Tuesday from Sep-2025 – *to check* |
+| Reference trades | `data/reference/ic_reference_trades.csv`, `ic_reference_legs.csv` | `data/reference/banknifty_ic_reference_trades.csv`, `banknifty_ic_reference_legs.csv` |
+| Generated trade sets | `ic_trades_<name>.csv` | `banknifty_ic_trades_<name>.csv` |
+| Strike sets | `data/strike_sets/strikes_<name>.csv` | `data/strike_sets/banknifty/strikes_<name>.csv` |
+| Candle cache | `data/cache/NIFTY_<expiry>_<strike>` | `data/cache/BANKNIFTY_<expiry>_<strike>` |
+| Daily closes for the 10-day filter | `data/nifty_daily.csv` | `data/banknifty_daily.csv` (BANKNIFTY's own move) |
+| Reports | `output/IC_backtest_report.xlsx` | `output/BANKNIFTY_IC_backtest_report.xlsx` (variants: `BANKNIFTY_IC_backtest_<set>_h<width>…`) |
+
+**What is shared:** entry 11:16, one check at 15:16, stop 100% / target 50% of credit, 18-DTE time exit, the ±2.5%
+10-day filter (measured on BANKNIFTY's own closes), the trading-day calendar, the Muhurat days and the cost model.
+The forward-test rule set of §1b (`FWD_*`) and the Claude skill are NIFTY only.
+
+```bash
+python fetch_index_nse.py --from 2018-10-01 --to 2026-10-09      # official closes: NIFTY, India VIX and BANKNIFTY (no login)
+python probe.py --symbol banknifty --trades 1 2 3                # API: does Breeze have the option data? (needs the reference files)
+python download.py --symbol banknifty --dry-run                  # count the calls first
+python download.py --symbol banknifty                            # API
+python backtest.py --symbol banknifty                            # offline -> output/BANKNIFTY_IC_backtest_report.xlsx
+python backtest.py --symbol banknifty --hedge 900 --filter off   # variants work the same way
+# without a StockMock report: generated trades + delta-picked strikes, as in section 5.3d
+python make_trades.py --symbol banknifty --from 2021-01 --to 2026-08 --name bn
+python select_strikes.py --symbol banknifty --trade-set bn --ce-delta 0.30 --pe-delta 0.30 --around 4 --name d30_bn
+```
+
+Still to do before the first BANKNIFTY backtest: create the two `banknifty_ic_reference_*.csv` files from the
+StockMock report (same columns as §5.8), confirm the items marked above, and download the candles.
 
 ### 5.4 Run the full backtest
 Works offline from the cache – no API calls, no session token needed.

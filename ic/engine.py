@@ -80,8 +80,8 @@ def order_costs(legs_px, qty, entry: bool):
 
 @lru_cache(maxsize=1)
 def _nifty_gaps() -> dict:
-    """NIFTY opening gap in % (open vs previous close) per day, from data/nifty_daily.csv."""
-    f = Path(C.INDEX_DAILY["NIFTY"])
+    """Opening gap of the index in % (open vs previous close) per day, from its daily file."""
+    f = Path(C.INDEX_DAILY_CSV)
     if not f.exists():
         raise SystemExit(f"{f} not found - run `python download.py --index` (needed by the gap-up exit), "
                          "or set IC_GAP_UP_EXIT=off.")
@@ -98,7 +98,7 @@ def nifty_gap_pct(day) -> float:
 
 @lru_cache(maxsize=1)
 def _nifty_closes() -> dict:
-    f = Path(C.INDEX_DAILY["NIFTY"])
+    f = Path(C.INDEX_DAILY_CSV)
     if not f.exists():
         raise SystemExit(f"{f} not found - run `python download.py --index` (needed by the call-side breach exit), "
                          "or set IC_CE_BREACH_EXIT=off.")
@@ -265,9 +265,9 @@ def main():
     rows, mtm_all, dq_all, problems, skipped = [], [], [], [], []
     # NIFTY move over TREND_LOOKBACK_DAYS at the close before entry: drives the filter and is shown
     # on every trade (also with the filter off, if data/nifty_daily.csv exists)
-    have_index = Path(C.INDEX_DAILY["NIFTY"]).exists()
+    have_index = Path(C.INDEX_DAILY_CSV).exists()
     moves = trend_moves(trades.entry_date) if (C.SKIP_IF_10D_MOVE_PCT is not None or have_index) else None
-    move_col = f"nifty_{C.TREND_LOOKBACK_DAYS}d_move_pct"
+    move_col = f"{C.INDEX.lower()}_{C.TREND_LOOKBACK_DAYS}d_move_pct"
     for t in trades.itertuples():
         if C.SKIP_IF_10D_MOVE_PCT is not None:
             mv = moves[t.entry_date]
@@ -334,7 +334,7 @@ def main():
          (C.EXIT_DTE != C.REF_EXIT_DTE) & (rec.status == "EXIT DIFF") & ((rec.exit_reason == "TIME") | (rec.ref_exit_reason == "TIME")),
          rec.trade_id.isin(weak) & (rec.status != "MATCH"),
          boundary & (rec.status != "MATCH")],
-        [f"skipped - NIFTY {C.TREND_LOOKBACK_DAYS}-day move > {C.SKIP_IF_10D_MOVE_PCT}%",
+        [f"skipped - {C.INDEX} {C.TREND_LOOKBACK_DAYS}-day move > {C.SKIP_IF_10D_MOVE_PCT}%",
          "yes - manual exit in StockMock",
          "not run - a leg had no price at entry",
          f"yes - hedges CE {C.HEDGE_WIDTH_CE} / PE {C.HEDGE_WIDTH_PE} pts vs StockMock {C.REF_HEDGE_WIDTH} pts",
@@ -368,16 +368,16 @@ def main():
     notes = pd.DataFrame({"Notes": [
         f"Rules: entry {C.ENTRY_TIME}, daily check {C.CHECK_TIME}, TP {C.TP_FRACTION:.0%} / SL {C.SL_FRACTION:.0%} of credit, "
         f"time exit on last trading day on/before expiry-{C.EXIT_DTE} (holidays and Muhurat sessions skipped).",
-        (f"Entry filter: skip if |NIFTY {C.TREND_LOOKBACK_DAYS}-day move| > {C.SKIP_IF_10D_MOVE_PCT}% at the prior close "
+        (f"Entry filter: skip if |{C.INDEX} {C.TREND_LOOKBACK_DAYS}-day move| > {C.SKIP_IF_10D_MOVE_PCT}% at the prior close "
          f"({len(skipped)} trades skipped, see Skipped sheet)." if C.SKIP_IF_10D_MOVE_PCT is not None else "Entry filter: off."),
         (f"Entry shifted {C.ENTRY_SHIFT_DAYS} calendar days after StockMock's entry (experiment)."
          if C.ENTRY_SHIFT_DAYS else "Entry: StockMock's entry dates."),
-        (f"Gap-up exit: ON - exit at {C.CHECK_TIME} on a day NIFTY opens >= {C.GAP_UP_EXIT_PCT}% above the previous close."
+        (f"Gap-up exit: ON - exit at {C.CHECK_TIME} on a day {C.INDEX} opens >= {C.GAP_UP_EXIT_PCT}% above the previous close."
          if C.GAP_UP_EXIT_PCT is not None else "Gap-up exit: off (IC_GAP_UP_EXIT=1.0 to test)."),
-        (f"Call-side breach exit: ON - exit at {C.CHECK_TIME} when NIFTY closes at/above "
+        (f"Call-side breach exit: ON - exit at {C.CHECK_TIME} when {C.INDEX} closes at/above "
          + ("the bought CE strike." if C.CE_BREACH_EXIT_PTS == "hedge" else f"sold CE + {C.CE_BREACH_EXIT_PTS:g} pts.")
          if C.CE_BREACH_EXIT_PTS is not None else "Call-side breach exit: off (IC_CE_BREACH_EXIT=hedge to test)."),
-        "Sizing: 1 lot at each expiry's NIFTY lot size (config.LOT_SIZES).",
+        f"Sizing: 1 lot at each expiry's {C.INDEX} lot size (config.LOT_SIZES).",
         "April-2026 expiry cycle not traded (no StockMock data) - not in the reference list.",
         "Max drawdown uses trades in entry order, like StockMock.",
         "Costs are approximate; slippage per leg set in ic_config.COSTS.",

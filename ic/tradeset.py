@@ -23,7 +23,6 @@ import pandas as pd
 from ic import config as C
 from ic.strikes import bs
 
-TUESDAY_EXPIRY_FROM = date(2025, 9, 1)      # monthly expiries on Tuesday from Sep-2025, Thursday before
 CE_VOL_FACTOR, PE_VOL_FACTOR = 0.85, 1.15   # skew: OTM calls trade below India VIX, OTM puts above
 START_DELTA = 0.30
 
@@ -35,7 +34,7 @@ def last_weekday(year, month, weekday):
 
 def monthly_expiry(year, month, days):
     """(expiry, nominal day) - the nominal last Thursday/Tuesday and the trading day actually used."""
-    nominal = last_weekday(year, month, 1 if date(year, month, 1) >= TUESDAY_EXPIRY_FROM else 3)
+    nominal = last_weekday(year, month, next(wd for last, wd in C.EXPIRY_WEEKDAYS if f"{year}-{month:02d}" <= last))
     d = nominal
     while d not in days:
         d -= timedelta(days=1)
@@ -54,7 +53,7 @@ def main():
     ap.add_argument("--name", required=True, help="trade set name -> ic_trades_<name>.csv / ic_legs_<name>.csv")
     a = ap.parse_args()
 
-    nifty = pd.read_csv(C.INDEX_DAILY["NIFTY"], parse_dates=["date"]).set_index("date").close.sort_index()
+    nifty = pd.read_csv(C.INDEX_DAILY_CSV, parse_dates=["date"]).set_index("date").close.sort_index()
     vix = pd.read_csv(C.INDEX_DAILY["INDVIX"], parse_dates=["date"]).set_index("date").close.sort_index()
     hol = {date.fromisoformat(h) for h in C.MUHURAT_DAYS}
     days = {d.date() for d in nifty.index if d.weekday() < 5} - hol
@@ -75,8 +74,8 @@ def main():
         if entry.replace(day=1) >= first:
             prev = nifty[nifty.index < pd.Timestamp(entry)]
             if len(prev) <= C.TREND_LOOKBACK_DAYS or expiry > max(days):
-                raise SystemExit(f"No NIFTY daily data around {entry} .. {expiry} - run fetch_index_nse.py first.")
-            spot, v = prev.iloc[-1], vix[vix.index < pd.Timestamp(entry)].iloc[-1] / 100
+                raise SystemExit(f"No {C.INDEX} daily data around {entry} .. {expiry} - run fetch_index_nse.py first.")
+            spot, v = prev.iloc[-1], vix[vix.index < pd.Timestamp(entry)].iloc[-1] / 100 * C.START_VOL_FACTOR
             T = (expiry - entry).days / 365
             sc = start_strike(spot, v * CE_VOL_FACTOR, T, "CE")
             sp = start_strike(spot, v * PE_VOL_FACTOR, T, "PE")
@@ -84,16 +83,18 @@ def main():
             trades.append(dict(trade_id=tid, entry_date=entry.isoformat(), entry_time=C.ENTRY_TIME, expiry=exp,
                                sell_ce=sc, buy_ce=sc + w, sell_pe=sp, buy_pe=sp - w, qty_stockmock="",
                                ref_exit_date="", ref_exit_reason="", ref_pnl_pts="", ref_pnl_rs="",
-                               ref_note=f"generated; start strikes from NIFTY {spot:.0f}, VIX {v * 100:.1f}"))
+                               ref_note=f"generated; start strikes from {C.INDEX} {spot:.0f}, VIX {v / C.START_VOL_FACTOR * 100:.1f}"))
             for side, opt, k in (("BUY", "PE", sp - w), ("SELL", "CE", sc), ("BUY", "CE", sc + w), ("SELL", "PE", sp)):
                 legs.append(dict(trade_id=tid, side=side, opt_type=opt, strike=k, expiry=exp,
                                  entry_dt=f"{entry} {C.ENTRY_TIME}", exit_dt="", entry_px="", exit_px=""))
-    ft, fl = C.REF_DIR / f"ic_trades_{a.name}.csv", C.REF_DIR / f"ic_legs_{a.name}.csv"
+    ft, fl = C.REF_DIR / f"{C.FILE_PREFIX}ic_trades_{a.name}.csv", C.REF_DIR / f"{C.FILE_PREFIX}ic_legs_{a.name}.csv"
+    C.REF_DIR.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(trades).to_csv(ft, index=False)
     pd.DataFrame(legs).to_csv(fl, index=False)
     t = pd.DataFrame(trades)
     dte = (pd.to_datetime(t.expiry) - pd.to_datetime(t.entry_date)).dt.days
     print(t[["trade_id", "entry_date", "expiry", "sell_pe", "sell_ce"]].assign(dte=dte).to_string(index=False))
     print(f"\n{len(t)} trades -> {ft.name}, {fl.name}. Trade id = YYMM of the entry month.")
-    print(f"Next: python select_strikes.py --trade-set {a.name} --ce-delta 0.30 --pe-delta 0.30 --around 4 "
+    sym = "" if C.INDEX == "NIFTY" else f"--symbol {C.INDEX.lower()} "
+    print(f"Next: python select_strikes.py {sym}--trade-set {a.name} --ce-delta 0.30 --pe-delta 0.30 --around 4 "
           f"--name d30_{a.name} --dry-run")
