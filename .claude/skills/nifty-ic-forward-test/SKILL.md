@@ -79,12 +79,68 @@ The earlier rule is kept for comparison: a 300-point condor whenever the 10-day 
 
 A shadow row holds the 300-point condor's strikes and 11:16 prices and has `shadow` in `notes`. Run the daily `check` for it too, so its exit and P&L can be compared later.
 
-### Notes to keep in mind
+### Backtest of this rule set
 
-- The ±2% line is sharp in the backtest: the November 2023 stop-loss read +2.01% and was skipped by 0.01. When a live reading is within about 0.1 of the line, say so, and use NSE's official close only.
-- The 160-point floor is sharp too: one backtest loser passed it by 0.2 of a point. When the live credit is within a few points of 160 or 180, tell the user and let them confirm the prices.
-- The thresholds were chosen on backtest data and the rule trades about six times a year. Do not present its backtest results as what to expect. README section 1b lists the details under "Small print behind the final choice".
+1 lot, net of costs, NSE official closes for the 10-day move, 60% target on the 400-point trades. Full comparison: `output/final_variant_comparison.xlsx`.
+
+| Period | Trades (400 / 300) | Net P&L | Max drawdown | Worst trade | Win rate | Profit factor |
+|---|---|---|---|---|---|---|
+| 2021–26 | 36 (17 / 19) | ₹85,729 | −₹5,523 | −₹5,523 | 78% | 5.67 |
+| 2019–20 | 4 (2 / 2) | ₹7,040 | −₹1,986 | −₹1,986 | 75% | 4.54 |
+| 2019–26 | 40 (19 / 21) | ₹92,768 | −₹5,523 | −₹5,523 | 78% | 5.56 |
+
+Earlier rule (shadow log) on the same data: 2021–26 45 trades, ₹66,052, drawdown −₹7,527; 2019–26 60 trades, ₹58,472, drawdown −₹18,795.
+
+### Small print behind the numbers
+
+Quote these whenever the user asks how reliable the backtest is. README section 1b has the same list.
+
+**Months with no result**
+
+| Month | Why it is missing | Effect |
+|---|---|---|
+| December 2022 (trade 24) | Breeze has no option data | It would have been a 300-point trade (move −0.09%, StockMock credit 177.7 points = 44.4%). StockMock shows a loss of ₹1,925 before costs. Counting it: 2021–26 about ₹83.5k, 2022 a small losing year (about −₹1.5k), drawdown about −₹5.8k |
+| May 2023 (trade 29) | No Breeze price for the 400-point call hedge at 11:16 | None: move +2.23%, skipped anyway |
+| April-2026 expiry (entry 16-Mar-2026) | Not in the trade list | None: move −9.2%, skipped anyway |
+
+**Readings on the ±2% line**
+
+| Trade | 10-day move | What happened |
+|---|---|---|
+| 35 (November 2023, stop-loss) | +2.01% | Skipped by 0.01. At 2.00% it is a 300-point trade losing ₹7,243: total about ₹78.5k, drawdown about −₹7.4k |
+| 38 (February 2024) | +2.01% | Skipped; harmless (+₹126 at 400 points) |
+| 43 (July 2024) | +2.05% | Skipped; a +₹1,937 winner missed |
+| 4 (April 2021) | +1.96% | Traded, 400-point, +₹2,469 |
+| 31 (July 2023) | +1.96% | Traded, 300-point, +₹2,328 |
+
+The data source decides these. With Breeze's last-traded close, trade 35 read +1.99% and trade 31 +2.11%, and the same rule showed ₹76,284 with a −₹9,752 drawdown. Use NSE's official close only.
+
+**Credits on the 160-point floor and the 180-point line**
+
+| Trade | Credit (% of 400) | What happened |
+|---|---|---|
+| 30 (June 2023) | 160.2 points (40.05%) | In by 0.2 of a point; second-largest loss, −₹3,731 |
+| 31 (July 2023) | 162 points (40.5%) | In; +₹2,328 |
+| 45 (September 2024) | 158.6 points (39.6%) | Out; a +₹859 winner. The call-hedge price looks like a bad print |
+| 53 (May 2025) | 45.7% | Closest 400-point trade; +₹3,645 (+₹2,400 at 300 points) |
+| 22 and 55 | 44.4% and 44.5% | Just under 45%, so 300-point; both lost, and less than at 400 points |
+
+**What the rule does not fix**
+
+- The worst trade, August 2026 (trade 67, −₹5,523), passes every test: move −0.07%, credit 43.6%. It is the drawdown.
+- 2019–20 barely tests the rule: only 4 of 23 months pass the credit floor.
+- The four numbers (2%, 45%, 40%, 60% target) were chosen on this data, and the rule trades about six times a year. Treat the backtest as an upper bound.
+- No slippage is included: with 0.5 point per leg 2021–26 is ₹77,669; with 1 point ₹69,609.
+- The 400-point condor needs more margin and has a bigger maximum loss (about 219 points against 154).
+- Widening the 300-point limit from ±1.5% to ±2% added six trades worth +₹4,382 (four winners; losers 22 and 55), with the same drawdown.
+
+### What to do with this live
+
+- When the 10-day reading is within about 0.1 of ±2%, say so and show the two closes used.
+- When the 400-point credit is within a few points of 160 or 180, say so and let the user confirm the leg prices before deciding.
+- If a hedge is priced oddly against its neighbouring strike, flag it as a possible bad print; it can move the credit across the floor.
 - The credit is only known at 11:16, so an evening reading inside ±2% is not yet a decision on the width.
+- Do not present the backtest results as what to expect.
 
 ## Hard rules
 
