@@ -106,10 +106,14 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
 - BANKNIFTY files: `data/reference/banknifty_ic_reference_trades.csv` / `_legs.csv`, `banknifty_ic_trades_<set>.csv`,
   `data/strike_sets/banknifty/`, cache `BANKNIFTY_<expiry>_<strike>`, `data/banknifty_daily.csv` (NSE official closes, "Nifty Bank"),
   reports `output/BANKNIFTY_IC_backtest_*.xlsx`. Calendar, Muhurat days, costs shared.
-- PROVISIONAL (not yet verified): Breeze code `CNXBAN`; default hedge 700 pts; lot sizes 20/25/15/30/35/30 and the Wednesday
-  monthly expiry Mar–Dec 2024 are from memory – check against the user's StockMock BANKNIFTY report and NSE circulars.
+- StockMock BANKNIFTY report validated 11-Oct-2026 (data/reference/Banknifty IC backtesting_StockMock.xlsx → the two
+  banknifty_ic_reference_*.csv): 67 trades (same months as NIFTY), 30Δ, 500-pt hedges, TP 50%, 18-DTE exit; gross ₹25,894, worst
+  −₹10,836 (trade 62, −154% of credit on the time-exit day), 41 W / 26 L. 58 time / 5 target (6, 29, 39, 49, 54). Three exits one
+  trading day early (24, 41, 42 → MANUAL). Hedges 600 on trades 58 (CE) and 61 (both). Entry differs from NIFTY only for trade 42
+  (18-Jun-2024). Lots: StockMock 25 for Jul/Aug-2023 expiries (30, 31) vs NSE 15 (circular FAOP56233) – engine uses 15
+  (StockMock total at engine lots ₹24,690). Config set from it: hedge_width 500, ref_exit_dte 18; expiry weekdays confirmed.
+- STILL PROVISIONAL: Breeze code `CNXBAN` (probe). Download ≈ 2,608 calls (`download.py --symbol banknifty`) – needs the user's session.
 - The `FWD_*` forward-test rule and the skill are NIFTY only. Do not apply NIFTY-fitted thresholds to BANKNIFTY without a test.
-- Waiting for: the user's StockMock BANKNIFTY report → build the reference CSVs, set hedge width / lot sizes, probe, download.
 
 ## Commands
 ```bash

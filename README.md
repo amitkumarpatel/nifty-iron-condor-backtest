@@ -514,10 +514,10 @@ before and after the change and are identical.
 |---|---|---|
 | Breeze stock code | `NIFTY` | `CNXBAN` – *to confirm with the probe* |
 | Strike spacing | 50 | 100 |
-| Default hedge width | 300 | 700 – *placeholder until the StockMock report is in* |
+| Default hedge width | 300 | 500 (the StockMock BANKNIFTY run) |
 | Fallback strike shifts | −50, +50, −100, +100; hedge +50, +100 | −100, +100, −200, +200; hedge +100, +200 |
-| Lot size by expiry | as before | 20 → 25 → 15 → 30 → 35 → 30 – *to check against the StockMock report* |
-| Monthly expiry day (`make_trades.py` only) | Thursday, Tuesday from Sep-2025 | Thursday; Wednesday Mar–Dec 2024; Thursday; Tuesday from Sep-2025 – *to check* |
+| Lot size by expiry | as before | 25 → 15 (from the Jul-2023 expiry) → 30 (Feb-2025) → 35 (Jul-2025) → 30 (Jan-2026) |
+| Monthly expiry day (`make_trades.py` only) | Thursday, Tuesday from Sep-2025 | Thursday; Wednesday Mar–Dec 2024; Thursday; Tuesday from Sep-2025 (matches the report) |
 | Reference trades | `data/reference/ic_reference_trades.csv`, `ic_reference_legs.csv` | `data/reference/banknifty_ic_reference_trades.csv`, `banknifty_ic_reference_legs.csv` |
 | Generated trade sets | `ic_trades_<name>.csv` | `banknifty_ic_trades_<name>.csv` |
 | Strike sets | `data/strike_sets/strikes_<name>.csv` | `data/strike_sets/banknifty/strikes_<name>.csv` |
@@ -541,8 +541,24 @@ python make_trades.py --symbol banknifty --from 2021-01 --to 2026-08 --name bn
 python select_strikes.py --symbol banknifty --trade-set bn --ce-delta 0.30 --pe-delta 0.30 --around 4 --name d30_bn
 ```
 
-Still to do before the first BANKNIFTY backtest: create the two `banknifty_ic_reference_*.csv` files from the
-StockMock report (same columns as §5.8), confirm the items marked above, and download the candles.
+**StockMock BANKNIFTY report** (`data/reference/Banknifty IC backtesting_StockMock.xlsx`, validated 11-Oct-2026;
+the two `banknifty_ic_reference_*.csv` files are built from it):
+
+- 67 trades × 4 legs, the same 67 months as the NIFTY reference; entries 11:16, exits 15:16; leg P&L adds up to
+  every trade's P&L. Overall ₹25,894 before costs, largest loss −₹10,836 (trade 62), 41 winners / 26 losers.
+- Rules: ~30-delta sold strikes, hedges 500 points out, target 50%, time exit at 18 DTE. 58 time exits, 5 targets
+  (6, 29, 39, 49, 54), 1 trade beyond −100% on the time-exit day (62, −154% of credit).
+- Entry dates equal NIFTY's except trade 42 (18-Jun-2024 instead of 10-Jun: BANKNIFTY's expiry was Wed 31-Jul).
+- **Three exits are one trading day before the 18-DTE day** – trades 24 (5-Jan-2023), 41 (6-Jun-2024), 42
+  (11-Jul-2024). Marked `MANUAL`, so the engine's different exit day is an expected mismatch.
+- **Two trades have hedges wider than 500 points** – 58 (call 600) and 61 (call and put 600). The engine moves
+  them to 500 (fallback rule if a strike has no price).
+- **Lot size differs for two trades** – StockMock used 25 for the Jul-2023 and Aug-2023 expiries (trades 30, 31);
+  NSE's circular made it 15 from the July-2023 expiry. The engine uses 15; at those lots the StockMock total is
+  ₹24,690.
+- No trade for the April-2026 expiry, as in the NIFTY reference.
+
+Next: probe (confirms the Breeze code `CNXBAN`), then download – about 2,600 API calls.
 
 ### 5.4 Run the full backtest
 Works offline from the cache – no API calls, no session token needed.

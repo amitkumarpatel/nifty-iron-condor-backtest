@@ -18,7 +18,7 @@ if load_dotenv:
 #   nse_name        the index's name in NSE's daily index file (official close; ic/nse_index.py)
 #   strike_step     option strike spacing
 #   hedge_width     default distance of the bought legs (IC_HEDGE_WIDTH / --hedge overrides it)
-#   ref_hedge_width hedge width of the StockMock reference run (reconciliation labels)
+#   ref_hedge_width, ref_exit_dte  hedge width and exit DTE of the StockMock reference run (reconciliation labels)
 #   fallback_*      ic/fallback.py: spread shifts (negative = closer to the money) and extra hedge width
 #   start_vol_factor  make_trades.py only: index volatility as a multiple of India VIX (rough start strikes)
 #   expiry_weekdays (last month that uses it, weekday of the monthly expiry: Mon=0 .. Thu=3) - make_trades.py only
@@ -26,7 +26,7 @@ if load_dotenv:
 INDEX = os.environ.get("IC_INDEX", "NIFTY").upper()
 INDEXES = {
     "NIFTY": dict(
-        breeze_code="NIFTY", nse_name="nifty 50", strike_step=50, hedge_width=300, ref_hedge_width=200,
+        breeze_code="NIFTY", nse_name="nifty 50", strike_step=50, hedge_width=300, ref_hedge_width=200, ref_exit_dte=15,
         fallback_shifts=[-50, 50, -100, 100], fallback_hedge_extra=[50, 100], start_vol_factor=1.0,
         expiry_weekdays=[("2025-08", 3), ("2099-12", 1)],          # Thursday, Tuesday from Sep-2025
         # 50 -> 25 for contracts from 26-Apr-2024 (NSE); 25 -> 75 for contracts introduced from 20-Nov-2024,
@@ -34,11 +34,13 @@ INDEXES = {
         # Expiries up to Jan-2021 (generated 2019-2020 trade set): 75, NIFTY's lot size at the time.
         lot_sizes=[("2021-01-28", 75), ("2024-05-30", 50), ("2025-01-30", 25), ("2025-12-30", 75), ("2099-12-31", 65)],
     ),
-    # BANKNIFTY added 11-Oct-2026. PROVISIONAL until checked against the user's StockMock report and NSE
-    # circulars: breeze_code (confirm with probe.py), hedge_width / ref_hedge_width (NIFTY's 300 pts scaled by
-    # the index level, about 2.3x), expiry_weekdays and lot_sizes (from memory of the NSE circulars).
+    # BANKNIFTY added 11-Oct-2026. hedge_width 500 and the 18-DTE exit = the user's StockMock run ("Banknifty IC
+    # backtesting_StockMock.xlsx", 67 trades). expiry_weekdays reproduce all 67 expiries of that report. lot_sizes
+    # match its quantities except the Jul-2023 and Aug-2023 expiries: StockMock used 25, NSE circular FAOP56233
+    # (31-Mar-2023) made the lot 15 from the July-2023 expiry - the engine uses 15.
+    # Still PROVISIONAL: breeze_code (confirm with probe.py).
     "BANKNIFTY": dict(
-        breeze_code="CNXBAN", nse_name="nifty bank", strike_step=100, hedge_width=700, ref_hedge_width=700,
+        breeze_code="CNXBAN", nse_name="nifty bank", strike_step=100, hedge_width=500, ref_hedge_width=500, ref_exit_dte=18,
         fallback_shifts=[-100, 100, -200, 200], fallback_hedge_extra=[100, 200], start_vol_factor=1.25,
         # Thursday; Wednesday Mar-2024..Dec-2024; Thursday Jan..Aug-2025; Tuesday from Sep-2025
         expiry_weekdays=[("2024-02", 3), ("2024-12", 2), ("2025-08", 3), ("2099-12", 1)],
@@ -97,7 +99,7 @@ FWD_WIDE_TP_FRACTION    = 0.60    # 60% target for the wide condor
 TP_FRACTION  = 0.50         # exit when P&L >= 50% of initial credit
 SL_FRACTION  = 1.00         # exit when loss >= 100% of initial credit
 EXIT_DTE     = 18           # exit on last trading day on/before (expiry - 18 calendar days)
-REF_EXIT_DTE = 15           # exit DTE used in the StockMock reference run (for reconciliation labels)
+REF_EXIT_DTE = _IDX["ref_exit_dte"]   # exit DTE used in the StockMock reference run (NIFTY 15; reconciliation labels)
 HEDGE_WIDTH  = int(os.environ.get("IC_HEDGE_WIDTH", _IDX["hedge_width"]))  # bought strike = sold strike +/- this many
                            # points (NIFTY 300, chosen 27-Sep-2026; StockMock reference = 200; each width needs its own download)
 HEDGE_WIDTH_CE = int(os.environ.get("IC_HEDGE_WIDTH_CE", HEDGE_WIDTH))   # per-side override (call hedge)
