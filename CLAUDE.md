@@ -117,7 +117,9 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
   any new index. make_trades --symbol banknifty reproduces all 67 entry and expiry dates of the report.
 - PREVIEW ONLY (StockMock P&L at engine lots, BANKNIFTY's own 10-day move; not an engine result): no filter 67 tr ₹24,690 / DD −₹10,836;
   ±2.5% 37 tr ₹23,031 / −₹6,080; ±2% 28 tr ₹30,130 / −₹5,277; ±3% 46 tr ₹18,848 / −₹9,406. Trade 62 reads +3.03% (skipped at 2.5 and 3).
-- STILL PROVISIONAL: Breeze code `CNXBAN` (probe). Download ≈ 2,608 calls (`download.py --symbol banknifty`) – needs the user's session.
+- Probe 11-Oct-2026 (trades 1, 9, 20, 35, 48, 56, 62, 67): `CNXBAN` CONFIRMED, data 64/64, all years; exact-minute candle missing
+  in 13 checks (2021–22 thin: trade 1 had 5 candles before 11:16, trade 9 sold CE stale 41 min); last-traded fallback within 2% of
+  StockMock in 59/64; largest diffs ≈ 8–11 pts on 500–3,000-pt premiums (trade 48 both PE legs −9.75, cancels in the spread). Download ≈ 2,608 calls (`download.py --symbol banknifty`) – needs the user's session.
 - The `FWD_*` forward-test rule and the skill are NIFTY only. Do not apply NIFTY-fitted thresholds to BANKNIFTY without a test.
 
 ## Commands

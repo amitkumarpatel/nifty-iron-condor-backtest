@@ -512,7 +512,7 @@ before and after the change and are identical.
 
 | Item | NIFTY | BANKNIFTY |
 |---|---|---|
-| Breeze stock code | `NIFTY` | `CNXBAN` – *to confirm with the probe* |
+| Breeze stock code | `NIFTY` | `CNXBAN` (confirmed by the probe, 11-Oct-2026) |
 | Strike spacing | 50 | 100 |
 | Default hedge width | 300 | 500 (the StockMock BANKNIFTY run) |
 | Fallback strike shifts | −50, +50, −100, +100; hedge +50, +100 | −100, +100, −200, +200; hedge +100, +200 |
@@ -558,7 +558,12 @@ the two `banknifty_ic_reference_*.csv` files are built from it):
   ₹24,690.
 - No trade for the April-2026 expiry, as in the NIFTY reference.
 
-Next: probe (confirms the Breeze code `CNXBAN`), then download – about 2,600 API calls.
+Probe 11-Oct-2026 (8 trades, 64 checks): Breeze returned data for all 64, every year 2021–2026; the engine's price
+rule (exact minute, else last traded price) is within 2% of StockMock on 59 of 64. 13 checks had no candle at the
+exact minute – BANKNIFTY monthly options six weeks out trade thinly in 2021–22 (trade 9: sold call last traded 41
+minutes before 11:16).
+
+Next: download – about 2,600 API calls.
 
 ### 5.4 Run the full backtest
 Works offline from the cache – no API calls, no session token needed.

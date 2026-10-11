@@ -38,7 +38,7 @@ INDEXES = {
     # backtesting_StockMock.xlsx", 67 trades). expiry_weekdays reproduce all 67 expiries of that report. lot_sizes
     # match its quantities except the Jul-2023 and Aug-2023 expiries: StockMock used 25, NSE circular FAOP56233
     # (31-Mar-2023) made the lot 15 from the July-2023 expiry - the engine uses 15.
-    # Still PROVISIONAL: breeze_code (confirm with probe.py).
+    # breeze_code CNXBAN confirmed by the probe of 11-Oct-2026 (64/64 checks returned data).
     "BANKNIFTY": dict(
         breeze_code="CNXBAN", nse_name="nifty bank", strike_step=100, hedge_width=500, ref_hedge_width=500, ref_exit_dte=18,
         fallback_shifts=[-100, 100, -200, 200], fallback_hedge_extra=[100, 200], start_vol_factor=1.25,
