@@ -563,7 +563,36 @@ rule (exact minute, else last traded price) is within 2% of StockMock on 59 of 6
 exact minute – BANKNIFTY monthly options six weeks out trade thinly in 2021–22 (trade 9: sold call last traded 41
 minutes before 11:16).
 
-Next: download – about 2,600 API calls.
+**First BANKNIFTY backtest (11-Oct-2026; data downloaded, 0 trades without data;
+`output/BANKNIFTY_IC_backtest_report.xlsx`, no-filter run `BANKNIFTY_IC_backtest_sm_h500_nofilter.xlsx`).**
+Same rules as NIFTY: 30-delta, 500-point hedges, target 50%, stop 100%, 18-DTE exit, 1 lot.
+
+| | Trades | Gross | Net of costs | Max drawdown (net) | Worst trade (net) | Win rate | Profit factor (net) |
+|---|---|---|---|---|---|---|---|
+| No filter | 67 | ₹26,060 | ₹8,291 | −₹12,043 | −₹8,866 | 57% | 1.13 |
+| ±2.5% 10-day filter (BANKNIFTY's own move) | 37 | ₹21,185 | ₹11,709 | −₹12,256 | −₹5,024 | 57% | 1.39 |
+| ±2% | 28 | ₹28,456 | ₹21,373 | −₹9,774 | −₹5,024 | 64% | 2.15 |
+| ±1.5% | 20 | ₹31,131 | ₹26,124 | −₹6,439 | −₹5,024 | 80% | 3.84 |
+| ±3% | 46 | ₹16,760 | ₹4,806 | −₹15,892 | −₹5,024 | 52% | 1.12 |
+
+- **Engine vs StockMock (67 trades, no filter):** gross ₹26,060 against ₹24,690; 36 trades within 3 points, 55 within
+  10, 60 within 20; same exit day and reason on 61. Differences: the three manual exits (24, 41, 42), trade 61
+  (StockMock's hedges were 600 points), and the two stop-losses below.
+- **Costs take most of the profit:** about ₹265 per condor against an average gross profit of ₹389 – ₹17,769 of
+  the ₹26,060. BANKNIFTY's lot is small (15–35) while premiums are large, so the rupee profit per trade is small.
+- **The stop and the target hardly ever act.** The credit averages 262 points = 52% of the 500-point width, so the
+  largest possible loss (238 points) is about 93% of the credit: a stop at 100% of credit cannot be reached in 45
+  of 67 trades. Only 6 trades reached the 50% target. Nearly every trade is a time exit.
+- **Both engine stop-losses are bad prints, not real stops.** Trade 37 (29-Jan-2024) and trade 62 (9-Mar-2026)
+  show the condor worth 557 and 517 points – more than the 500-point width, which is impossible. Deep
+  in-the-money puts trade rarely and the two legs' last prices are from different moments. StockMock's own −361
+  points for trade 62 is beyond the maximum loss for the same reason. With trade 37 held to its time exit as in
+  StockMock: no filter ₹11,423 net; ±2.5% ₹14,841 net, drawdown −₹9,124. The NIFTY runs have no such day.
+- **The filter skips far more months than on NIFTY** (30 of 67 at ±2.5%, against 21) because BANKNIFTY moves more.
+  Tighter limits look better (±1.5%: 20 trades), but that is three or four trades a year, chosen after seeing the data.
+- **Thin data in 2021–22:** 432 of the 487 non-exact prices are in those two years (83 older than 15 minutes).
+- Compared with NIFTY on the same months (300-point, ±2.5%: ₹66,052 net, drawdown −₹7,527), BANKNIFTY with these
+  rules earns about a fifth for a larger drawdown.
 
 ### 5.4 Run the full backtest
 Works offline from the cache – no API calls, no session token needed.

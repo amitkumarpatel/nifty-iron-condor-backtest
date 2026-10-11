@@ -120,6 +120,17 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
 - Probe 11-Oct-2026 (trades 1, 9, 20, 35, 48, 56, 62, 67): `CNXBAN` CONFIRMED, data 64/64, all years; exact-minute candle missing
   in 13 checks (2021–22 thin: trade 1 had 5 candles before 11:16, trade 9 sold CE stale 41 min); last-traded fallback within 2% of
   StockMock in 59/64; largest diffs ≈ 8–11 pts on 500–3,000-pt premiums (trade 48 both PE legs −9.75, cancels in the spread). Download ≈ 2,608 calls (`download.py --symbol banknifty`) – needs the user's session.
+- FIRST BANKNIFTY BACKTEST 11-Oct-2026 (download complete; 30Δ, 500-pt, TP 50%, SL 100%, 18 DTE; README §5.3e; n / gross / net / net DD /
+  PF net): no filter 67 / ₹26,060 / ₹8,291 / −₹12,043 / 1.13; ±2.5% 37 / ₹21,185 / ₹11,709 / −₹12,256 / 1.39; ±2% 28 / ₹28,456 / ₹21,373 /
+  −₹9,774 / 2.15; ±1.5% 20 / ₹31,131 / ₹26,124 / −₹6,439 / 3.84; ±3% 46 / ₹4,806 net / −₹15,892. By year (±2.5%, net): 2021 +4.1k, 2022 −5.1k,
+  2023 +6.6k, 2024 −2.9k, 2025 +2.6k, 2026 +6.5k. Engine vs StockMock (67, no filter): gross ₹26,060 vs ₹24,690; 36 within 3 pts, 55 within 10;
+  same exit 61/67. Costs ≈ ₹265/condor = ₹17.8k of ₹26.1k gross (small lot 15–35, big premiums). Credit avg 262 pts = 52% of width → max
+  loss ≈ 93% of credit, so the 100% stop is unreachable in 45/67 trades; only 6 targets → effectively a time-exit-only trade.
+  The 2 engine stop-losses are BAD PRINTS: trade 37 (29-Jan-2024, condor value 557 > 500 width; stale deep-ITM 47200PE) and 62
+  (9-Mar-2026, 517); StockMock's −361 pts on 62 is also beyond max loss. Trade 37 at its time exit: no filter ₹11,423 net; ±2.5% ₹14,841 /
+  −₹9,124. NIFTY runs have 0 days with value > width. PROPOSED (not built, user to decide): sanity rule "condor value above its
+  hedge width = bad print → skip that daily check". 432 of 487 non-exact prices are 2021–22. Versus NIFTY 300-pt ±2.5% (₹66,052 /
+  −₹7,527) BANKNIFTY earns about a fifth with a larger drawdown under the same rules.
 - The `FWD_*` forward-test rule and the skill are NIFTY only. Do not apply NIFTY-fitted thresholds to BANKNIFTY without a test.
 
 ## Commands
