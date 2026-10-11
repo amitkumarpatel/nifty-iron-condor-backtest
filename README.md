@@ -1048,6 +1048,13 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   (live readings follow NSE, not Breeze). 2019–Aug-2020 rows in nifty_daily.csv are already NSE. TO DECIDE with the user: replace
   the Breeze rows by NSE official closes (python fetch_index_nse.py --from 2020-08-17 --to <today> --replace; ~1,500 small files,
   no Breeze login) so backtest and forward test use the same source.
+  FINAL FOUR-WAY COMPARISON on NSE official closes (11-Oct-2026; output/final_variant_comparison.xlsx; 1 lot, net; 400-pt trades with the
+  60% target; n / net / max DD / worst / PF). 2021–26: no filter (300-pt) 66 / ₹47,298 / −₹11,860 / −₹8,529 / 1.67; ±2.5% (300-pt) 45 /
+  ₹66,052 / −₹7,527 / −₹7,243 / 3.20; "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%) 36 (17+19) / ₹85,729 / −₹5,523 / −₹5,523 / 5.67;
+  ADOPTED (400-pt ±2% & >=45%, 300-pt ±1.5% & >=40%) 30 (17+13) / ₹81,346 / −₹5,523 / −₹5,523 / 7.49. 2019–20: −₹34,106 / −₹40,887; −₹7,579 /
+  −₹18,795; both credit rules 4 tr +₹7,040 / −₹1,986. 2019–26: 89 / ₹13,192 / −₹42,721; 60 / ₹58,472 / −₹18,795; 40 / ₹92,768 / −₹5,523 (PF 5.56);
+  34 / ₹88,386 / −₹5,523 (PF 7.09). The two credit rules differ by 6 trades with a 1.5–2% move: 51 +₹3,900, 58 +₹3,077, 31 +₹2,328,
+  40 +₹908, 22 −₹3,654, 55 −₹2,178 = +₹4,382. Trade 35 (2.01%) is out of both by 0.01.
   Up-side limit ladder with PE fixed at 2.5% (net / max DD): no gap exit – 2.5% ₹66,052 / −₹7,527; 3% ₹62,516 /
   −₹8,529; 3.5% ₹56,678 / −₹10,057. With the 1% gap-up exit – 2.5% ₹68,023; 3% ₹68,159; 3.5% ₹67,665, all −₹5,523
   (the gap-up exit rescues trades 62 and 19), but profit factor falls 4.88 → 3.64 → 3.28 and 6–10 more months are traded.

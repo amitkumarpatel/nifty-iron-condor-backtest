@@ -514,6 +514,13 @@ net / DD): adopted, TP 60% on 400: 30 ₹81,346 −₹5,523; adopted TP 50%: 30 
 1.75%: 32 ₹84,909 −₹5,523; ±2% both: 36 ₹82,313 (TP 60%: ₹85,729) −₹5,523; ±2.25% both: 39 ₹77,133 −₹7,424; ±2.5% both: 43 ₹77,804
 −₹7,424. NOTE: all filter/threshold studies above this entry (dated up to 10-Oct-2026) used Breeze closes; anything decided at
 the ±1.5% or ±2% line by trades 14, 31, 35 or 38 should be re-read with that in mind. Working table: scratch sw_nse.pkl.
+FINAL FOUR-WAY COMPARISON on NSE official closes (11-Oct-2026; output/final_variant_comparison.xlsx; 1 lot, net; 400-pt trades with the
+60% target; n / net / max DD / worst / PF). 2021–26: no filter (300-pt) 66 / ₹47,298 / −₹11,860 / −₹8,529 / 1.67; ±2.5% (300-pt) 45 /
+₹66,052 / −₹7,527 / −₹7,243 / 3.20; "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%) 36 (17+19) / ₹85,729 / −₹5,523 / −₹5,523 / 5.67;
+ADOPTED (400-pt ±2% & >=45%, 300-pt ±1.5% & >=40%) 30 (17+13) / ₹81,346 / −₹5,523 / −₹5,523 / 7.49. 2019–20: −₹34,106 / −₹40,887; −₹7,579 /
+−₹18,795; both credit rules 4 tr +₹7,040 / −₹1,986. 2019–26: 89 / ₹13,192 / −₹42,721; 60 / ₹58,472 / −₹18,795; 40 / ₹92,768 / −₹5,523 (PF 5.56);
+34 / ₹88,386 / −₹5,523 (PF 7.09). The two credit rules differ by 6 trades with a 1.5–2% move: 51 +₹3,900, 58 +₹3,077, 31 +₹2,328,
+40 +₹908, 22 −₹3,654, 55 −₹2,178 = +₹4,382. Trade 35 (2.01%) is out of both by 0.01.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
