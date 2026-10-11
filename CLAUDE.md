@@ -593,6 +593,9 @@ nifty_hedge_400_500_600_rich_credit_trades.xlsx; net / max DD / targets; TP 50% 
 (TP 60%) / DD −₹5,523 / PF 7.23 (500-pt ₹100,287; 400-pt ₹85,729). Only 2 of 17 on fallback strikes (44, 53; call spread 50 pts closer);
 92 non-exact daily prices vs 69 at 500-pt. CAVEAT: the gain is linear in width because none of these 17 months had a real loss – the test
 cannot show the cost of a bad month; the wider the hedge the closer this is to a short strangle. Not adopted – user's call.
+SIX-WAY SUMMARY (11-Oct-2026, NIFTY 2021–26, net; output/six_variant_comparison.xlsx): adds (6) ±2%, 600-pt TP 60% if 400-pt credit>=45%,
+300-pt if 40–45%: 36 tr ₹114,939 / DD −₹5,523 / worst −₹5,523 / win 81% / PF 7.23 / 0.5-pt slip ₹106,879, no losing year – to the five above
+(₹47,298; ₹66,052; ₹85,729; ₹110,219 / −₹9,515; ₹100,287).
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
