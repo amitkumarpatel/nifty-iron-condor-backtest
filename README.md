@@ -1232,6 +1232,14 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   −₹18,795; both credit rules 4 tr +₹7,040 / −₹1,986. 2019–26: 89 / ₹13,192 / −₹42,721; 60 / ₹58,472 / −₹18,795; 40 / ₹92,768 / −₹5,523 (PF 5.56);
   34 / ₹88,386 / −₹5,523 (PF 7.09). The two credit rules differ by 6 trades with a 1.5–2% move: 51 +₹3,900, 58 +₹3,077, 31 +₹2,328,
   40 +₹908, 22 −₹3,654, 55 −₹2,178 = +₹4,382. Trade 35 (2.01%) is out of both by 0.01.
+  GAP-UP vs THE BIG LOSERS, re-checked for the variant-6 rule (12-Oct-2026, user observation "Nov-2023 and Feb-2026 lost because of >1% gap-ups").
+  Trade 35 (Nov-2023): yes – gap-ups 1.09% (15-Nov) and 1.65% (4-Dec), call-side stop. Trade 62 (Feb-2026): NO – it was a fall with three
+  gap-DOWNS (−2.06% 2-Mar, −1.92% 4-Mar, −2.38% 9-Mar); its only gap-up (1.05% on 10-Mar) was a bounce after the damage; put-side loss.
+  All 66 months at 300-pt, no filter: a >=1% gap-up during the trade 21 tr / 7 losers / −₹2,708; only gap-downs 11 tr / 6 losers / −₹1,425;
+  no 1% gap 34 tr / 11 losers / +₹51,430 – months with any 1% gap make nothing. Ten worst: gap-up came first in 35, 19, 22, 15; gap-downs
+  in 62, 16, 8, 52; no gap at all in 67 and 30. Inside the 36 months of the forward-test rule: 9 had a gap-up, only 1 lost (22). Gap-up 1%
+  exit ON TOP of variant 6: ₹103,851 / DD −₹5,523 vs ₹114,939 / −₹5,523 → costs ₹11.1k (saves 22 +₹4.2k; cuts winners 3, 14, 56, 4, 61, 21,
+  18). The ±2% filter already skips the gap-up losers 35, 19, 15, 16. Gap-up exit stays OFF; keep logging gap-up days in the journal.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give

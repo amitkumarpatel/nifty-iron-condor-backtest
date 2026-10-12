@@ -630,6 +630,14 @@ cannot show the cost of a bad month; the wider the hedge the closer this is to a
 SIX-WAY SUMMARY (11-Oct-2026, NIFTY 2021–26, net; output/six_variant_comparison.xlsx): adds (6) ±2%, 600-pt TP 60% if 400-pt credit>=45%,
 300-pt if 40–45%: 36 tr ₹114,939 / DD −₹5,523 / worst −₹5,523 / win 81% / PF 7.23 / 0.5-pt slip ₹106,879, no losing year – to the five above
 (₹47,298; ₹66,052; ₹85,729; ₹110,219 / −₹9,515; ₹100,287).
+GAP-UP vs THE BIG LOSERS, re-checked for the variant-6 rule (12-Oct-2026, user observation "Nov-2023 and Feb-2026 lost because of >1% gap-ups").
+Trade 35 (Nov-2023): yes – gap-ups 1.09% (15-Nov) and 1.65% (4-Dec), call-side stop. Trade 62 (Feb-2026): NO – it was a fall with three
+gap-DOWNS (−2.06% 2-Mar, −1.92% 4-Mar, −2.38% 9-Mar); its only gap-up (1.05% on 10-Mar) was a bounce after the damage; put-side loss.
+All 66 months at 300-pt, no filter: a >=1% gap-up during the trade 21 tr / 7 losers / −₹2,708; only gap-downs 11 tr / 6 losers / −₹1,425;
+no 1% gap 34 tr / 11 losers / +₹51,430 – months with any 1% gap make nothing. Ten worst: gap-up came first in 35, 19, 22, 15; gap-downs
+in 62, 16, 8, 52; no gap at all in 67 and 30. Inside the 36 months of the forward-test rule: 9 had a gap-up, only 1 lost (22). Gap-up 1%
+exit ON TOP of variant 6: ₹103,851 / DD −₹5,523 vs ₹114,939 / −₹5,523 → costs ₹11.1k (saves 22 +₹4.2k; cuts winners 3, 14, 56, 4, 61, 21,
+18). The ±2% filter already skips the gap-up losers 35, 19, 15, 16. Gap-up exit stays OFF; keep logging gap-up days in the journal.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
