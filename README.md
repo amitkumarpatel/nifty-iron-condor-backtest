@@ -66,38 +66,45 @@ Order of checks each day: stop-loss → target → time exit.
 
 ---
 
-## 1b. Forward-test rule set (finalised 11-Oct-2026)
+## 1b. Forward-test rule set (finalised 11-Oct-2026; hedge widths changed 12-Oct-2026)
 
-This is the version being paper traded from the October-2026 cycle. It adds a credit test and a wider hedge
+This is the version being paper traded from the October-2026 cycle. It adds a credit test and wider hedges
 to the rules of §1. Everything not listed here (Monday 11:16 entry, ~30-delta sold strikes, next-month expiry,
 one check a day at 15:16, stop at 100% of credit, time exit at expiry − 18 days, 1 lot, fallback strikes) is
 unchanged. Settings: `FWD_*` in `ic/config.py`. `backtest.py` does **not** use them – its defaults stay the
 earlier rule below, which is kept as the comparison.
 
 **Two readings.** Evening before entry: NIFTY's 10-day move (NSE official closes). At 11:16: the net credit of
-the **400-point** condor (sold ~30-delta call and put, hedges 400 points out).
+the **400-point** condor (sold ~30-delta call and put, hedges 400 points out). The 400-point condor is only the
+**credit test** – it is priced, not traded.
 
 | 10-day move | Credit of the 400-pt condor | Action | Profit target |
 |---|---|---|---|
-| within ±2% | 180 points or more (≥ 45% of width) | **400-point condor** | **60%** of credit |
+| within ±2% | 180 points or more (≥ 45% of width) | **500-point condor and 600-point condor** – both paper traded, side by side | **60%** of each condor's own credit |
 | within ±2% | 160–180 points (40–45%) | **300-point condor** | 50% of credit |
 | within ±2% | below 160 points (< 40%) | **Skip** – minimum-credit floor | – |
 | beyond ±2% | any | **Skip** | – |
 
-- **One move limit, ±2%, for both widths** (user's decision 11-Oct-2026; the first version of 10-Oct-2026 allowed
-  the 300-point condor only inside ±1.5%).
-- **60% target for the 400-point condor** (50% stays for the 300-point one). Backtest: +₹3.4k, drawdown unchanged.
-- **Minimum-credit floor:** no condor of either width when the 400-point credit is below 160 points.
-- **Backtest of this rule set** (1 lot, net, NSE official closes for the 10-day move):
+- **500 and 600-point hedges replace 400 on rich-credit months** (user's decision 12-Oct-2026). Both are logged
+  as separate paper trades with the same sold strikes, so the forward test compares them directly. They are
+  "variant 5" and "variant 6" of the comparison below; the earlier 400-point version is "variant 3".
+- **One move limit, ±2%, for all widths** (11-Oct-2026).
+- **60% target for the wide condors** (50% stays for the 300-point one).
+- **Minimum-credit floor:** no condor of any width when the 400-point credit is below 160 points.
+- **Backtest, 2021–26** (1 lot, net, NSE official closes; the same 36 months in every row, 17 rich + 19 at 300-pt):
 
-  | | Trades (400 / 300) | Net P&L | Max drawdown | Worst trade | Win rate | Profit factor |
-  |---|---|---|---|---|---|---|
-  | 2021–26 | 36 (17 / 19) | ₹85,729 | −₹5,523 | −₹5,523 | 78% | 5.67 |
-  | 2019–20 | 4 (2 / 2) | ₹7,040 | −₹1,986 | −₹1,986 | 75% | 4.54 |
-  | 2019–26 | 40 (19 / 21) | ₹92,768 | −₹5,523 | −₹5,523 | 78% | 5.56 |
+  | Wide condor on rich months | Net P&L | Max drawdown | Worst trade | Win rate | Profit factor | With 0.5-pt slippage | Max possible loss on a rich-month trade (lot 65) |
+  |---|---|---|---|---|---|---|---|
+  | 400-pt (variant 3, replaced) | ₹85,729 | −₹5,523 | −₹5,523 | 78% | 5.67 | ₹77,669 | about ₹13,600 |
+  | **500-pt (variant 5)** | ₹100,287 | −₹5,523 | −₹5,523 | 81% | 6.47 | ₹92,227 | about ₹17,900 |
+  | **600-pt (variant 6)** | ₹114,939 | −₹5,523 | −₹5,523 | 81% | 7.23 | ₹106,879 | about ₹22,500 |
 
-  Earlier rule on the same data: 2021–26 45 trades ₹66,052 / −₹7,527; 2019–26 60 trades ₹58,472 / −₹18,795.
-  Full comparison: `output/final_variant_comparison.xlsx`.
+  Earlier rule on the same data: 45 trades ₹66,052 / −₹7,527. Files: `output/six_variant_comparison.xlsx`,
+  `output/nifty_hedge_400_500_600_rich_credit_trades.xlsx`.
+- **What the table cannot show.** The drawdown is the same in all three rows because it comes from a 300-point
+  trade (67). None of the 17 rich-credit months lost more than about ₹2,000, so the backtest never saw a wide
+  condor go wrong; the last column is what one such month could cost. 2019–20 has only been run at 400 points
+  (4 trades, +₹7,040).
 
 > **Note – the earlier rule is kept as a shadow log.** "300-point condor whenever the 10-day move is within
 > ±2.5%" (§1, the `backtest.py` default) was the version first selected for the forward test. Every month,
@@ -106,7 +113,8 @@ the **400-point** condor (sold ~30-delta call and put, hedges 400 points out).
 
 ### Small print behind the final choice
 
-These are the details the backtest numbers above rest on. None changes the rule; each says how much to trust it.
+Written for the 400-point version (variant 3); the months, readings and credit lines are the same for the 500 and
+600-point versions, only the rupee figures of the 17 rich-credit trades differ. These are the details the backtest numbers above rest on. None changes the rule; each says how much to trust it.
 
 **Months with no result**
 
@@ -663,10 +671,11 @@ Run it after changing the code. The fake prices are not market data.
 ---
 
 ### 5.10 Monthly routine (paper or live trading)
-**Forward-test plan (finalised 11-Oct-2026):** 1 lot for 3–6 months with the rule set of §1b – Monday
-~11:15–11:16 entry (~43 DTE), ~30Δ CE + PE sold; trade only when the 10-day move is within ±2%: a 400-point
-condor (60% target) when its credit is at least 180 points, a 300-point condor (50% target) when that credit is
-160–180 points, no trade below 160 points; stop at −100% of credit, time exit at 18 DTE.
+**Forward-test plan (finalised 11-Oct-2026, widths changed 12-Oct-2026):** 1 lot for 3–6 months with the rule set
+of §1b – Monday ~11:15–11:16 entry (~43 DTE), ~30Δ CE + PE sold; trade only when the 10-day move is within ±2%:
+a 500-point and a 600-point condor (both paper traded, 60% target) when the 400-point condor's credit is at least
+180 points, a 300-point condor (50% target) when that credit is 160–180 points, no trade below 160 points; stop at
+−100% of credit, time exit at 18 DTE.
 Every month also log what the earlier rule (300-point, ±2.5%) would have done, and note (not act on) the
 condor's 15:16 P&L on every 1% gap-up day.
 

@@ -29,24 +29,31 @@ Full user documentation: README.md. All settings: `ic/config.py`.
   above the bought call (all 7 losses) had a >= 1% gap-up first; with the gap-up exit max DD −₹7.5k → −₹5.5k and
   profit ₹66,052 → ₹68,023 (300-pt, filter). Late warning: NIFTY closing above the bought call (trades 30, 52 had no gap).
 
-## Forward-test rule set (ADOPTED 10-Oct-2026, FINALISED by the user 11-Oct-2026 for the Oct-2026 cycle onward; README §1b; `FWD_*` in config)
+## Forward-test rule set (ADOPTED 10-Oct-2026, FINALISED 11-Oct-2026, WIDTHS CHANGED by the user 12-Oct-2026; README §1b; `FWD_*` in config)
 Used by the forward-test skill only – `backtest.py` defaults stay the earlier rule above (300-pt, ±2.5%), kept as the comparison.
-- Evening before entry: 10-day move (NSE official closes). At 11:16: net credit of the 400-pt condor (30Δ sold legs, hedges 400 pts out).
-- |move| <= 2% AND credit >= 180 pts (45% of 400) → 400-pt IC, **target 60%** of credit.
+- Evening before entry: 10-day move (NSE official closes). At 11:16: net credit of the 400-pt condor (30Δ sold legs, hedges 400 pts
+  out) = the CREDIT TEST ONLY (`FWD_SIGNAL_WIDTH` = 400; priced, not traded).
+- |move| <= 2% AND that credit >= 180 pts (45% of 400) → paper trade BOTH a 500-pt and a 600-pt IC (`FWD_WIDE_WIDTHS` = [500, 600];
+  "variant 5" and "variant 6"), **target 60%** of each condor's own credit.
 - |move| <= 2% AND credit 160–180 pts (40–45%) → 300-pt IC, target 50%.
-- else skip. **Minimum-credit floor:** no IC of either width when the 400-pt credit is below 160 pts.
+- else skip. **Minimum-credit floor:** no IC of any width when the 400-pt credit is below 160 pts.
 - Stop 100% of credit, 15:16 daily check, 18-DTE time exit, 1 lot, fallback strikes – unchanged.
 - NOTE: the earlier rule (300-pt IC whenever |move| <= 2.5%) is the SHADOW LOG – record every month what it would have done.
-- USER DECISION 11-Oct-2026: one ±2% limit for both widths (`FWD_NARROW_MOVE_PCT` 1.5 → 2.0). The 10-Oct version (300-pt only inside
-  ±1.5%) is superseded: on NSE closes it scored 30 tr ₹81,346 / −₹5,523 / PF 7.49. Do not re-open ±1.5% vs ±2% unless the user asks.
-- Backtest of the finalised set (NSE closes, 60% target on 400-pt): 2021–26 36 tr (17×400 + 19×300) ₹85,729 / DD −₹5,523 / worst −₹5,523
-  (trade 67) / win 78% / PF 5.67; 2019–20 4 tr +₹7,040 / −₹1,986; 2019–26 40 tr ₹92,768 / −₹5,523 / PF 5.56. 0.5-pt slip ₹77,669.
+- USER DECISIONS: 11-Oct-2026 one ±2% limit for all widths (was ±1.5% for 300-pt); 12-Oct-2026 "choose variant 5 and 6 for forward
+  testing in place of variant 3" → 500 and 600-pt replace 400-pt on rich months, both logged side by side (my reading: neither is
+  "the" primary; ask the user which one to go live with after the forward test). Do not re-open thresholds unless the user asks.
+- Backtest 2021–26 (NSE closes, same 36 months = 17 rich + 19 at 300-pt; net / DD / PF / 0.5-pt slip): 400-pt (variant 3) ₹85,729 /
+  −₹5,523 / 5.67 / ₹77,669; 500-pt (variant 5) ₹100,287 / −₹5,523 / 6.47 / ₹92,227; 600-pt (variant 6) ₹114,939 / −₹5,523 / 7.23 / ₹106,879.
+  Max possible loss on a rich-month trade at lot 65 ≈ ₹13.6k / ₹17.9k / ₹22.5k – never tested: no rich month lost more than ≈ ₹2k.
+  2019–20 only run at 400-pt (4 tr +₹7,040). 2019–26 at 400-pt: 40 tr ₹92,768 / −₹5,523.
 - SMALL PRINT (README §1b, keep in mind when quoting the numbers): trade 24 (Dec-2022, no Breeze data) would have been a 300-pt trade
-  (move −0.09%, StockMock credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k. Trade 35 (Nov-2023
-  stop) is skipped at +2.01%; at 2.00% → ≈ ₹78.5k / DD −₹7.4k (with Breeze closes it read 1.99%: ₹76,284 / −₹9,752). Trade 38 also 2.01%
-  (+₹126, harmless); 43 at 2.05% (+₹1,937 missed); 4 and 31 in at 1.96%. Floor: trade 30 in at 40.05% (−₹3,731), 31 at 40.5%, 45 out at
-  39.6% (+₹859, odd hedge print). 45% line: 53 at 45.7% (400-pt), 22 / 55 at 44.4 / 44.5% (300-pt, smaller losses). Trade 29: no 400-pt
-  credit (move 2.23% → skipped anyway). Trade 67 passes everything (move −0.07%, 43.6%). Thresholds fitted; ≈6 trades a year.
+  (move −0.09%, StockMock credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2022 a small losing year, DD ≈ −₹5.8k. Trade 35 (Nov-2023
+  stop) is skipped at +2.01%; at 2.00% it is a 300-pt trade −₹7,243 → DD −₹7.4k. Trade 38 also 2.01% (harmless); 43 at 2.05% (winner
+  missed); 4 and 31 in at 1.96%. Floor: trade 30 in at 40.05% (−₹3,731), 31 at 40.5%, 45 out at 39.6% (+₹859, odd hedge print). 45% line:
+  53 at 45.7% (wide), 22 / 55 at 44.4 / 44.5% (300-pt, smaller losses). Trade 67 passes everything (move −0.07%, 43.6%). Thresholds
+  fitted; ≈6 trades a year.
+- Tools (12-Oct-2026): ic_tools.py `strikes` prices the 400-pt credit-test condor, then the 500, 600 and 300-pt condors; `check` uses
+  the 60% target for any condor >= 500 pts wide; journal template has credit_400/500/600/300_pts.
 - Oct-2026 cycle (entry Mon 12-Oct-2026, expiry Mon 23-Nov-2026): 10-day move −2.35% → forward-test rule SKIPS; the earlier
   rule would TRADE the 300-pt IC → shadow-log it (time exit Thu 5-Nov-2026).
 

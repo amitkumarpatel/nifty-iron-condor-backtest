@@ -35,7 +35,7 @@ import urllib.request
 REQUIRED = ["SKIP_IF_10D_MOVE_PCT", "TREND_LOOKBACK_DAYS", "HEDGE_WIDTH", "TP_FRACTION",
             "SL_FRACTION", "EXIT_DTE", "ENTRY_DTE", "EXPIRY_WEEKDAY", "ENTRY_TIME", "CHECK_TIME"]
 OPTIONAL = ["GAP_UP_EXIT_PCT", "MUHURAT_DAYS", "EXTRA_HOLIDAYS", "NSE_HOLIDAYS"]
-FWD = ["FWD_WIDE_WIDTH", "FWD_WIDE_MOVE_PCT", "FWD_WIDE_MIN_CREDIT_PCT", "FWD_NARROW_MOVE_PCT",
+FWD = ["FWD_SIGNAL_WIDTH", "FWD_WIDE_WIDTHS", "FWD_WIDE_MOVE_PCT", "FWD_WIDE_MIN_CREDIT_PCT", "FWD_NARROW_MOVE_PCT",
        "FWD_MIN_CREDIT_PCT", "FWD_WIDE_TP_FRACTION"]
 JOURNAL_TRADES = "journal/forward_trades.csv"
 JOURNAL_DAILY = "journal/forward_daily.csv"
@@ -187,17 +187,26 @@ def time_exit_date(cfg, expiry, hol):
     return day
 
 
+def wide_widths(cfg):
+    return [int(w) for w in cfg.FWD_WIDE_WIDTHS]
+
+
+def wide_label(cfg):
+    return " and ".join(f"{w}-pt" for w in wide_widths(cfg))
+
+
 def fwd_text(cfg):
     """The forward-test rule set (ic/config.py FWD_*), as plain lines."""
-    w, n = int(cfg.FWD_WIDE_WIDTH), int(cfg.HEDGE_WIDTH)
+    w, n = int(cfg.FWD_SIGNAL_WIDTH), int(cfg.HEDGE_WIDTH)
     rich, floor = cfg.FWD_WIDE_MIN_CREDIT_PCT * w / 100, cfg.FWD_MIN_CREDIT_PCT * w / 100
     return [
-        f"1. |10-day move| <= {cfg.FWD_WIDE_MOVE_PCT}% and {w}-pt condor credit >= {rich:.0f} pts ({cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}% of width)"
-        f" -> {w}-pt condor, target {cfg.FWD_WIDE_TP_FRACTION:.0%} of credit",
-        f"2. else |10-day move| <= {cfg.FWD_NARROW_MOVE_PCT}% and {w}-pt condor credit >= {floor:.0f} pts ({cfg.FWD_MIN_CREDIT_PCT:.0f}%)"
+        f"credit test: net credit of the {w}-pt condor at entry (the signal; it is priced, not traded)",
+        f"1. |10-day move| <= {cfg.FWD_WIDE_MOVE_PCT}% and that credit >= {rich:.0f} pts ({cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}% of {w})"
+        f" -> {wide_label(cfg)} condors (paper trade each), target {cfg.FWD_WIDE_TP_FRACTION:.0%} of credit",
+        f"2. else |10-day move| <= {cfg.FWD_NARROW_MOVE_PCT}% and that credit >= {floor:.0f} pts ({cfg.FWD_MIN_CREDIT_PCT:.0f}%)"
         f" -> {n}-pt condor, target {cfg.TP_FRACTION:.0%} of credit",
         "3. else skip the month",
-        f"both: stop {cfg.SL_FRACTION:.0%} of credit, one check a day at {cfg.CHECK_TIME}, time exit at expiry - {cfg.EXIT_DTE} days",
+        f"all: stop {cfg.SL_FRACTION:.0%} of credit, one check a day at {cfg.CHECK_TIME}, time exit at expiry - {cfg.EXIT_DTE} days",
         f"shadow-log every month: the earlier rule ({n}-pt condor if |10-day move| <= {cfg.SKIP_IF_10D_MOVE_PCT}%)",
     ]
 
@@ -205,35 +214,36 @@ def fwd_text(cfg):
 def fwd_band(cfg, move):
     """What the 10-day move alone says the evening before entry."""
     m = abs(move)
-    w = int(cfg.FWD_WIDE_WIDTH)
+    w = int(cfg.FWD_SIGNAL_WIDTH)
     rich, floor = cfg.FWD_WIDE_MIN_CREDIT_PCT * w / 100, cfg.FWD_MIN_CREDIT_PCT * w / 100
     if m <= cfg.FWD_NARROW_MOVE_PCT:
-        return (f"TRADE - width decided at entry by the {w}-pt condor credit: >= {rich:.0f} pts -> {w}-pt, "
+        return (f"TRADE - width decided at entry by the {w}-pt condor credit: >= {rich:.0f} pts -> {wide_label(cfg)}, "
                 f"{floor:.0f}-{rich:.0f} pts -> {int(cfg.HEDGE_WIDTH)}-pt, below {floor:.0f} pts -> skip")
     if m <= cfg.FWD_WIDE_MOVE_PCT:
-        return f"TRADE ONLY IF RICH - {w}-pt condor if its credit is >= {rich:.0f} pts at entry, else skip"
+        return f"TRADE ONLY IF RICH - {wide_label(cfg)} if the {w}-pt condor credit is >= {rich:.0f} pts at entry, else skip"
     return f"SKIP - 10-day move beyond +/-{cfg.FWD_WIDE_MOVE_PCT}%"
 
 
-def fwd_decide(cfg, move, wide_credit):
-    """(width or None, reason) under the forward-test rule set."""
-    m, w = abs(move), int(cfg.FWD_WIDE_WIDTH)
-    ratio = wide_credit / w * 100
+def fwd_decide(cfg, move, signal_credit):
+    """(list of widths to trade - empty = skip, reason) under the forward-test rule set."""
+    m, w = abs(move), int(cfg.FWD_SIGNAL_WIDTH)
+    ratio = signal_credit / w * 100
     if m <= cfg.FWD_WIDE_MOVE_PCT and ratio >= cfg.FWD_WIDE_MIN_CREDIT_PCT:
-        return w, f"move {move:+.2f}% within +/-{cfg.FWD_WIDE_MOVE_PCT}% and credit {ratio:.1f}% >= {cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}%"
+        return wide_widths(cfg), f"move {move:+.2f}% within +/-{cfg.FWD_WIDE_MOVE_PCT}% and credit {ratio:.1f}% >= {cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}%"
     if m <= cfg.FWD_NARROW_MOVE_PCT and ratio >= cfg.FWD_MIN_CREDIT_PCT:
-        return int(cfg.HEDGE_WIDTH), (f"move {move:+.2f}% within +/-{cfg.FWD_NARROW_MOVE_PCT}%, credit {ratio:.1f}% between "
-                                      f"{cfg.FWD_MIN_CREDIT_PCT:.0f}% and {cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}%")
+        return [int(cfg.HEDGE_WIDTH)], (f"move {move:+.2f}% within +/-{cfg.FWD_NARROW_MOVE_PCT}%, credit {ratio:.1f}% between "
+                                        f"{cfg.FWD_MIN_CREDIT_PCT:.0f}% and {cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}%")
     if m > cfg.FWD_WIDE_MOVE_PCT:
-        return None, f"move {move:+.2f}% beyond +/-{cfg.FWD_WIDE_MOVE_PCT}%"
+        return [], f"move {move:+.2f}% beyond +/-{cfg.FWD_WIDE_MOVE_PCT}%"
     if ratio < cfg.FWD_MIN_CREDIT_PCT:
-        return None, f"credit {ratio:.1f}% below the {cfg.FWD_MIN_CREDIT_PCT:.0f}% floor"
-    return None, (f"move {move:+.2f}% between {cfg.FWD_NARROW_MOVE_PCT}% and {cfg.FWD_WIDE_MOVE_PCT}% needs credit >= "
-                  f"{cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}%, it is {ratio:.1f}%")
+        return [], f"credit {ratio:.1f}% below the {cfg.FWD_MIN_CREDIT_PCT:.0f}% floor"
+    return [], (f"move {move:+.2f}% between {cfg.FWD_NARROW_MOVE_PCT}% and {cfg.FWD_WIDE_MOVE_PCT}% needs credit >= "
+                f"{cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}%, it is {ratio:.1f}%")
 
 
 def tp_fraction(cfg, width):
-    return float(cfg.FWD_WIDE_TP_FRACTION) if width >= int(cfg.FWD_WIDE_WIDTH) else float(cfg.TP_FRACTION)
+    """60% for a wide condor (any width from the smallest in FWD_WIDE_WIDTHS up), TP_FRACTION otherwise."""
+    return float(cfg.FWD_WIDE_TP_FRACTION) if width >= min(wide_widths(cfg)) else float(cfg.TP_FRACTION)
 
 
 def cmd_rules(cfg, a):
@@ -482,9 +492,9 @@ def cmd_strikes(cfg, a):
               f"max loss Rs {(wmax - credit) * qty:,.0f}")
         return rows
 
-    wide, narrow = int(cfg.FWD_WIDE_WIDTH), int(cfg.HEDGE_WIDTH)
-    legs_w, notes_w = build(wide, show=True)
-    legs_n, notes_n = build(narrow, show=False)
+    signal, narrow, wides = int(cfg.FWD_SIGNAL_WIDTH), int(cfg.HEDGE_WIDTH), wide_widths(cfg)
+    legs_s, notes_s = build(signal, show=True)
+    built = {w: build(w, show=False) for w in wides + [narrow]}
 
     # 10-day move for the decision: closes before the snapshot day (NSE), unless given with --move
     if a.move is not None:
@@ -502,31 +512,32 @@ def cmd_strikes(cfg, a):
         print("10-day move not available - pass it with --move X.XX")
     else:
         print(f"10-day move {move:+.2f}% ({move_src})")
-    width = None
-    if legs_w is None:
-        print(f"{wide}-pt condor cannot be priced: {'; '.join(notes_w)}")
+    widths = None                                   # None = undecided, [] = skip
+    if legs_s is None:
+        print(f"{signal}-pt condor cannot be priced: {'; '.join(notes_s)}")
         print("The credit test needs it - check the hedge strikes in the broker terminal and decide by hand.")
     elif move is not None:
-        cw = credit_of(legs_w)
-        width, why = fwd_decide(cfg, move, cw)
-        print(f"{wide}-pt condor credit {cw:.2f} pts = {cw / wide * 100:.1f}% of width")
-        print(f"DECISION: {'SKIP' if width is None else f'{width}-pt condor'} - {why}")
+        cw = credit_of(legs_s)
+        widths, why = fwd_decide(cfg, move, cw)
+        print(f"{signal}-pt condor credit {cw:.2f} pts = {cw / signal * 100:.1f}% of width (the credit test)")
+        print(f"DECISION: {'SKIP' if not widths else ' and '.join(f'{w}-pt' for w in widths) + ' condor' + ('s' if len(widths) > 1 else '')}"
+              f" - {why}")
     lim = cfg.SKIP_IF_10D_MOVE_PCT
     if move is not None and lim:
         print(f"earlier rule (shadow log): {'SKIP' if abs(move) > float(lim) else f'{narrow}-pt condor'} "
               f"(|10-day move| limit {lim}%)")
 
     saved = []
-    if legs_w is not None:
-        chosen = width == wide
-        saved += [(wide, r) for r in report(wide, legs_w, notes_w, tp_fraction(cfg, wide),
-                                            f"{wide}-pt condor{' - CHOSEN' if chosen else ' (credit test)'}")]
-    if legs_n is not None:
-        chosen = width == narrow
-        saved += [(narrow, r) for r in report(narrow, legs_n, notes_n, tp_fraction(cfg, narrow),
-                                              f"{narrow}-pt condor{' - CHOSEN' if chosen else ' (shadow log / earlier rule)'}")]
-    else:
-        print(f"\n{narrow}-pt condor cannot be priced: {'; '.join(notes_n)}")
+    if legs_s is not None:
+        saved += [(signal, r) for r in report(signal, legs_s, notes_s, tp_fraction(cfg, signal),
+                                              f"{signal}-pt condor (credit test only - not traded)")]
+    for w in wides + [narrow]:
+        legs_x, notes_x = built[w]
+        if legs_x is None:
+            print(f"\n{w}-pt condor cannot be priced: {'; '.join(notes_x)}")
+            continue
+        role = " - CHOSEN" if widths and w in widths else (" (shadow log / earlier rule)" if w == narrow else " (not chosen)")
+        saved += [(w, r) for r in report(w, legs_x, notes_x, tp_fraction(cfg, w), f"{w}-pt condor{role}")]
     print("\nThese are the strikes the rules point to, not an instruction to trade. NSE's website chain can lag "
           "a few minutes; confirm live prices in the broker terminal before paper-filling.")
     if a.save:
@@ -536,7 +547,8 @@ def cmd_strikes(cfg, a):
             w.writerow(["snapshot", "expiry", "nifty", "move_10d", "decision_width", "width", "leg", "strike", "delta",
                         "bid", "ask", "price", "last", "note"])
             for wd, (name, q) in saved:
-                w.writerow([ts, exp, spot, "" if move is None else f"{move:.2f}", width or "SKIP", wd, name, q["strike"],
+                w.writerow([ts, exp, spot, "" if move is None else f"{move:.2f}",
+                            "" if widths is None else ("+".join(map(str, widths)) or "SKIP"), wd, name, q["strike"],
                             "" if not q["delta"] else f"{q['delta']:.4f}", q["bid"], q["ask"], f"{q['px']:.2f}",
                             q["last"], q["flag"]])
         print(f"saved to {a.save}")
