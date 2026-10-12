@@ -138,6 +138,14 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
   −₹9,124. NIFTY runs have 0 days with value > width. PROPOSED (not built, user to decide): sanity rule "condor value above its
   hedge width = bad print → skip that daily check". 432 of 487 non-exact prices are 2021–22. Versus NIFTY 300-pt ±2.5% (₹66,052 /
   −₹7,527) BANKNIFTY earns about a fifth with a larger drawdown under the same rules.
+- BANKNIFTY 600-PT HEDGES (12-Oct-2026, output/BANKNIFTY_IC_backtest_sm_h600_nofilter.xlsx): NOT A USABLE TEST – the hedge strikes do not trade.
+  Far BANKNIFTY strikes six weeks out trade on round 500s; 75% of the sold strikes are on a round 500, so a 600-pt hedge lands on an odd
+  hundred (e.g. 34600). Result: 23 of 67 trades had no hedge price at entry and did not run, 17 of the 44 that ran used fallback strikes,
+  699 non-exact prices (244 stale > 15 min), and 14 of the 44 show an impossible credit (a wider hedge must collect more than the 500-pt
+  condor: 8 collect less, 6 collect 1.5–2.5× as much, e.g. trade 41 credit 637 pts on a 600-pt width). Headline (unreliable): 44 tr net
+  −₹8,791 / DD −₹23,334 no filter; ±2.5% 25 tr −₹3,317; the same 44 trades at 500-pt −₹8,159. Only 19 trades are clean (plausible credit, no
+  fallback): 600-pt −₹21,355 vs 500-pt −₹19,246, 600 better on 8 – no sign that the wider hedge helps. Do NOT download 700-pt (same odd-strike
+  problem). The testable wider hedge is 1,000 pts (lands on round 500s like the 500-pt run, which had 0 trades not run and 1 fallback).
 - The `FWD_*` forward-test rule and the skill are NIFTY only. Do not apply NIFTY-fitted thresholds to BANKNIFTY without a test.
 
 ## Commands

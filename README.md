@@ -601,6 +601,14 @@ Same rules as NIFTY: 30-delta, 500-point hedges, target 50%, stop 100%, 18-DTE e
 - **Thin data in 2021–22:** 432 of the 487 non-exact prices are in those two years (83 older than 15 minutes).
 - Compared with NIFTY on the same months (300-point, ±2.5%: ₹66,052 net, drawdown −₹7,527), BANKNIFTY with these
   rules earns about a fifth for a larger drawdown.
+- **600-point hedges cannot be tested reliably (12-Oct-2026).** the hedge strikes do not trade.
+  Far BANKNIFTY strikes six weeks out trade on round 500s; 75% of the sold strikes are on a round 500, so a 600-pt hedge lands on an odd
+  hundred (e.g. 34600). Result: 23 of 67 trades had no hedge price at entry and did not run, 17 of the 44 that ran used fallback strikes,
+  699 non-exact prices (244 stale > 15 min), and 14 of the 44 show an impossible credit (a wider hedge must collect more than the 500-pt
+  condor: 8 collect less, 6 collect 1.5–2.5× as much, e.g. trade 41 credit 637 pts on a 600-pt width). Headline (unreliable): 44 tr net
+  −₹8,791 / DD −₹23,334 no filter; ±2.5% 25 tr −₹3,317; the same 44 trades at 500-pt −₹8,159. Only 19 trades are clean (plausible credit, no
+  fallback): 600-pt −₹21,355 vs 500-pt −₹19,246, 600 better on 8 – no sign that the wider hedge helps. Do NOT download 700-pt (same odd-strike
+  problem). The testable wider hedge is 1,000 pts (lands on round 500s like the 500-pt run, which had 0 trades not run and 1 fallback).
 
 ### 5.4 Run the full backtest
 Works offline from the cache – no API calls, no session token needed.
