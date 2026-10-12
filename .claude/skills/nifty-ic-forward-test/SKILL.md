@@ -19,7 +19,7 @@ Do not quote strategy numbers from memory. Take them from the `rules` output. Th
 
 ## The rule set being forward-tested (README section 1b)
 
-Adopted on 10-Oct-2026, finalised on 11-Oct-2026 (one ±2% limit for all widths) and changed on 12-Oct-2026 (500 and 600-point condors on rich-credit months in place of 400), from the October-2026 cycle. The numbers below are the values at adoption; `rules` prints the live ones from `ic/config.py` (`FWD_*`). If they differ, the `rules` output wins and the user should be told.
+Adopted on 10-Oct-2026, finalised on 11-Oct-2026 (one ±2% limit for all widths) and on 12-Oct-2026 the wide condor was finalised at 600 points (in place of 400), from the October-2026 cycle. The numbers below are the values at adoption; `rules` prints the live ones from `ic/config.py` (`FWD_*`). If they differ, the `rules` output wins and the user should be told.
 
 ### Two readings
 
@@ -32,7 +32,7 @@ Adopted on 10-Oct-2026, finalised on 11-Oct-2026 (one ±2% limit for all widths)
 
 | 10-day move | Credit of the 400-point condor | Decision | Profit target |
 |---|---|---|---|
-| within ±2% | 180 points or more (45% of width or more) | **500-point condor and 600-point condor**, both paper traded side by side | 60% of each condor's own credit |
+| within ±2% | 180 points or more (45% of width or more) | **600-point condor** | 60% of its own credit |
 | within ±2% | 160 to 180 points (40% to 45%) | **300-point condor** | 50% of credit |
 | within ±2% | below 160 points (below 40%) | **Skip**: minimum-credit floor | none |
 | beyond ±2% | any | **Skip** | none |
@@ -59,8 +59,8 @@ What the evening reading already tells the user:
 | Value | Setting in `ic/config.py` |
 |---|---|
 | 400 points: the credit-test condor | `FWD_SIGNAL_WIDTH` |
-| 500 and 600 points: the condors traded on rich-credit months | `FWD_WIDE_WIDTHS` |
-| ±2% for the wide condors | `FWD_WIDE_MOVE_PCT` |
+| 600 points: the condor traded on rich-credit months (a list; a second width, such as 500, can be added to paper trade both) | `FWD_WIDE_WIDTHS` |
+| ±2% for the wide condor | `FWD_WIDE_MOVE_PCT` |
 | 45% of width (180 points) | `FWD_WIDE_MIN_CREDIT_PCT` |
 | ±2% for the 300-point condor (was ±1.5% until 11-Oct-2026) | `FWD_NARROW_MOVE_PCT` |
 | 40% of width (160 points) | `FWD_MIN_CREDIT_PCT` |
@@ -74,7 +74,7 @@ The earlier rule is kept for comparison: a 300-point condor whenever the 10-day 
 | Forward-test decision | Earlier rule | What to log |
 |---|---|---|
 | 300-point condor | 300-point condor | One row; both rules agree |
-| 500 and 600-point condors | 300-point condor | Two real rows (one per width, same sold strikes), plus a shadow row for the 300-point condor |
+| 600-point condor | 300-point condor | The real 600-point row, plus a shadow row for the 300-point condor |
 | Skip | 300-point condor | A skip row, plus a shadow row for the 300-point condor |
 | Skip | Skip | A skip row only |
 
@@ -95,8 +95,8 @@ Earlier rule (shadow log) on the same data: 2021–26 45 trades, ₹66,052, draw
 | Wide condor on the 17 rich-credit months (2021–26, same 36 trades) | Net P&L | Max drawdown | Profit factor | Largest possible loss on one rich-month trade (lot 65) |
 |---|---|---|---|---|
 | 400-point (replaced) | ₹85,729 | −₹5,523 | 5.67 | about ₹13,600 |
-| 500-point | ₹100,287 | −₹5,523 | 6.47 | about ₹17,900 |
-| 600-point | ₹114,939 | −₹5,523 | 7.23 | about ₹22,500 |
+| 500-point (not chosen) | ₹100,287 | −₹5,523 | 6.47 | about ₹17,900 |
+| **600-point (chosen)** | ₹114,939 | −₹5,523 | 7.23 | about ₹22,500 |
 
 The drawdown is identical because it comes from a 300-point trade. No rich-credit month in the backtest lost more than about ₹2,000, so the last column has never been tested. 2019–20 was only run at 400 points.
 
@@ -140,7 +140,7 @@ The data source decides these. With Breeze's last-traded close, trade 35 read +1
 - 2019–20 barely tests the rule: only 4 of 23 months pass the credit floor.
 - The four numbers (2%, 45%, 40%, 60% target) were chosen on this data, and the rule trades about six times a year. Treat the backtest as an upper bound.
 - No slippage is included: with 0.5 point per leg 2021–26 is ₹77,669; with 1 point ₹69,609.
-- The wide condors need more margin and have a bigger maximum loss: about 276 points at 500 and 346 at 600, against 154 at 300.
+- The 600-point condor needs more margin and has a bigger maximum loss: about 346 points, against 154 at 300 points. That is roughly ₹22,500 a lot, and no backtest month came near it, so treat it as untested.
 - Widening the 300-point limit from ±1.5% to ±2% added six trades worth +₹4,382 (four winners; losers 22 and 55), with the same drawdown.
 
 ### What to do with this live
@@ -200,7 +200,7 @@ python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py filter --entry-d
 
 Prints NIFTY's 10-day move and two verdicts:
 
-- **FORWARD-TEST RULE:** `TRADE` (width decided at entry by the credit), `TRADE ONLY IF RICH` (wide condors only if the 400-point credit reaches the rich line at entry, else skip; not used while both move limits are ±2%) or `SKIP`.
+- **FORWARD-TEST RULE:** `TRADE` (width decided at entry by the credit), `TRADE ONLY IF RICH` (the wide condor only if the 400-point credit reaches the rich line at entry, else skip; not used while both move limits are ±2%) or `SKIP`.
 - **earlier rule (shadow log):** TRADE or SKIP.
 
 Report both. When the forward-test rule says SKIP, the month is skipped: record a journal row with a note so the skip is visible later. If the earlier rule would have traded, it still needs its shadow row at entry time.
@@ -221,11 +221,11 @@ The rules call for ~30-delta sold CE and PE and bought legs `HEDGE_WIDTH` points
 python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py strikes --expiry YYYY-MM-DD --save journal/entry_quotes_N.csv
 ```
 
-It prints the five strikes nearest 0.30 delta on each side (Black-Scholes delta from the bid-ask mid, the same method as the backtest's `select_strikes.py`), then prices the 400-point credit-test condor and the 500, 600 and 300-point condors, and prints:
+It prints the five strikes nearest 0.30 delta on each side (Black-Scholes delta from the bid-ask mid, the same method as the backtest's `select_strikes.py`), then prices the 400-point credit-test condor and the 600 and 300-point condors, and prints:
 
-- the **forward-test decision**: 500 and 600-point condors, 300-point condor or SKIP, with the reason (10-day move and the 400-point credit as points and as a percentage of width);
+- the **forward-test decision**: 600-point condor, 300-point condor or SKIP, with the reason (10-day move and the 400-point credit as points and as a percentage of width);
 - what the **earlier rule** would do, for the shadow log;
-- for each width: the four legs with bid and ask, the credit at those prices and at bid/ask, the target (60% for the 500 and 600-point condors), the stop and the maximum loss. The 400-point block is only the credit test.
+- for each width: the four legs with bid and ask, the credit at those prices and at bid/ask, the target (60% for the 600-point condor), the stop and the maximum loss. The 400-point block is only the credit test.
 
 The 10-day move is worked out from NSE closes before the entry day; `--move X.XX` overrides it. If a hedge has no usable price the README fallback is applied and noted. If the 400-point condor cannot be priced at all, the credit test cannot be made: say so and let the user decide from broker quotes.
 
@@ -239,8 +239,8 @@ Then:
 
 - Use read-only Kite quotes if available to confirm bid, ask and LTP for all four legs. Otherwise use the script's output or ask the user.
 - Flag a hedge whose bid-ask spread is wide or whose price is at or above its sold leg (the README calls out BAD_PRICE and the slippage risk on the 300-pt hedges).
-- Write the trade row: strikes, `paper_px_*` (the paper fills, using the 11:16 prices), `bidask_*`, `filter_move_pct`, `rule_decision` (500+600 / 300 / SKIP), `hedge_width`, `credit_400_pts`, `credit_500_pts`, `credit_600_pts`, `credit_300_pts` and `earlier_rule_decision`. On a rich-credit month write two rows, one for the 500-point and one for the 600-point condor (same sold strikes, different hedges), and run `check` for each every day.
-- If the earlier rule would have acted differently (traded when this rule skips, or a 300-point condor when this rule takes the wide condors), add the shadow row for its 300-point condor.
+- Write the trade row: strikes, `paper_px_*` (the paper fills, using the 11:16 prices), `bidask_*`, `filter_move_pct`, `rule_decision` (600 / 300 / SKIP), `hedge_width`, `credit_400_pts`, `credit_600_pts`, `credit_300_pts` and `earlier_rule_decision` (`credit_500_pts` stays empty unless 500 is added back to `FWD_WIDE_WIDTHS`).
+- If the earlier rule would have acted differently (traded when this rule skips, or a 300-point condor when this rule takes the 600-point condor), add the shadow row for its 300-point condor.
 
 Paper fills are optimistic. Always record real bid and ask at entry so slippage can be estimated later (the README says 1 pt of slippage per leg cuts the 300-pt result to about 11k).
 
@@ -252,7 +252,7 @@ python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py check --trade-id
   --open <NIFTY open today> --prev-close <previous close> --log
 ```
 
-Prices are the 15:16 prices of the four legs. The script reads the hedge width from the journal row and uses the matching profit target (60% for a condor 500 points wide or more). It prints credit, P&L, the target and stop levels and one action:
+Prices are the 15:16 prices of the four legs. The script reads the hedge width from the journal row and uses the matching profit target (60% for a condor 600 points wide or more). It prints credit, P&L, the target and stop levels and one action:
 
 | Action | Meaning |
 | --- | --- |
@@ -283,7 +283,7 @@ Keep answers short and numeric. For a check, give: action, P&L in points and as 
 ## Known gaps
 
 - The 10-day filter follows the README: last close before the entry day versus the close 10 trading days earlier, either direction. If the README definition changes, update `cmd_filter` in the script.
-- The forward-test rule set lives only in the skill script and `ic/config.py`. `backtest.py` still runs the earlier rule, so after a trade is exported for reconciliation the backtest's 300-point result is the shadow comparison, not a check of a 500 or 600-point trade unless it is run with `--hedge 500` or `--hedge 600`.
+- The forward-test rule set lives only in the skill script and `ic/config.py`. `backtest.py` still runs the earlier rule, so after a trade is exported for reconciliation the backtest's 300-point result is the shadow comparison, not a check of a 600-point trade unless it is run with `--hedge 600`.
 - The rule's thresholds were chosen on backtest data and it trades about five times a year. Do not present its backtest results as what to expect.
 - NSE's index file URL (`NSE_INDEX_URL` in the script) can change or be blocked. If the script falls back to the local CSV more than once, tell the user so the source can be fixed.
 - Today's NIFTY open for the gap-up log is not in NSE's file until the evening. Take it from a read-only Kite quote or ask the user.

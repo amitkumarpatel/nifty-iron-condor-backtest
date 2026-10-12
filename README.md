@@ -66,7 +66,7 @@ Order of checks each day: stop-loss → target → time exit.
 
 ---
 
-## 1b. Forward-test rule set (finalised 11-Oct-2026; hedge widths changed 12-Oct-2026)
+## 1b. Forward-test rule set (finalised 12-Oct-2026: 600-point condor when credit is rich)
 
 This is the version being paper traded from the October-2026 cycle. It adds a credit test and wider hedges
 to the rules of §1. Everything not listed here (Monday 11:16 entry, ~30-delta sold strikes, next-month expiry,
@@ -80,24 +80,24 @@ the **400-point** condor (sold ~30-delta call and put, hedges 400 points out). T
 
 | 10-day move | Credit of the 400-pt condor | Action | Profit target |
 |---|---|---|---|
-| within ±2% | 180 points or more (≥ 45% of width) | **500-point condor and 600-point condor** – both paper traded, side by side | **60%** of each condor's own credit |
+| within ±2% | 180 points or more (≥ 45% of width) | **600-point condor** | **60%** of its own credit |
 | within ±2% | 160–180 points (40–45%) | **300-point condor** | 50% of credit |
 | within ±2% | below 160 points (< 40%) | **Skip** – minimum-credit floor | – |
 | beyond ±2% | any | **Skip** | – |
 
-- **500 and 600-point hedges replace 400 on rich-credit months** (user's decision 12-Oct-2026). Both are logged
-  as separate paper trades with the same sold strikes, so the forward test compares them directly. They are
-  "variant 5" and "variant 6" of the comparison below; the earlier 400-point version is "variant 3".
+- **A 600-point hedge on rich-credit months** ("variant 6", finalised by the user 12-Oct-2026). It replaces the
+  400-point version ("variant 3"); the 500-point version ("variant 5") was the other candidate. To paper trade
+  500 alongside it again, set `FWD_WIDE_WIDTHS = [500, 600]`.
 - **One move limit, ±2%, for all widths** (11-Oct-2026).
-- **60% target for the wide condors** (50% stays for the 300-point one).
+- **60% target for the 600-point condor** (50% stays for the 300-point one).
 - **Minimum-credit floor:** no condor of any width when the 400-point credit is below 160 points.
 - **Backtest, 2021–26** (1 lot, net, NSE official closes; the same 36 months in every row, 17 rich + 19 at 300-pt):
 
   | Wide condor on rich months | Net P&L | Max drawdown | Worst trade | Win rate | Profit factor | With 0.5-pt slippage | Max possible loss on a rich-month trade (lot 65) |
   |---|---|---|---|---|---|---|---|
   | 400-pt (variant 3, replaced) | ₹85,729 | −₹5,523 | −₹5,523 | 78% | 5.67 | ₹77,669 | about ₹13,600 |
-  | **500-pt (variant 5)** | ₹100,287 | −₹5,523 | −₹5,523 | 81% | 6.47 | ₹92,227 | about ₹17,900 |
-  | **600-pt (variant 6)** | ₹114,939 | −₹5,523 | −₹5,523 | 81% | 7.23 | ₹106,879 | about ₹22,500 |
+  | 500-pt (variant 5, not chosen) | ₹100,287 | −₹5,523 | −₹5,523 | 81% | 6.47 | ₹92,227 | about ₹17,900 |
+  | **600-pt (variant 6, chosen)** | ₹114,939 | −₹5,523 | −₹5,523 | 81% | 7.23 | ₹106,879 | about ₹22,500 |
 
   Earlier rule on the same data: 45 trades ₹66,052 / −₹7,527. Files: `output/six_variant_comparison.xlsx`,
   `output/nifty_hedge_400_500_600_rich_credit_trades.xlsx`.
@@ -696,10 +696,9 @@ Run it after changing the code. The fake prices are not market data.
 ---
 
 ### 5.10 Monthly routine (paper or live trading)
-**Forward-test plan (finalised 11-Oct-2026, widths changed 12-Oct-2026):** 1 lot for 3–6 months with the rule set
+**Forward-test plan (finalised 12-Oct-2026):** 1 lot for 3–6 months with the rule set
 of §1b – Monday ~11:15–11:16 entry (~43 DTE), ~30Δ CE + PE sold; trade only when the 10-day move is within ±2%:
-a 500-point and a 600-point condor (both paper traded, 60% target) when the 400-point condor's credit is at least
-180 points, a 300-point condor (50% target) when that credit is 160–180 points, no trade below 160 points; stop at
+a 600-point condor (60% target) when the 400-point condor's credit is at least 180 points, a 300-point condor (50% target) when that credit is 160–180 points, no trade below 160 points; stop at
 −100% of credit, time exit at 18 DTE.
 Every month also log what the earlier rule (300-point, ±2.5%) would have done, and note (not act on) the
 condor's 15:16 P&L on every 1% gap-up day.

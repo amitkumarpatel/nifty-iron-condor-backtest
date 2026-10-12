@@ -82,23 +82,24 @@ EXPIRY_WEEKDAY = "Tue"      # before a Tuesday monthly expiry (NIFTY expiries mo
                             # update both. The backtest takes its entry dates from the reference trades, not from here.
 CHECK_TIME   = "15:16"      # one combined-position check per day
 
-# ---- forward-test rule set (adopted 10-Oct-2026; widths changed 12-Oct-2026; README section 1b) ----
+# ---- forward-test rule set (adopted 10-Oct-2026; 600-pt wide condor finalised 12-Oct-2026; README section 1b) ----
 # Used by the forward-test skill (.claude/skills/nifty-ic-forward-test). backtest.py does NOT use these:
 # its defaults below stay the earlier rule (300-pt hedges, skip beyond +/-2.5%), kept as the comparison.
 # The credit test is always made on the SIGNAL condor (hedges FWD_SIGNAL_WIDTH points out), whatever is traded:
 #   10-day move <= FWD_WIDE_MOVE_PCT and signal credit >= FWD_WIDE_MIN_CREDIT_PCT of the signal width
-#       -> wide condor, one for every width in FWD_WIDE_WIDTHS (both are paper traded side by side),
+#       -> wide condor (FWD_WIDE_WIDTHS; one paper trade per width if more than one is listed),
 #          profit target FWD_WIDE_TP_FRACTION
 #   else 10-day move <= FWD_NARROW_MOVE_PCT and signal credit >= FWD_MIN_CREDIT_PCT
 #       -> normal condor (HEDGE_WIDTH), profit target TP_FRACTION
 #   else skip the month. Stop-loss, daily check and time exit are the same for all.
 FWD_SIGNAL_WIDTH        = 400     # points: the condor whose credit decides (180 / 160 points)
-FWD_WIDE_WIDTHS         = [500, 600]   # traded when credit is rich: "variant 5" and "variant 6" (was 400 until 12-Oct-2026)
+FWD_WIDE_WIDTHS         = [600]   # traded when credit is rich: "variant 6", finalised by the user 12-Oct-2026 (was 400, then
+                                  # 500 and 600 side by side). Add 500 back to the list to paper trade both again.
 FWD_WIDE_MOVE_PCT       = 2.0     # |10-day move| limit for the wide condor
 FWD_WIDE_MIN_CREDIT_PCT = 45.0    # 45% of 400 = 180 points
 FWD_NARROW_MOVE_PCT     = 2.0     # |10-day move| limit for the normal (300-pt) condor (was 1.5 until 11-Oct-2026)
 FWD_MIN_CREDIT_PCT      = 40.0    # floor: below 40% of 400 = 160 points -> no trade at all
-FWD_WIDE_TP_FRACTION    = 0.60    # 60% target for the wide condors
+FWD_WIDE_TP_FRACTION    = 0.60    # 60% target for the wide condor
 TP_FRACTION  = 0.50         # exit when P&L >= 50% of initial credit
 SL_FRACTION  = 1.00         # exit when loss >= 100% of initial credit
 EXIT_DTE     = 18           # exit on last trading day on/before (expiry - 18 calendar days)
