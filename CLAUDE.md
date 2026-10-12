@@ -146,6 +146,16 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
   −₹8,791 / DD −₹23,334 no filter; ±2.5% 25 tr −₹3,317; the same 44 trades at 500-pt −₹8,159. Only 19 trades are clean (plausible credit, no
   fallback): 600-pt −₹21,355 vs 500-pt −₹19,246, 600 better on 8 – no sign that the wider hedge helps. Do NOT download 700-pt (same odd-strike
   problem). The testable wider hedge is 1,000 pts (lands on round 500s like the 500-pt run, which had 0 trades not run and 1 fallback).
+- BANKNIFTY 1,000-PT HEDGES (12-Oct-2026, output/BANKNIFTY_IC_backtest_sm_h1000_nofilter.xlsx; 30Δ, TP 50%, SL 100%, 18 DTE; n / gross / net / net DD /
+  worst / PF): data usable – 62 of 67 ran (2, 4, 24, 57, 66 no hedge price), 9 on fallback strikes, 0 days with value > width, credit 1.76× the
+  500-pt credit (2 odd: 40 at 1.13×, 64 at 2.28×). No filter 62 / ₹48,358 / ₹32,471 / −₹18,505 / −₹14,421 (trade 62) / 1.35; ±3% 42 / ₹23,237 net /
+  −₹21,610; ±2.5% 34 / ₹44,008 / ₹35,593 / −₹13,944 / −₹7,025 / 1.93; ±2% 26 / ₹51,983 / ₹45,623 / −₹10,171 / −₹6,746 / 2.86; ±1.5% 19 / ₹52,204 net /
+  −₹3,993 / PF 7.10. Same 62 trades at 500-pt: ₹5,928 net → the wider hedge DOES lift profit (user's idea confirmed; 1,000 better on 42 of 62).
+  Why: credit 457 pts = 46% of width (500-pt: 52%), so stop and target work again – 8 targets, 3 real stops at −105% (35, 48, 62);
+  costs ≈ ₹256/condor are now 33% of gross instead of 68%. Cost of it: losses double (62 −₹8.9k → −₹14.4k; 48, 19, 35, 51, 16 each −₹3.5k →
+  ≈ −₹7k), max loss/condor 543 pts ≈ ₹16.3k at lot 30. By year ±2.5%: 2021 +8.6k, 2022 −8.8k, 2023 +14.1k, 2024 +3.2k, 2025 +10.8k, 2026 +7.7k.
+  0.5-pt slip ±2.5% ₹32,473. Versus NIFTY 300-pt ±2.5% (₹66,052 / −₹7,527): about half the profit with nearly twice the drawdown; 174+170
+  of the 418 non-exact prices are 2021–22. ±1.5%/±2% look best but were picked after seeing the data (3–4 trades a year). Not adopted.
 - The `FWD_*` forward-test rule and the skill are NIFTY only. Do not apply NIFTY-fitted thresholds to BANKNIFTY without a test.
 
 ## Commands
