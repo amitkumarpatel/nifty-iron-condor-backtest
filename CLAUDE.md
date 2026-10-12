@@ -291,7 +291,9 @@ PE hedge crossed split by filter (4-Oct-2026): traded months 9 → 6 profit / 3 
 Built in as optional `CE_BREACH_EXIT_PTS` / `IC_CE_BREACH_EXIT=hedge` (off by default). Combination test: 300-pt + filter –
 gap-up ₹68,023/−₹5,523; CE cross ₹66,898/−₹6,018; both ₹67,989/−₹5,523 (CE cross redundant once gap-up is on; fires once,
 trade 30). 400-pt: gap-up ₹88,148/−₹6,976; CE cross alone ₹81,190/−₹9,814; both = gap-up. Gap-up remains the one useful exit.
-Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes).
+Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes; last republished 12-Oct-2026 with the variant-6
+forward-test rule, the six-variant table, the 400/500/600 ladder, 2019–20 and BANKNIFTY; page source was built in the session scratchpad –
+read the artifact back before the next edit).
 18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,
 output/reconcile_manual18_vs_backtest.xlsx): times, expiries, lot sizes, arithmetic all correct; trade 35
