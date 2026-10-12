@@ -202,7 +202,7 @@ def fwd_text(cfg):
     return [
         f"credit test: net credit of the {w}-pt condor at entry (the signal; it is priced, not traded)",
         f"1. |10-day move| <= {cfg.FWD_WIDE_MOVE_PCT}% and that credit >= {rich:.0f} pts ({cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}% of {w})"
-        f" -> {wide_label(cfg)} condors (paper trade each), target {cfg.FWD_WIDE_TP_FRACTION:.0%} of credit",
+        f" -> {wide_label(cfg)} condor{'s (paper trade each)' if len(wide_widths(cfg)) > 1 else ''}, target {cfg.FWD_WIDE_TP_FRACTION:.0%} of credit",
         f"2. else |10-day move| <= {cfg.FWD_NARROW_MOVE_PCT}% and that credit >= {floor:.0f} pts ({cfg.FWD_MIN_CREDIT_PCT:.0f}%)"
         f" -> {n}-pt condor, target {cfg.TP_FRACTION:.0%} of credit",
         "3. else skip the month",
