@@ -156,6 +156,13 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
   ≈ −₹7k), max loss/condor 543 pts ≈ ₹16.3k at lot 30. By year ±2.5%: 2021 +8.6k, 2022 −8.8k, 2023 +14.1k, 2024 +3.2k, 2025 +10.8k, 2026 +7.7k.
   0.5-pt slip ±2.5% ₹32,473. Versus NIFTY 300-pt ±2.5% (₹66,052 / −₹7,527): about half the profit with nearly twice the drawdown; 174+170
   of the 418 non-exact prices are 2021–22. ±1.5%/±2% look best but were picked after seeing the data (3–4 trades a year). Not adopted.
+- BANKNIFTY AS AN ALTERNATIVE IN NIFTY'S SKIPPED MONTHS (12-Oct-2026, user question) – NO. The two filters pick mostly the same months: 10-day
+  moves correlate 0.81; at ±2.5% NIFTY passes 45 of 67, BANKNIFTY 36, both 32, NIFTY only 13, BANKNIFTY only 4 (23, 24, 33, 52), neither 17
+  (at ±2%: 37 / 27 / both 21 / NIFTY only 16 / BANKNIFTY only 6). The 3 BANKNIFTY-only months with data made −₹3,483 at 1,000-pt (52 −₹3,401).
+  Months the finalised NIFTY rule skips but BANKNIFTY ±2.5% passes: 11 tr −₹2,212. Trade P&L correlation NIFTY 300-pt vs BANKNIFTY 1,000-pt
+  0.61 (62 months, no filter); both lose in 15 of NIFTY's 24 losing months; 7 of NIFTY's 10 worst months lose on BANKNIFTY too (62, 35, 19,
+  16, 52, 22, 15); exceptions 67, 8, 30. Running both (each with its own ±2.5% filter): ₹101,644 / DD −₹17,607 (NIFTY ₹66,052 / −₹7,527 +
+  BANKNIFTY ₹35,593 / −₹13,944); finalised NIFTY rule (400-pt) + BANKNIFTY ₹121,321 / −₹11,126. BANKNIFTY adds size, not diversification.
 - The `FWD_*` forward-test rule and the skill are NIFTY only. Do not apply NIFTY-fitted thresholds to BANKNIFTY without a test.
 
 ## Commands
