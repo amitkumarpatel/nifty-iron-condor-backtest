@@ -638,6 +638,20 @@ no 1% gap 34 tr / 11 losers / +₹51,430 – months with any 1% gap make nothing
 in 62, 16, 8, 52; no gap at all in 67 and 30. Inside the 36 months of the forward-test rule: 9 had a gap-up, only 1 lost (22). Gap-up 1%
 exit ON TOP of variant 6: ₹103,851 / DD −₹5,523 vs ₹114,939 / −₹5,523 → costs ₹11.1k (saves 22 +₹4.2k; cuts winners 3, 14, 56, 4, 61, 21,
 18). The ±2% filter already skips the gap-up losers 35, 19, 15, 16. Gap-up exit stays OFF; keep logging gap-up days in the journal.
+BAND 2–2.5% AT 300-PT WITH AN EARLY EXIT (13-Oct-2026, user idea: trade the months with a 10-day move of 2–2.5% at 300-pt and find an early
+exit for trade 35). The 8 band trades (2, 6, 15, 29, 35, 38, 41, 43) make −₹2,595 at 300-pt (35 −₹7,243, 15 −₹3,347, 41 −₹1,285). Early exits
+applied to the band trades only (band total / trades changed): gap-up >=1% → 15:16 exit +₹5,748 / 5 (35 −₹960 on 15-Nov-23, 15 −₹367; costs
+2, 43, 41 ≈ ₹0.3k each); NIFTY +2% above the entry-day close +₹4,516 / 4; NIFTY close >= sold CE − 100 +₹4,205 / 4; close >= sold CE or
+loss >= 30% of credit +₹1,180 / 3 (35 −₹4,058); loss >= 50% −₹770; gap-up >=1.5%, loss >= 75%, close >= bought CE ≈ no help (35 exits at −₹5.1k
+to −₹6.9k); "loss >= 25% by day 5" never fires. Trade 35's path: −10% of credit on the 15-Nov gap day, −14% to −26% for two weeks, −54% on
+29-Nov (close above the sold call), −96% on the 4-Dec gap (1.65%), stop 5-Dec – no loss-based signal before 29-Nov.
+Variant 6 + band at 300-pt (n / net / DD): no extra rule 44 / ₹112,344 / −₹7,243 (worse, a losing year); + gap-up 1% exit on the band only
+44 / ₹120,687 / −₹5,523 (with the 40% credit floor, i.e. without trade 29: 43 / ₹118,091); + NIFTY +2% exit 44 / ₹119,455 / −₹5,523.
+The same exits applied to EVERY month cost money (inside ±2%, 37 trades at 300-pt, base ₹68,646: gap-up 1% ₹62,660; sold CE ₹50,561; loss 30%
+₹37,459; NIFTY +2% ₹39,231) – so they are only usable as a band-only rule. 2019–20 has one band trade (1903, +2.28%, −₹6,770): no 1% gap-up,
+so the exit does not save it; only the credit floor would (credit 36% of the 300-pt width). VERDICT: gain ≈ ₹3–6k over 6 years from 7–8
+trades, resting on trades 35 and 15; a rule chosen to catch one known trade. Not adopted – candidate to shadow-log (band month → note the
+300-pt condor and the first 1% gap-up day).
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
