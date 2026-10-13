@@ -1254,6 +1254,12 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   so the exit does not save it; only the credit floor would (credit 36% of the 300-pt width). VERDICT: gain ≈ ₹3–6k over 6 years from 7–8
   trades, resting on trades 35 and 15; a rule chosen to catch one known trade. Not adopted – candidate to shadow-log (band month → note the
   300-pt condor and the first 1% gap-up day).
+  C/W INSIDE THE MONTHS BEYOND ±2.5% (13-Oct-2026, user question; 21 months, 400-pt, TP 50%, total −₹21,675, 9 W / 12 L): C/W does NOT separate
+  winners from losers – correlation with P&L 0.21, winners average 46.0% vs losers 43.9%, and the bands alternate: <40% 0 W / 2 L −₹8,116;
+  40–42% 1 / 1 +₹3,676; 42–44% 0 / 3 −₹19,007 (36, 52, 62); 44–45% 3 / 1 +₹7,608; 45–47% 2 / 2 −₹5,920; 47–48.5% 0 / 2 −₹8,818 (16, 50); >=48.5%
+  3 / 1 +₹8,901 (5, 13, 17, 63). Cumulative: >=45% 10 tr −₹5,837; >=46% −₹2,689; >=47% +₹83; >=48% 4 tr +₹8,901 / worst −₹1,673 – the only
+  positive cut, and it is the known knife edge (trade 16 at 47.9% = −₹6,074; same finding as 8-Oct "rich credit at any move"). 2019–20 beyond
+  ±2.5% (8 months, 400-pt): only 2004 is >= 48% (50.4%, +₹8,450); 2011 at 46.0% −₹9,068, 2007 at 45.9% +₹2,771. Not adopted; do not re-test.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
