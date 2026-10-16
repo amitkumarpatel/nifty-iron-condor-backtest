@@ -363,6 +363,8 @@ Permanent changes go in `ic/config.py`.
 | `IC_STRIKE_SET` | – | use strikes from `data/strike_sets/strikes_<name>.csv` (select_strikes.py) |
 | `IC_ENTRY_SHIFT` | `0` | experiment: shift the entry N calendar days from StockMock's Monday (2 = Wednesday, −3 = previous Friday; holidays move forward / back). Use with a strike set chosen on that day |
 | `IC_ENTRY_TIME` | `11:16` | entry time, e.g. `15:16` for the Friday roll test (exit old and enter new at the same check) |
+| `IC_EXIT_DTE` | `18` | time exit N calendar days before expiry (same as `--exit-dte N`) |
+| `IC_TP` | `50` | profit target in % of credit, e.g. `40` (same as `--tp 40`) |
 | `IC_INDEX` | `NIFTY` | index to work on: `NIFTY` or `BANKNIFTY` (same as `--symbol banknifty`); see §5.3e |
 | `IC_DATA_DIR`, `IC_OUTPUT_DIR`, `IC_REF_DIR` | `data/`, `output/`, `data/reference/` | alternative folders (used by the smoke test) |
 | `IC_PAUSE_SEC` | `0.65` | pause between API calls (stays under 100 calls/min) |
@@ -506,6 +508,10 @@ python backtest.py --trade-set 2019_2020 --strike-set d30_2019_2020
 - A generated set has no StockMock prices, so there is no reconciliation (status `NO REFERENCE`) and no
   StockMock fallback price at entry.
 - `make_trades.py` was checked against the reference trades: it reproduces all 66 entry and expiry dates.
+- `--entry-weeks N` enters on the Monday N weeks before the expiry week (default 6 = 43–45 DTE; 7 = 50–52 DTE);
+  `--entry-dte N` enters exactly N calendar days before expiry. Example (entry one week earlier, exit at 25 DTE, 40% target):
+  `make_trades.py --from 2021-01 --to 2026-08 --entry-weeks 7 --name w7`, then `select_strikes.py --trade-set w7 ...`,
+  `download.py --trade-set w7 --strike-set d30_w7 --hedge 400 --exit-dte 25` and `backtest.py ... --exit-dte 25 --tp 40`.
 - `fetch_index_nse.py` only adds days that are missing (use `--replace` to overwrite) and also extends the
   trading calendar. `download.py --index` now merges too, so it no longer drops earlier history.
 - Lot size for expiries up to Jan-2021 is 75 (`LOT_SIZES`).

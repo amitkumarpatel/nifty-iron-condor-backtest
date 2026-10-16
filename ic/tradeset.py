@@ -13,6 +13,11 @@ the reference trades: one condor per monthly expiry, entered on the Monday six w
 Needs NIFTY and India VIX daily data for the period (fetch_index_nse.py or download.py --index).
 
 Run:  python make_trades.py --from 2019-01 --to 2020-12 --name 2019_2020     (months = entry months)
+      python make_trades.py --from 2021-01 --to 2026-08 --entry-weeks 7 --name w7
+            --entry-weeks N: enter on the Monday N weeks before the expiry week (default 6 = 45 DTE for Thursday
+            expiries, 43 for Tuesday); 7 = 52 / 50 DTE.
+            --entry-dte N: enter exactly N calendar days before the expiry instead (next trading day if that is a
+            holiday or weekend); the month filter then uses that entry date.
 """
 import argparse
 import math
@@ -51,6 +56,8 @@ def main():
     ap.add_argument("--from", dest="first", required=True, help="first entry month, YYYY-MM")
     ap.add_argument("--to", dest="last", required=True, help="last entry month, YYYY-MM")
     ap.add_argument("--name", required=True, help="trade set name -> ic_trades_<name>.csv / ic_legs_<name>.csv")
+    ap.add_argument("--entry-weeks", type=int, default=6, help="enter on the Monday this many weeks before the expiry week (default 6)")
+    ap.add_argument("--entry-dte", type=int, help="enter exactly this many calendar days before expiry (overrides --entry-weeks)")
     a = ap.parse_args()
 
     nifty = pd.read_csv(C.INDEX_DAILY_CSV, parse_dates=["date"]).set_index("date").close.sort_index()
@@ -66,7 +73,10 @@ def main():
         if m > 12:
             y, m = y + 1, 1
         expiry, nominal = monthly_expiry(y, m, days)
-        entry = nominal - timedelta(days=nominal.weekday()) - timedelta(weeks=6)   # ... Monday, 6 weeks before
+        if a.entry_dte and (nominal - timedelta(days=a.entry_dte)).replace(day=1) > last:
+            break                                # past the last entry month (future expiries have no calendar)
+        entry = (expiry - timedelta(days=a.entry_dte) if a.entry_dte else
+                 nominal - timedelta(days=nominal.weekday()) - timedelta(weeks=a.entry_weeks))   # ... Monday, 6 weeks before
         while entry not in days:
             entry += timedelta(days=1)
         if entry.replace(day=1) > last:

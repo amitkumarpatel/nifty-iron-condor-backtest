@@ -7,6 +7,8 @@ Per-run variant options for the entry scripts, so a test needs no environment va
     --entry-shift D     enter D calendar days after the reference entry      (= IC_ENTRY_SHIFT)
     --trade-set NAME    trades from data/reference/ic_trades_NAME.csv        (= IC_TRADE_SET; python make_trades.py)
     --symbol NAME       index to work on: nifty (default) or banknifty       (= IC_INDEX)
+    --exit-dte N        time exit N calendar days before expiry (default 18) (= IC_EXIT_DTE)
+    --tp X              profit target in % of credit, e.g. 40 (default 50)  (= IC_TP)
 
 They are turned into the environment variables ic/config.py already reads, so this must run before
 anything imports ic.config. backtest.py and export_prices.py also get a report name of their own for a
@@ -17,7 +19,8 @@ import os
 import sys
 
 OPTIONS = {"--strike-set": "IC_STRIKE_SET", "--hedge": "IC_HEDGE_WIDTH", "--filter": "IC_TREND_FILTER",
-           "--entry-shift": "IC_ENTRY_SHIFT", "--trade-set": "IC_TRADE_SET", "--symbol": "IC_INDEX"}
+           "--entry-shift": "IC_ENTRY_SHIFT", "--trade-set": "IC_TRADE_SET", "--symbol": "IC_INDEX",
+           "--exit-dte": "IC_EXIT_DTE", "--tp": "IC_TP"}
 
 
 def preset(out_prefix=None):
@@ -45,4 +48,8 @@ def preset(out_prefix=None):
         out_dir = os.environ.get("IC_OUTPUT_DIR") or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "output")
         if used.get("--entry-shift"):
             parts.append(f"shift{used['--entry-shift']}")
+        if used.get("--exit-dte"):
+            parts.append(f"x{used['--exit-dte']}")
+        if used.get("--tp"):
+            parts.append(f"tp{used['--tp']}")
         argv += ["--out", os.path.join(out_dir, "_".join(parts) + ".xlsx")]

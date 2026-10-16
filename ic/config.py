@@ -100,9 +100,13 @@ FWD_WIDE_MIN_CREDIT_PCT = 45.0    # 45% of 400 = 180 points
 FWD_NARROW_MOVE_PCT     = 2.0     # |10-day move| limit for the normal (300-pt) condor (was 1.5 until 11-Oct-2026)
 FWD_MIN_CREDIT_PCT      = 40.0    # floor: below 40% of 400 = 160 points -> no trade at all
 FWD_WIDE_TP_FRACTION    = 0.60    # 60% target for the wide condor
-TP_FRACTION  = 0.50         # exit when P&L >= 50% of initial credit
+def _frac(v):                # IC_TP=40 or 0.4 -> 0.40
+    v = float(v)
+    return v / 100 if v > 1 else v
+TP_FRACTION  = _frac(os.environ.get("IC_TP", 0.50))   # exit when P&L >= 50% of initial credit (IC_TP / --tp per run)
 SL_FRACTION  = 1.00         # exit when loss >= 100% of initial credit
-EXIT_DTE     = 18           # exit on last trading day on/before (expiry - 18 calendar days)
+EXIT_DTE     = int(os.environ.get("IC_EXIT_DTE", 18))   # exit on last trading day on/before (expiry - 18 calendar days)
+                           # (IC_EXIT_DTE / --exit-dte per run)
 REF_EXIT_DTE = _IDX["ref_exit_dte"]   # exit DTE used in the StockMock reference run (NIFTY 15; reconciliation labels)
 HEDGE_WIDTH  = int(os.environ.get("IC_HEDGE_WIDTH", _IDX["hedge_width"]))  # bought strike = sold strike +/- this many
                            # points (NIFTY 300, chosen 27-Sep-2026; StockMock reference = 200; each width needs its own download)

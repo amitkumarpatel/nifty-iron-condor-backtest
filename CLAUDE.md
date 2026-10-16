@@ -658,6 +658,12 @@ winners from losers – correlation with P&L 0.21, winners average 46.0% vs lose
 3 / 1 +₹8,901 (5, 13, 17, 63). Cumulative: >=45% 10 tr −₹5,837; >=46% −₹2,689; >=47% +₹83; >=48% 4 tr +₹8,901 / worst −₹1,673 – the only
 positive cut, and it is the known knife edge (trade 16 at 47.9% = −₹6,074; same finding as 8-Oct "rich credit at any move"). 2019–20 beyond
 ±2.5% (8 months, 400-pt): only 2004 is >= 48% (50.4%, +₹8,450); 2011 at 46.0% −₹9,068, 2007 at 45.9% +₹2,771. Not adopted; do not re-test.
+50-DTE ENTRY / 25-DTE EXIT / TP 40% TEST – SET UP 16-Oct-2026 (user request, on the 400-pt C/W variants), waiting for downloads. User chose
+the Monday seven weeks before the expiry week (52 DTE for Thursday expiries, 50 for Tuesday) over exact 50 DTE (would be Wednesdays).
+Trade set w7 (make_trades --entry-weeks 7; 68 trades incl. the Apr-2026 expiry; entries 7 days before the reference, 8 for 2208/2504);
+strike set d30_w7 to select (~1,300 calls); candles 400-pt ≈ 1,700 calls, 300-pt hedges ≈ 850 more (for the 300-pt tier). New per-run
+settings IC_EXIT_DTE / --exit-dte and IC_TP / --tp (defaults 18 / 50; NIFTY reports byte-identical before/after, checked 16-Oct-2026).
+Note: holding period 52→25 = 27 days ≈ current 45→18; TP 40% and exit 21+ DTE were each worse on the current timing.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
