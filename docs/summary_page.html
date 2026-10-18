@@ -1,0 +1,378 @@
+<title>NIFTY Iron Condor Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+:root{
+  --bg:#f3f6f7; --surface:#ffffff; --ink:#16212b; --muted:#56636f; --line:#d6dde2; --line-soft:#e7ecef;
+  --accent:#0d6b66; --accent-soft:#dff0ed; --gain:#1b7a45; --loss:#b3261e; --warn:#8f5f00; --warn-soft:#fbf1dc;
+  --orig:#8b97a3; --best:#3f7fa6; --filter:#0d6b66;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",Roboto,Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0f151b; --surface:#161f28; --ink:#e2e8ed; --muted:#99a5b0; --line:#2b3642; --line-soft:#212b35;
+    --accent:#4fbfb3; --accent-soft:#16312f; --gain:#56c48d; --loss:#f07a70; --warn:#e2b458; --warn-soft:#2e2615;
+    --orig:#6f7c89; --best:#7fb3d6; --filter:#4fbfb3;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0f151b; --surface:#161f28; --ink:#e2e8ed; --muted:#99a5b0; --line:#2b3642; --line-soft:#212b35;
+  --accent:#4fbfb3; --accent-soft:#16312f; --gain:#56c48d; --loss:#f07a70; --warn:#e2b458; --warn-soft:#2e2615;
+  --orig:#6f7c89; --best:#7fb3d6; --filter:#4fbfb3;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 var(--body);margin:0}
+.wrap{max-width:980px;margin:0 auto;padding-inline:16px;padding-block:40px 64px;display:grid;gap:56px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(2rem,4.6vw,3rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.5rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.num,td.n,th.n{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{font:500 .75rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.muted{color:var(--muted)}
+section{display:grid;gap:18px;min-width:0}
+.sec-head{display:grid;gap:8px}
+header{display:grid;gap:16px;padding-bottom:28px;border-bottom:2px solid var(--ink)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font:400 .85rem/1.4 var(--mono);color:var(--muted)}
+.lede{font-size:1.1rem;max-width:62ch}
+.note{font-size:.85rem;color:var(--muted)}
+.verdict{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.verdict>div{background:var(--surface);padding:18px 20px;display:grid;gap:4px;align-content:start}
+.verdict .k{font:500 .72rem/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.verdict .v{font:600 1.7rem/1.1 var(--mono);font-variant-numeric:tabular-nums}
+.verdict .s{font-size:.85rem;color:var(--muted)}
+.verdict .v.good{color:var(--gain)}
+@media (max-width:640px){.verdict{grid-template-columns:1fr}}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{padding:10px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line-soft)}
+thead th{font:500 .72rem/1.3 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--line);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;white-space:nowrap}
+td.lbl{font-weight:500;white-space:nowrap}
+.hl{background:var(--accent-soft)}
+td.hlc,th.hlc{background:var(--accent-soft)}
+.pos{color:var(--gain)} .neg{color:var(--loss)}
+figure{margin:0;display:grid;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 18px 14px;min-width:0}
+figcaption{font-size:.85rem;color:var(--muted)}
+.chart-scroll{overflow-x:auto}
+svg.chart{display:block;width:100%;min-width:560px;height:auto}
+.grid{stroke:var(--line-soft);stroke-width:1}
+.zero{stroke:var(--muted);stroke-width:1}
+.tick{stroke:var(--muted)}
+.ylab,.xlab,.endlab,.plab{font:400 11px var(--mono);fill:var(--muted)}
+.line{fill:none;stroke-width:2;stroke-linejoin:round}
+.line.orig{stroke:var(--orig);stroke-dasharray:5 4}
+.line.best{stroke:var(--best)}
+.line.filter{stroke:var(--filter);stroke-width:2.6}
+.dot.orig{fill:var(--orig)} .dot.best{fill:var(--best)} .dot.filter{fill:var(--filter)}
+.endlab.filter{fill:var(--filter);font-weight:500} .endlab.best{fill:var(--best)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font:400 .8rem/1.4 var(--mono);color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend i{display:inline-block;width:22px;height:0;border-top:2px solid}
+.legend .o i{border-color:var(--orig);border-top-style:dashed}
+.legend .b i{border-color:var(--best)}
+.legend .f i{border-color:var(--filter);border-top-width:3px}
+.payoff .pf{fill:var(--accent-soft);stroke:none}
+.payoff .pl{fill:none;stroke:var(--ink);stroke-width:2}
+.payoff .tp{stroke:var(--gain);stroke-dasharray:4 4}
+.payoff .sl{stroke:var(--loss);stroke-dasharray:4 4}
+.payoff .tpl{fill:var(--gain);font:500 11px var(--mono)}
+.payoff .sll{fill:var(--loss);font:500 11px var(--mono)}
+.payoff .kl{font:500 11px var(--mono);fill:var(--ink)}
+.payoff .kv{stroke:var(--line);stroke-width:1}
+.two{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:820px){.two{grid-template-columns:1fr}}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.checks li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start}
+.mark{font:600 .8rem/1.6 var(--mono);text-align:center;border-radius:4px}
+.mark.ok{color:var(--gain)} .mark.wait{color:var(--warn)}
+.risks{margin:0;padding-left:1.2em;display:grid;gap:10px;max-width:72ch}
+.steps{margin:0;padding-left:1.4em;display:grid;gap:10px;max-width:72ch}
+.steps li::marker{font-family:var(--mono);color:var(--accent)}
+footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:var(--muted);display:grid;gap:6px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Backtest summary · 18 Oct 2026</span>
+  <h1>NIFTY Iron Condor Playbook</h1>
+  <p class="lede">The rule set chosen for the forward test of a monthly NIFTY iron condor, and the backtest behind it: 66 monthly trades from January 2021 to August 2026, replayed on 1-minute option prices from ICICI Breeze and checked against StockMock.</p>
+  <div class="meta">
+    <span>1 lot per trade</span><span>P&amp;L after costs (≈₹250 per condor)</span><span>No slippage</span><span>One condor open at a time</span>
+  </div>
+  <p class="note">These are backtest results for paper-trading decisions, not investment advice.</p>
+</header>
+
+<section aria-labelledby="h-verdict">
+  <div class="sec-head">
+    <span class="eyebrow">The short version</span>
+    <h2 id="h-verdict">Trade only calm months, and widen the hedge to 400 points when the premium is rich</h2>
+    <p>The forward-test rule made ₹85,729 on 36 trades in the backtest, against ₹66,052 on 45 trades for the earlier rule, with a smaller drawdown. A 600-point version earned more (₹114,939), but its worst case per trade breaks the limit of 2–3% of capital, so it is set aside for a review after 6–12 months. The thresholds were chosen on this same data, so treat the figures as an upper bound.</p>
+  </div>
+  <div class="verdict">
+    <div><span class="k">Net P&amp;L, forward-test rule</span><span class="v good">₹85,729</span><span class="s">36 trades · earlier rule ₹66,052 on 45</span></div>
+    <div><span class="k">Max drawdown</span><span class="v">−₹5,523</span><span class="s">earlier rule −₹7,527 · no filter −₹11,860</span></div>
+    <div><span class="k">Largest possible loss, one trade</span><span class="v">≈ ₹13,600</span><span class="s">400-pt condor at lot 65 · 2.7% of ₹5L</span></div>
+  </div>
+  <figure>
+    <div class="legend" aria-hidden="true">
+      <span class="o"><i></i>No filter (300-pt, every month)</span>
+      <span class="b"><i></i>Earlier rule (300-pt, 10-day move within ±2.5%)</span>
+      <span class="f"><i></i>Forward-test rule (400-pt when rich, else 300-pt)</span>
+    </div>
+    <div class="chart-scroll">
+<svg viewBox="0 0 760 300" role="img" aria-labelledby="eqTitle eqDesc" class="chart"><title id="eqTitle">Cumulative net P&amp;L</title><desc id="eqDesc">Cumulative net profit after costs by exit date for three rule sets, January 2021 to September 2026. No filter ends at 47.3 thousand rupees, the earlier rule at 66.1 thousand, the forward-test rule at 85.7 thousand.</desc>
+<line class="zero" x1="64" x2="642" y1="243.3" y2="243.3"/><text class="ylab" x="56" y="247.3" text-anchor="end">₹0k</text>
+<line class="grid" x1="64" x2="642" y1="197.8" y2="197.8"/><text class="ylab" x="56" y="201.8" text-anchor="end">₹20k</text>
+<line class="grid" x1="64" x2="642" y1="152.4" y2="152.4"/><text class="ylab" x="56" y="156.4" text-anchor="end">₹40k</text>
+<line class="grid" x1="64" x2="642" y1="106.9" y2="106.9"/><text class="ylab" x="56" y="110.9" text-anchor="end">₹60k</text>
+<line class="grid" x1="64" x2="642" y1="61.5" y2="61.5"/><text class="ylab" x="56" y="65.5" text-anchor="end">₹80k</text>
+<line class="grid" x1="64" x2="642" y1="16.0" y2="16.0"/><text class="ylab" x="56" y="20.0" text-anchor="end">₹100k</text>
+<line class="tick" x1="64.0" x2="64.0" y1="266" y2="271"/><text class="xlab" x="111.8" y="286" text-anchor="middle">2021</text>
+<line class="tick" x1="160.3" x2="160.3" y1="266" y2="271"/><text class="xlab" x="208.1" y="286" text-anchor="middle">2022</text>
+<line class="tick" x1="256.7" x2="256.7" y1="266" y2="271"/><text class="xlab" x="304.4" y="286" text-anchor="middle">2023</text>
+<line class="tick" x1="353.0" x2="353.0" y1="266" y2="271"/><text class="xlab" x="401.0" y="286" text-anchor="middle">2024</text>
+<line class="tick" x1="449.6" x2="449.6" y1="266" y2="271"/><text class="xlab" x="497.4" y="286" text-anchor="middle">2025</text>
+<line class="tick" x1="545.9" x2="545.9" y1="266" y2="271"/><text class="xlab" x="593.7" y="286" text-anchor="middle">2026</text>
+<path class="line orig" d="M66.0,243.3 H73.2 V241.9 H80.6 V238.7 H89.9 V230.1 H97.3 V225.9 H104.6 V229.3 H113.9 V220.5 H121.3 V222.6 H130.2 V234.9 H137.9 V239.1 H144.8 V232.8 H154.5 V234.3 H161.9 V231.6 H169.3 V227.4 H178.5 V224.2 H185.9 V231.8 H193.3 V242.3 H202.6 V237.6 H210.0 V233.5 H217.3 V245.7 H226.6 V240.2 H234.0 V239.1 H241.4 V247.4 H250.6 V239.7 H265.4 V232.0 H273.6 V224.1 H281.7 V216.2 H289.4 V218.4 H298.6 V212.5 H306.0 V220.9 H315.3 V215.6 H322.6 V216.1 H330.0 V210.7 H339.3 V207.7 H345.9 V224.1 H354.1 V229.3 H363.3 V225.7 H370.4 V225.8 H377.3 V217.0 H387.3 V214.9 H394.7 V217.8 H402.1 V220.7 H411.3 V217.3 H418.7 V216.3 H428.0 V214.4 H435.3 V218.0 H442.7 V216.7 H452.0 V222.2 H459.4 V211.0 H466.8 V216.4 H474.1 V207.6 H483.4 V217.1 H490.8 V211.6 H500.0 V196.8 H507.4 V201.8 H516.1 V189.0 H523.8 V178.1 H531.4 V171.1 H540.4 V159.0 H547.3 V149.5 H555.4 V138.6 H564.4 V158.0 H579.4 V149.8 H588.4 V138.7 H596.1 V128.8 H603.5 V123.2 H612.7 V135.8 H620.1"/>
+<path class="line best" d="M66.0,243.3 H80.6 V240.0 H89.9 V231.4 H97.3 V227.3 H113.9 V218.5 H121.3 V220.6 H144.8 V214.4 H154.5 V215.9 H178.5 V212.7 H185.9 V220.3 H210.0 V216.2 H234.0 V215.1 H241.4 V223.4 H265.4 V215.6 H273.6 V207.7 H281.7 V199.8 H298.6 V193.9 H306.0 V202.4 H315.3 V197.1 H322.6 V197.5 H339.3 V194.5 H345.9 V211.0 H363.3 V207.3 H370.4 V207.5 H377.3 V198.7 H387.3 V196.6 H394.7 V199.5 H402.1 V202.4 H411.3 V199.0 H418.7 V198.0 H428.0 V196.1 H442.7 V194.8 H459.4 V183.6 H474.1 V174.7 H490.8 V169.3 H500.0 V154.5 H507.4 V159.4 H516.1 V146.6 H531.4 V139.6 H540.4 V127.6 H547.3 V118.1 H555.4 V107.2 H588.4 V96.0 H596.1 V86.2 H603.5 V80.6 H612.7 V93.2 H620.1"/>
+<path class="line filter" d="M66.0,243.3 H89.9 V231.6 H97.3 V226.0 H121.3 V228.2 H144.8 V220.0 H154.5 V221.4 H178.5 V217.1 H210.0 V213.0 H234.0 V211.6 H241.4 V219.9 H265.4 V209.8 H273.6 V201.9 H281.7 V194.0 H306.0 V202.5 H315.3 V197.2 H322.6 V197.4 H339.3 V194.4 H363.3 V190.8 H377.8 V177.4 H387.3 V175.3 H402.1 V178.8 H418.7 V177.1 H442.7 V175.8 H459.4 V160.0 H474.1 V151.1 H490.8 V142.8 H500.0 V123.3 H507.4 V128.2 H516.1 V115.4 H531.4 V108.4 H540.4 V96.4 H547.3 V86.9 H555.4 V75.9 H588.7 V57.5 H596.1 V43.9 H603.5 V35.9 H612.7 V48.4 H620.1"/>
+<circle class="dot orig" cx="620.1" cy="135.8" r="3.5"/><text class="endlab orig" x="628.1" y="139.8">₹47.3k</text>
+<circle class="dot best" cx="620.1" cy="93.2" r="3.5"/><text class="endlab best" x="628.1" y="97.2">₹66.1k</text>
+<circle class="dot filter" cx="620.1" cy="48.4" r="3.5"/><text class="endlab filter" x="628.1" y="52.4">₹85.7k</text>
+</svg>
+    </div>
+    <figcaption>Cumulative net P&amp;L after costs, stepped at each trade's exit date. Lot size per expiry (50 → 25 → 75 → 65).</figcaption>
+  </figure>
+</section>
+
+<section aria-labelledby="h-rules">
+  <div class="sec-head">
+    <span class="eyebrow">Forward test · from October 2026</span>
+    <h2 id="h-rules">The rule being paper traded</h2>
+    <p>Two readings decide each month. The evening before entry: NIFTY's 10-day move, from NSE's official closes. At 11:16 on the entry day: the net credit of a 400-point condor (sold ~30-delta call and put, hedges 400 points out). That same condor is the trade when its credit is rich.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>10-day move</th><th>Credit of the 400-pt condor</th><th>Action</th><th>Profit target</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="lbl">within ±2%</td><td>180 points or more (≥ 45% of width)</td><td><b>400-point condor</b></td><td>60% of its credit</td></tr>
+        <tr><td class="lbl">within ±2%</td><td>160–180 points (40–45%)</td><td><b>300-point condor</b></td><td>50% of its credit</td></tr>
+        <tr><td class="lbl">within ±2%</td><td>below 160 points</td><td>Skip: minimum-credit floor</td><td>–</td></tr>
+        <tr><td class="lbl">beyond ±2%</td><td>any</td><td>Skip</td><td>–</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="two">
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Rule</th><th>Setting</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">Entry</td><td>Monday at <b>11:16</b>, next-month expiry, 43 DTE (six weeks before a Tuesday expiry)</td></tr>
+          <tr><td class="lbl">Sold legs</td><td>~30-delta CE and PE</td></tr>
+          <tr><td class="lbl">Check</td><td>Once a day at <b>15:16</b>, whole position</td></tr>
+          <tr><td class="lbl">Stop-loss</td><td>Exit all 4 legs at <b>−100%</b> of credit</td></tr>
+          <tr><td class="lbl">Time exit</td><td><b>18 DTE</b>; weekend, holiday or Muhurat day → previous trading day</td></tr>
+          <tr><td class="lbl">Size</td><td>1 lot; no adjustment, no re-entry</td></tr>
+          <tr><td class="lbl">Risk limit</td><td>Largest possible loss of one trade within <b>2–3% of the account</b></td></tr>
+          <tr><td class="lbl">Missing strikes</td><td>Move that side's spread to the nearest priced strikes (50 or 100 points), else widen the hedge</td></tr>
+          <tr><td class="lbl">Shadow log</td><td>Every month, also record what the earlier rule would have done (300-point condor when the move is within ±2.5%)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <figure class="payoff">
+      <svg viewBox="0 0 440 250" role="img" aria-labelledby="pfTitle pfDesc" class="chart" style="min-width:0">
+        <title id="pfTitle">Payoff at expiry of the 400-point condor</title>
+        <desc id="pfDesc">Iron condor payoff with an average 192-point credit and 400-point wings: maximum profit 192 points, maximum loss 208 points, target at plus 115 points and stop at minus 192 points.</desc>
+        <polygon class="pf" points="86.8,122 130,38 310,38 353.2,122"/>
+        <line class="kv" x1="10" x2="430" y1="122" y2="122"/>
+        <line class="tp" x1="10" x2="430" y1="71.6" y2="71.6"/>
+        <line class="sl" x1="10" x2="430" y1="206" y2="206"/>
+        <polyline class="pl" points="10,213 40,213 130,38 310,38 400,213 430,213"/>
+        <text class="tpl" x="430" y="65.6" text-anchor="end">Target +115 pts (60%)</text>
+        <text class="sll" x="220" y="200" text-anchor="middle">Stop −192 pts (100%)</text>
+        <text class="plab" x="220" y="30" text-anchor="middle">Max profit +192 pts = credit</text>
+        <text class="plab" x="220" y="228" text-anchor="middle">Max loss −208 pts</text>
+        <line class="kv" x1="40" x2="40" y1="122" y2="226"/><line class="kv" x1="130" x2="130" y1="122" y2="226"/>
+        <line class="kv" x1="310" x2="310" y1="122" y2="226"/><line class="kv" x1="400" x2="400" y1="122" y2="226"/>
+        <text class="kl" x="40" y="242" text-anchor="middle">Buy PE</text>
+        <text class="kl" x="130" y="242" text-anchor="middle">Sell PE</text>
+        <text class="kl" x="310" y="242" text-anchor="middle">Sell CE</text>
+        <text class="kl" x="400" y="242" text-anchor="middle">Buy CE</text>
+      </svg>
+      <figcaption>Payoff at expiry, in NIFTY points, for the average 400-point condor on a rich-credit month (credit ≈ 192, wings 400 points). The maximum loss is about ₹13,600 at the current lot of 65. The trade is closed at 18 DTE, long before expiry.</figcaption>
+    </figure>
+  </div>
+  <p class="note">October 2026 cycle: the 10-day move before the 12-Oct entry was −2.35%, so the forward-test rule skipped the month. The earlier rule would have traded a 300-point condor, which is shadow-logged.</p>
+</section>
+
+<section aria-labelledby="h-rr">
+  <div class="sec-head">
+    <span class="eyebrow">Risk and reward</span>
+    <h2 id="h-rr">Why 400 points and not 600</h2>
+    <p>The two versions trade the same 36 months and differ only in the 17 rich-credit months. A 600-point hedge earns more, but per rupee at risk it is no better, and its worst case is too large for a ₹3–5L account under a 2–3% limit.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th></th><th class="n hlc">400-pt (chosen)</th><th class="n">600-pt (review later)</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">Whole rule, net P&amp;L</td><td class="n hlc"><b>₹85,729</b></td><td class="n">₹114,939</td></tr>
+        <tr><td class="lbl">Whole rule, max drawdown</td><td class="n neg hlc">−₹5,523</td><td class="n neg">−₹5,523</td></tr>
+        <tr><td class="lbl">Rich months, net P&amp;L</td><td class="n hlc">₹59,061</td><td class="n">₹88,271</td></tr>
+        <tr><td class="lbl">Rich months, winners / losers</td><td class="n hlc">14 / 3</td><td class="n">15 / 2</td></tr>
+        <tr><td class="lbl">Average win / average loss</td><td class="n hlc">₹4,407 / −₹879</td><td class="n">₹6,068 / −₹1,372</td></tr>
+        <tr><td class="lbl">Average credit</td><td class="n hlc">191.5 pts</td><td class="n">254.1 pts</td></tr>
+        <tr><td class="lbl">Largest possible loss per condor</td><td class="n hlc">208.5 pts · ≈ ₹13,600</td><td class="n">345.9 pts · ≈ ₹22,500</td></tr>
+        <tr><td class="lbl">Credit ÷ largest possible loss</td><td class="n hlc">0.92</td><td class="n">0.74</td></tr>
+        <tr><td class="lbl">Six-year profit ÷ largest loss</td><td class="n hlc">5.2×</td><td class="n">4.7×</td></tr>
+        <tr><td class="lbl">Largest loss as % of ₹3L / ₹4L / ₹5L</td><td class="n hlc">4.5% / 3.4% / 2.7%</td><td class="n">7.5% / 5.6% / 4.5%</td></tr>
+        <tr><td class="lbl">Account needed for 3% / 2%</td><td class="n hlc">≈ ₹4.5L / ₹6.8L</td><td class="n">≈ ₹7.5L / ₹11.2L</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="risks">
+    <li><b>600 points is a bigger trade, not a better one.</b> It collects 33% more credit but can lose 66% more, so the extra profit comes from taking more risk.</li>
+    <li><b>Neither width was tested by a bad month.</b> The worst point inside any rich-credit trade was about a third of its largest possible loss.</li>
+    <li><b>The 300-point middle tier can lose about ₹10,400 a lot</b>, 2.1% of ₹5L.</li>
+    <li><b>Review after 6–12 months</b> of forward testing, with real fills and margin, before considering a wider hedge again.</li>
+  </ul>
+</section>
+
+<section aria-labelledby="h-results">
+  <div class="sec-head">
+    <span class="eyebrow">Results · 2021–26</span>
+    <h2 id="h-results">Six rule sets side by side</h2>
+    <p>Variants 3 to 6 use the same ±2% move limit and the same credit test, so they trade the same 36 months. They differ only in the hedge width. Variant 3 is the one being forward tested.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th></th><th class="n">1 · No<br>filter</th><th class="n">2 · Earlier<br>rule ±2.5%</th><th class="n hlc">3 · 400-pt<br>when rich</th><th class="n">4 · 500-pt<br>on all</th><th class="n">5 · 500-pt<br>when rich</th><th class="n">6 · 600-pt<br>when rich</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">Credit ≥ 45%</td><td class="n">300</td><td class="n">300</td><td class="n hlc">400</td><td class="n">500</td><td class="n">500</td><td class="n">600</td></tr>
+        <tr><td class="lbl">Credit 40–45%</td><td class="n">300</td><td class="n">300</td><td class="n hlc">300</td><td class="n">500</td><td class="n">300</td><td class="n">300</td></tr>
+        <tr><td class="lbl">Credit below 40%</td><td class="n">300</td><td class="n">300</td><td class="n hlc">skip</td><td class="n">skip</td><td class="n">skip</td><td class="n">skip</td></tr>
+        <tr><td class="lbl">Trades</td><td class="n">66</td><td class="n">45</td><td class="n hlc">36</td><td class="n">36</td><td class="n">36</td><td class="n">36</td></tr>
+        <tr><td class="lbl">Net P&amp;L</td><td class="n">₹47,298</td><td class="n">₹66,052</td><td class="n hlc"><b>₹85,729</b></td><td class="n">₹110,219</td><td class="n">₹100,287</td><td class="n">₹114,939</td></tr>
+        <tr><td class="lbl">Max drawdown</td><td class="n neg">−₹11,860</td><td class="n neg">−₹7,527</td><td class="n neg hlc"><b>−₹5,523</b></td><td class="n neg">−₹9,515</td><td class="n neg">−₹5,523</td><td class="n neg">−₹5,523</td></tr>
+        <tr><td class="lbl">Worst trade</td><td class="n neg">−₹8,529</td><td class="n neg">−₹7,243</td><td class="n neg hlc">−₹5,523</td><td class="n neg">−₹9,515</td><td class="n neg">−₹5,523</td><td class="n neg">−₹5,523</td></tr>
+        <tr><td class="lbl">Winners / losers</td><td class="n">42 / 24</td><td class="n">33 / 12</td><td class="n hlc">28 / 8</td><td class="n">29 / 7</td><td class="n">29 / 7</td><td class="n">29 / 7</td></tr>
+        <tr><td class="lbl">Win rate</td><td class="n">64%</td><td class="n">73%</td><td class="n hlc">78%</td><td class="n">81%</td><td class="n">81%</td><td class="n">81%</td></tr>
+        <tr><td class="lbl">Profit factor</td><td class="n">1.67</td><td class="n">3.20</td><td class="n hlc">5.67</td><td class="n">4.68</td><td class="n">6.47</td><td class="n">7.23</td></tr>
+        <tr><td class="lbl">Losing years</td><td class="n">1</td><td class="n">1</td><td class="n hlc">0</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td class="lbl">With 0.5-pt slippage per leg</td><td class="n">₹33,318</td><td class="n">₹56,492</td><td class="n hlc">₹77,669</td><td class="n">₹102,159</td><td class="n">₹92,227</td><td class="n">₹106,879</td></tr>
+        <tr><td class="lbl">Largest possible loss,<br>rich-credit trade (lot 65)</td><td class="n">≈ ₹10,000</td><td class="n">≈ ₹10,000</td><td class="n hlc">≈ ₹13,600</td><td class="n">≈ ₹18,800</td><td class="n">≈ ₹17,900</td><td class="n">≈ ₹22,500</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Net P&amp;L by entry year (trades)</th><th class="n">2021</th><th class="n">2022</th><th class="n">2023</th><th class="n">2024</th><th class="n">2025</th><th class="n">2026 (to Aug)</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">1 · No filter</td><td class="n">₹5,147 (12)</td><td class="n neg">−₹3,592 (11)</td><td class="n">₹4,587 (12)</td><td class="n">₹3,146 (12)</td><td class="n">₹31,955 (12)</td><td class="n">₹6,055 (7)</td></tr>
+        <tr><td class="lbl">2 · Earlier rule</td><td class="n">₹12,063 (7)</td><td class="n neg">−₹3,307 (5)</td><td class="n">₹5,447 (9)</td><td class="n">₹7,126 (10)</td><td class="n">₹33,746 (9)</td><td class="n">₹10,977 (5)</td></tr>
+        <tr class="hl"><td class="lbl">3 · 400-pt when rich</td><td class="n">₹9,624 (5)</td><td class="n">₹676 (4)</td><td class="n">₹11,201 (7)</td><td class="n">₹8,192 (6)</td><td class="n">₹39,122 (9)</td><td class="n">₹16,914 (5)</td></tr>
+        <tr><td class="lbl">5 · 500-pt when rich</td><td class="n">₹12,571 (5)</td><td class="n">₹854 (4)</td><td class="n">₹12,474 (7)</td><td class="n">₹9,345 (6)</td><td class="n">₹44,008 (9)</td><td class="n">₹21,035 (5)</td></tr>
+        <tr><td class="lbl">6 · 600-pt when rich</td><td class="n">₹15,404 (5)</td><td class="n">₹1,607 (4)</td><td class="n">₹13,444 (7)</td><td class="n">₹10,310 (6)</td><td class="n">₹48,931 (9)</td><td class="n">₹25,242 (5)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="h-small">
+  <div class="sec-head">
+    <span class="eyebrow">Small print</span>
+    <h2 id="h-small">Details the numbers rest on</h2>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Item</th><th>What happened</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">December 2022</td><td>No option data in Breeze. It would have been a 300-point trade; StockMock shows a loss of ₹1,925 before costs</td><td>Counting it, 2022 becomes a small losing year and the drawdown is about −₹5,800</td></tr>
+        <tr><td class="lbl">November 2023</td><td>The month's stop-loss trade is skipped by a 10-day move of +2.01%, which is 0.01 above the limit</td><td>At 2.00% it is a 300-point trade losing ₹7,243; drawdown about −₹7,400</td></tr>
+        <tr><td class="lbl">June 2023</td><td>Passes the 160-point credit floor by 0.2 of a point</td><td>It is the second-largest loss, −₹3,731</td></tr>
+        <tr><td class="lbl">September 2024</td><td>Fails the floor at 158.6 points; one hedge price looks like a bad print</td><td>A ₹859 winner is skipped</td></tr>
+        <tr><td class="lbl">August 2026</td><td>The worst trade passes every test: move −0.07%, credit 43.6%</td><td>−₹5,523. It is the drawdown of the rule</td></tr>
+        <tr><td class="lbl">Data source</td><td>The 10-day move uses NSE's official close. Breeze's last-traded close differs by a few points</td><td>With Breeze closes, November 2023 read +1.99% and would have been traded</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="h-other">
+  <div class="sec-head">
+    <span class="eyebrow">Other evidence</span>
+    <h2 id="h-other">Other periods, timing and BANKNIFTY</h2>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Test</th><th>Result</th><th>Reading</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">2019–2020,<br>earlier rule</td><td>15 trades, −₹7,579, drawdown −₹18,795 (lot 75). No filter: −₹34,106</td><td>The earlier rule lost money in these years. A fast 6–9% fall hits the stop even from a calm start</td></tr>
+        <tr><td class="lbl">2019–2020,<br>credit test (400-pt)</td><td>4 trades, +₹7,040, drawdown −₹1,986</td><td>The credit floor kept the rule out of the losing months, but only 4 of 23 months pass, so these years barely test it</td></tr>
+        <tr><td class="lbl">Entry 50–52 DTE,<br>exit 25 DTE, 40% target</td><td>±2.5% &amp; credit ≥ 42%: ₹50,978, drawdown −₹7,491, against ₹75,635 / −₹6,976 at the current timing</td><td>Worse under every filter: most of the profit is made between 25 and 18 days to expiry</td></tr>
+        <tr><td class="lbl">BANKNIFTY,<br>1,000-pt hedges</td><td>±2.5% filter: 34 trades, ₹35,593, drawdown −₹13,944</td><td>About half of NIFTY's profit for nearly twice the drawdown; 500-point hedges barely cover costs</td></tr>
+        <tr><td class="lbl">BANKNIFTY as<br>an alternative</td><td>Both indices pass the filter in 32 months; only 4 pass on BANKNIFTY alone, and those lost money</td><td>It adds size, not diversification: 7 of NIFTY's 10 worst months also lose on BANKNIFTY</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Tested and not adopted: gap-up and gap-down exits, early loss stops, extra hedges on a breach, closing one side, profit lock-in, 21-DTE exit, 40-delta and 10-delta strikes, delayed entry and credit spreads in skipped months, a credit filter in the months beyond ±2.5%, VIX and moving-average filters. None improved both profit and drawdown.</p>
+</section>
+
+<section aria-labelledby="h-checks">
+  <div class="sec-head">
+    <span class="eyebrow">Validation</span>
+    <h2 id="h-checks">What has been checked</h2>
+  </div>
+  <ul class="checks">
+    <li><span class="mark ok" aria-label="done">✓</span><p><b>Prices confirmed against three manual StockMock runs</b> (200, 300 and 400-point hedges). On the 400-point run, all 65 common trades exited for the same reason, and 56 of the 59 with identical strikes matched within 5 points.</p></li>
+    <li><span class="mark ok" aria-label="done">✓</span><p><b>10-day move taken from NSE's official closes</b>, the same source the forward test reads each month.</p></li>
+    <li><span class="mark ok" aria-label="done">✓</span><p><b>Lot sizes by expiry</b> confirmed with NSE circulars: 50, then 25 for June 2024 to January 2025, then 75, then 65.</p></li>
+    <li><span class="mark ok" aria-label="done">✓</span><p><b>Bad prices rejected</b>: an entry price more than 15 minutes late, or a hedge priced at or above its sold leg, is not used.</p></li>
+    <li><span class="mark wait" aria-label="pending">…</span><p><b>Still open:</b> real bid-ask spreads and margin on the hedges, which only the forward test can show.</p></li>
+  </ul>
+</section>
+
+<section aria-labelledby="h-risks">
+  <div class="sec-head">
+    <span class="eyebrow">Before real money</span>
+    <h2 id="h-risks">Risks and limits</h2>
+  </div>
+  <ul class="risks">
+    <li><b>A bad rich-credit month has not been seen yet.</b> A 400-point condor can lose about ₹13,600 a lot; no rich-credit month in the backtest lost more than about ₹1,600.</li>
+    <li><b>Thresholds fitted on this data.</b> Four numbers (2%, 45%, 40%, 60% target) were chosen after seeing 2021–26, and several results hang on one trade.</li>
+    <li><b>Few trades.</b> About six a year, 36 in total. Close to half the profit came from 2025.</li>
+    <li><b>A harder period exists.</b> In 2019–20 the earlier rule had a drawdown of about ₹19,000 a lot.</li>
+    <li><b>Slippage and margin.</b> Each condor has 8 order legs; 1 point per leg takes about ₹16,000 off the six-year total. Check margin in the broker's calculator.</li>
+    <li><b>Modest returns on capital.</b> About ₹15,000 a year in the backtest is 3–5% a year on ₹3–5L. More lots or a wider hedge scale profit, drawdown and the worst case together.</li>
+  </ul>
+</section>
+
+<section aria-labelledby="h-next">
+  <div class="sec-head">
+    <span class="eyebrow">Action items</span>
+    <h2 id="h-next">Next steps</h2>
+  </div>
+  <ol class="steps">
+    <li><b>Forward test with 1 lot</b> using the rule above. The next decision is in mid-November 2026, for the December expiry.</li>
+    <li><b>Shadow-log the earlier rule every month</b>, including this October's 300-point condor (time exit 5 November 2026).</li>
+    <li><b>Keep a journal</b>: bid, ask and fill of every leg at entry and exit, margin blocked, the 400-point credit, and the exit reason.</li>
+    <li><b>Flag borderline readings</b>: a 10-day move within 0.1 of ±2%, or a credit within a few points of 160 or 180.</li>
+    <li><b>Decide in advance what would stop the test</b>, for example a drawdown beyond about ₹19,000 a lot or slippage above 1 point per leg.</li>
+    <li><b>Review the hedge width after 6–12 months</b> (around April–October 2027): 400 against 600 points, with real fills and margin.</li>
+  </ol>
+</section>
+
+<footer>
+  <span>Data: ICICI Breeze 1-minute option candles; NSE official daily index closes; StockMock reference and manual exports. Costs modelled at ≈ ₹250 per condor (brokerage, STT, exchange, SEBI, stamp, GST).</span>
+  <span>Backtest results are not a forecast and not investment advice.</span>
+</footer>
+
+</div>
