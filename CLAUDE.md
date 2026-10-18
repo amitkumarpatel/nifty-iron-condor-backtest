@@ -658,12 +658,20 @@ winners from losers – correlation with P&L 0.21, winners average 46.0% vs lose
 3 / 1 +₹8,901 (5, 13, 17, 63). Cumulative: >=45% 10 tr −₹5,837; >=46% −₹2,689; >=47% +₹83; >=48% 4 tr +₹8,901 / worst −₹1,673 – the only
 positive cut, and it is the known knife edge (trade 16 at 47.9% = −₹6,074; same finding as 8-Oct "rich credit at any move"). 2019–20 beyond
 ±2.5% (8 months, 400-pt): only 2004 is >= 48% (50.4%, +₹8,450); 2011 at 46.0% −₹9,068, 2007 at 45.9% +₹2,771. Not adopted; do not re-test.
-50-DTE ENTRY / 25-DTE EXIT / TP 40% TEST – SET UP 16-Oct-2026 (user request, on the 400-pt C/W variants), waiting for downloads. User chose
+50-DTE ENTRY / 25-DTE EXIT / TP 40% TEST (user request 16-Oct-2026, on the 400-pt C/W variants; 400-pt data downloaded, 300-pt not). User chose
 the Monday seven weeks before the expiry week (52 DTE for Thursday expiries, 50 for Tuesday) over exact 50 DTE (would be Wednesdays).
 Trade set w7 (make_trades --entry-weeks 7; 68 trades incl. the Apr-2026 expiry; entries 7 days before the reference, 8 for 2208/2504);
 strike set d30_w7 to select (~1,300 calls); candles 400-pt ≈ 1,700 calls, 300-pt hedges ≈ 850 more (for the 300-pt tier). New per-run
 settings IC_EXIT_DTE / --exit-dte and IC_TP / --tp (defaults 18 / 50; NIFTY reports byte-identical before/after, checked 16-Oct-2026).
 Note: holding period 52→25 = 27 days ≈ current 45→18; TP 40% and exit 21+ DTE were each worse on the current timing.
+RESULT (18-Oct-2026, 400-pt, 64 common expiries, output/entry50_exit25_tp40_400pt.xlsx; n / net / max DD / losing years) – NOT ADOPTED, do not
+re-test: the requested timing (Monday 7 weeks before = 50–52 DTE, exit 25 DTE, TP 40%, SL 100%) is much worse under every filter. ±2.5% & C/W>=42%:
+38 / ₹50,978 / −₹7,491 / 2 vs current (43–45 → 18 DTE, TP 50%) 36 / ₹75,635 / −₹6,976 / 1. ±2% & C/W>=45%: 20 / ₹43,505 / −₹6,557 / 2 vs 17 / ₹55,646 /
+−₹1,558 / 0. ±2.5% only: 45 / ₹36,448 / −₹13,433 / 3 vs 44 / ₹83,114 / −₹9,814 / 1. No filter: ₹10,332 / −₹20,275 vs ₹59,670 / −₹14,946.
+Which part does the damage (±2.5% only, 400-pt): TP 50 → 40 at the current timing −₹8.5k (₹74,648); exit 18 → 25 DTE at the current entry
+−₹37.4k (₹45,692, 0 targets, 14 days held); entry a week earlier with exit 25 ₹39,726 – the extra early week adds nothing. The profit is
+made between 25 and 18 DTE. Earlier strikes are also thinner (14 trades on fallback strikes vs 2; 563 non-exact prices vs 378; 4 not run).
+Credit a little higher (187.5 vs 180.2 pts, C/W 46.9% vs 45.0%). TP 60% at the current timing ₹88,104 (±2.5%) – same as found before.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
