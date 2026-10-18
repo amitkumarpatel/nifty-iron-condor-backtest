@@ -200,7 +200,8 @@ def fwd_text(cfg):
     w, n = int(cfg.FWD_SIGNAL_WIDTH), int(cfg.HEDGE_WIDTH)
     rich, floor = cfg.FWD_WIDE_MIN_CREDIT_PCT * w / 100, cfg.FWD_MIN_CREDIT_PCT * w / 100
     return [
-        f"credit test: net credit of the {w}-pt condor at entry (the signal; it is priced, not traded)",
+        f"credit test: net credit of the {w}-pt condor at entry"
+        + (" (also the condor traded when credit is rich)" if w in wide_widths(cfg) else " (the signal; it is priced, not traded)"),
         f"1. |10-day move| <= {cfg.FWD_WIDE_MOVE_PCT}% and that credit >= {rich:.0f} pts ({cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}% of {w})"
         f" -> {wide_label(cfg)} condor{'s (paper trade each)' if len(wide_widths(cfg)) > 1 else ''}, target {cfg.FWD_WIDE_TP_FRACTION:.0%} of credit",
         f"2. else |10-day move| <= {cfg.FWD_NARROW_MOVE_PCT}% and that credit >= {floor:.0f} pts ({cfg.FWD_MIN_CREDIT_PCT:.0f}%)"
@@ -494,7 +495,7 @@ def cmd_strikes(cfg, a):
 
     signal, narrow, wides = int(cfg.FWD_SIGNAL_WIDTH), int(cfg.HEDGE_WIDTH), wide_widths(cfg)
     legs_s, notes_s = build(signal, show=True)
-    built = {w: build(w, show=False) for w in wides + [narrow]}
+    built = {w: ((legs_s, notes_s) if w == signal else build(w, show=False)) for w in wides + [narrow]}
 
     # 10-day move for the decision: closes before the snapshot day (NSE), unless given with --move
     if a.move is not None:
@@ -528,7 +529,7 @@ def cmd_strikes(cfg, a):
               f"(|10-day move| limit {lim}%)")
 
     saved = []
-    if legs_s is not None:
+    if legs_s is not None and signal not in wides:     # the signal condor is printed with the others when it is traded
         saved += [(signal, r) for r in report(signal, legs_s, notes_s, tp_fraction(cfg, signal),
                                               f"{signal}-pt condor (credit test only - not traded)")]
     for w in wides + [narrow]:
@@ -537,6 +538,7 @@ def cmd_strikes(cfg, a):
             print(f"\n{w}-pt condor cannot be priced: {'; '.join(notes_x)}")
             continue
         role = " - CHOSEN" if widths and w in widths else (" (shadow log / earlier rule)" if w == narrow else " (not chosen)")
+        role += " - also the credit test" if w == signal else ""
         saved += [(w, r) for r in report(w, legs_x, notes_x, tp_fraction(cfg, w), f"{w}-pt condor{role}")]
     print("\nThese are the strikes the rules point to, not an instruction to trade. NSE's website chain can lag "
           "a few minutes; confirm live prices in the broker terminal before paper-filling.")

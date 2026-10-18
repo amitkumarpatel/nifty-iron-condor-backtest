@@ -29,12 +29,11 @@ Full user documentation: README.md. All settings: `ic/config.py`.
   above the bought call (all 7 losses) had a >= 1% gap-up first; with the gap-up exit max DD −₹7.5k → −₹5.5k and
   profit ₹66,052 → ₹68,023 (300-pt, filter). Late warning: NIFTY closing above the bought call (trades 30, 52 had no gap).
 
-## Forward-test rule set (ADOPTED 10-Oct-2026; VARIANT 6 = 600-pt wide condor FINALISED by the user 12-Oct-2026; README §1b; `FWD_*` in config)
+## Forward-test rule set (ADOPTED 10-Oct-2026; wide condor = 400-pt (VARIANT 3) since 18-Oct-2026, user's decision; README §1b; `FWD_*` in config)
 Used by the forward-test skill only – `backtest.py` defaults stay the earlier rule above (300-pt, ±2.5%), kept as the comparison.
 - Evening before entry: 10-day move (NSE official closes). At 11:16: net credit of the 400-pt condor (30Δ sold legs, hedges 400 pts
-  out) = the CREDIT TEST ONLY (`FWD_SIGNAL_WIDTH` = 400; priced, not traded).
-- |move| <= 2% AND that credit >= 180 pts (45% of 400) → 600-pt IC (`FWD_WIDE_WIDTHS` = [600], "variant 6"), **target 60%** of its
-  own credit.
+  out) = the credit test (`FWD_SIGNAL_WIDTH` = 400) and, when rich, also the trade.
+- |move| <= 2% AND that credit >= 180 pts (45% of 400) → 400-pt IC (`FWD_WIDE_WIDTHS` = [400], "variant 3"), **target 60%** of credit.
 - |move| <= 2% AND credit 160–180 pts (40–45%) → 300-pt IC, target 50%.
 - else skip. **Minimum-credit floor:** no IC of any width when the 400-pt credit is below 160 pts.
 - Stop 100% of credit, 15:16 daily check, 18-DTE time exit, 1 lot, fallback strikes – unchanged.
@@ -42,6 +41,8 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
 - USER DECISIONS: 11-Oct-2026 one ±2% limit for all widths (was ±1.5% for 300-pt); 12-Oct-2026 first "variant 5 and 6 in place of variant 3", then the same
   day "finalise version 6" → 600-pt only on rich months (500-pt can be logged again via FWD_WIDE_WIDTHS = [500, 600]). Do not re-open
   thresholds or widths unless the user asks.
+  18-Oct-2026: user switched the wide condor back to 400-pt – rule of thumb "maximum loss 2–3% of the account" (400-pt ≈ ₹13.6k/lot =
+  2.7% of ₹5L; 600-pt ≈ ₹22.5k = 4.5–7.5% of ₹3–5L). REVIEW the width after 6–12 months of forward testing (≈ Apr–Oct 2027).
 - Backtest 2021–26 (NSE closes, same 36 months = 17 rich + 19 at 300-pt; net / DD / PF / 0.5-pt slip): 400-pt (variant 3) ₹85,729 /
   −₹5,523 / 5.67 / ₹77,669; 500-pt (variant 5) ₹100,287 / −₹5,523 / 6.47 / ₹92,227; 600-pt (variant 6) ₹114,939 / −₹5,523 / 7.23 / ₹106,879.
   Max possible loss on a rich-month trade at lot 65 ≈ ₹13.6k / ₹17.9k / ₹22.5k – never tested: no rich month lost more than ≈ ₹2k.
@@ -52,8 +53,8 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
   missed); 4 and 31 in at 1.96%. Floor: trade 30 in at 40.05% (−₹3,731), 31 at 40.5%, 45 out at 39.6% (+₹859, odd hedge print). 45% line:
   53 at 45.7% (wide), 22 / 55 at 44.4 / 44.5% (300-pt, smaller losses). Trade 67 passes everything (move −0.07%, 43.6%). Thresholds
   fitted; ≈6 trades a year.
-- Tools (12-Oct-2026): ic_tools.py `strikes` prices the 400-pt credit-test condor, then the 600 and 300-pt condors; `check` uses
-  the 60% target for any condor >= 600 pts wide; journal template has credit_400/500/600/300_pts.
+- Tools (18-Oct-2026): ic_tools.py `strikes` prices the 400-pt condor (credit test and trade) and the 300-pt condor; `check` uses
+  the 60% target for any condor >= 400 pts wide; journal template has credit_400/500/600/300_pts.
 - Oct-2026 cycle (entry Mon 12-Oct-2026, expiry Mon 23-Nov-2026): 10-day move −2.35% → forward-test rule SKIPS; the earlier
   rule would TRADE the 300-pt IC → shadow-log it (time exit Thu 5-Nov-2026).
 
