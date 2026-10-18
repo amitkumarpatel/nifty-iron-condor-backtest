@@ -672,6 +672,13 @@ Which part does the damage (±2.5% only, 400-pt): TP 50 → 40 at the current ti
 −₹37.4k (₹45,692, 0 targets, 14 days held); entry a week earlier with exit 25 ₹39,726 – the extra early week adds nothing. The profit is
 made between 25 and 18 DTE. Earlier strikes are also thinner (14 trades on fallback strikes vs 2; 563 non-exact prices vs 378; 4 not run).
 Credit a little higher (187.5 vs 180.2 pts, C/W 46.9% vs 45.0%). TP 60% at the current timing ₹88,104 (±2.5%) – same as found before.
+RISK/REWARD 400-pt vs 600-pt on the forward-test rule (18-Oct-2026, output/risk_reward_400_vs_600.xlsx; 17 rich-credit months, TP 60%, rest of the
+rule 300-pt): whole rule ₹85,729 vs ₹114,939, both DD −₹5,523 (trade 67, 300-pt). Rich months: net ₹59,061 vs ₹88,271; W/L 14/3 vs 15/2; avg win
+₹4,407 vs ₹6,068, avg loss −₹879 vs −₹1,372; worst −₹1,558 vs −₹2,045. Per condor: credit 191.5 vs 254.1 pts, C/W 47.9% vs 42.3%, max loss 208.5 vs
+345.9 pts (₹13,554 vs ₹22,485 at lot 65), credit÷max loss 0.92 vs 0.74; a 100% stop = credit ≈ ₹12,446 vs ₹16,515 at lot 65. Profit ÷ average
+max loss 5.2× vs 4.7× (per rupee at risk 400 is slightly better); wins needed to repay one stop ≈ 2.8 vs 2.7, one max loss ≈ 3.1 vs 3.7.
+Worst intra-trade dip (MAE) only 37% (400, trade 21) / 34% (600) of max loss – no rich month came near a stop. 600 = more absolute profit,
+same efficiency or slightly worse per rupee at risk, ≈ 1.7× the worst case and the margin. User's call; config holds 600 (variant 6).
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
