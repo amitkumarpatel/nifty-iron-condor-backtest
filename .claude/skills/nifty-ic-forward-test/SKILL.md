@@ -19,14 +19,14 @@ Do not quote strategy numbers from memory. Take them from the `rules` output. Th
 
 ## The rule set being forward-tested (README section 1b)
 
-Adopted on 10-Oct-2026, finalised on 11-Oct-2026 (one ±2% limit for all widths) and on 18-Oct-2026 the wide condor was set to 400 points (the user tried 600 on 12-Oct, then went back to keep the maximum loss within 2–3% of the account; review in 6–12 months), from the October-2026 cycle. The numbers below are the values at adoption; `rules` prints the live ones from `ic/config.py` (`FWD_*`). If they differ, the `rules` output wins and the user should be told.
+Adopted on 10-Oct-2026, finalised on 11-Oct-2026 (one ±2% limit for all widths) and set to a **400-point condor on rich-credit months** on 18-Oct-2026, from the October-2026 cycle. A 600-point condor makes more profit in the backtest, but the user chose 400 points because of the lower risk: its largest possible loss stays within 2–3% of the account. The width is to be reviewed after 6–12 months of forward testing (around April–October 2027). The numbers below are the values at adoption; `rules` prints the live ones from `ic/config.py` (`FWD_*`). If they differ, the `rules` output wins and the user should be told.
 
 ### Two readings
 
 | When | Reading | How to get it |
 |---|---|---|
 | Evening before entry | NIFTY's 10-day move: last close against the close 10 trading days earlier | `filter --entry-date YYYY-MM-DD` |
-| 11:16 on the entry day | Net credit of the **400-point** condor: sold ~30-delta call and put, hedges 400 points further out. This condor is the credit test only; it is priced, not traded | `strikes --expiry YYYY-MM-DD` |
+| 11:16 on the entry day | Net credit of the **400-point** condor: sold ~30-delta call and put, hedges 400 points further out. This condor is the credit test and, when the credit is rich, the trade | `strikes --expiry YYYY-MM-DD` |
 
 ### Decision table
 
@@ -82,7 +82,7 @@ A shadow row holds the 300-point condor's strikes and 11:16 prices and has `shad
 
 ### Backtest of this rule set
 
-1 lot, net of costs, NSE official closes for the 10-day move, 60% target on the wide trades. The first table is the 400-point version (replaced on 12-Oct-2026), kept because the small print below was written for it; the second compares the widths on 2021–26. Files: `output/six_variant_comparison.xlsx`, `output/final_variant_comparison.xlsx`.
+1 lot, net of costs, NSE official closes for the 10-day move, 60% target on the 400-point trades. The first table is the rule being forward-tested; the second compares hedge widths on the same months. Files: `output/six_variant_comparison.xlsx`, `output/final_variant_comparison.xlsx`, `output/risk_reward_400_vs_600.xlsx`.
 
 | Period | Trades (400 / 300) | Net P&L | Max drawdown | Worst trade | Win rate | Profit factor |
 |---|---|---|---|---|---|---|
@@ -92,13 +92,34 @@ A shadow row holds the 300-point condor's strikes and 11:16 prices and has `shad
 
 Earlier rule (shadow log) on the same data: 2021–26 45 trades, ₹66,052, drawdown −₹7,527; 2019–26 60 trades, ₹58,472, drawdown −₹18,795.
 
-| Wide condor on the 17 rich-credit months (2021–26, same 36 trades) | Net P&L | Max drawdown | Profit factor | Largest possible loss on one rich-month trade (lot 65) |
+| Condor on the 17 rich-credit months (2021–26, same 36 trades in total) | Net P&L | Max drawdown | Profit factor | Largest possible loss on one rich-month trade (lot 65) |
 |---|---|---|---|---|
 | **400-point (chosen)** | ₹85,729 | −₹5,523 | 5.67 | about ₹13,600 |
 | 500-point (not chosen) | ₹100,287 | −₹5,523 | 6.47 | about ₹17,900 |
-| 600-point (review in 6–12 months) | ₹114,939 | −₹5,523 | 7.23 | about ₹22,500 |
+| 600-point (more profit, more risk; review in 6–12 months) | ₹114,939 | −₹5,523 | 7.23 | about ₹22,500 |
 
-The drawdown is identical because it comes from a 300-point trade. No rich-credit month in the backtest lost more than about ₹2,000, so the last column has never been tested. 2019–20 was only run at 400 points.
+The drawdown is identical because it comes from a 300-point trade. No rich-credit month in the backtest lost more than about ₹1,600 at 400 points (about ₹2,000 at 600), so the last column has never been tested. 2019–20 was only run at 400 points.
+
+### Why 400 points and not 600: risk to reward
+
+600 points gives the better profit in the backtest. 400 points is chosen because its risk is lower. The two trade the same months; only the 17 rich-credit trades differ.
+
+| On the 17 rich-credit months | 400-point (chosen) | 600-point |
+|---|---|---|
+| Net P&L | ₹59,061 | ₹88,271 |
+| Winners / losers | 14 / 3 | 15 / 2 |
+| Average win / average loss | ₹4,407 / −₹879 | ₹6,068 / −₹1,372 |
+| Average credit | 191.5 points | 254.1 points |
+| Largest possible loss per condor | 208.5 points, about ₹13,600 | 345.9 points, about ₹22,500 |
+| Loss at the 100% stop (= the credit) | about ₹12,400 | about ₹16,500 |
+| Credit ÷ largest possible loss | 0.92 | 0.74 |
+| Six-year profit ÷ largest possible loss | 5.2× | 4.7× |
+| Largest loss as % of ₹3L / ₹4L / ₹5L | 4.5% / 3.4% / 2.7% | 7.5% / 5.6% / 4.5% |
+| Account needed to stay within 3% / 2% | about ₹4.5L / ₹6.8L | about ₹7.5L / ₹11.2L |
+
+- The 600-point condor collects 33% more credit but can lose 66% more. Per rupee at risk it is slightly worse, so the extra profit is a bigger trade, not a better one.
+- The user's rule is that one trade's largest possible loss stays within 2–3% of the account. 600 points breaks it anywhere in ₹3–5L; 400 points meets it from about ₹4.5L.
+- The 300-point middle tier can lose about ₹10,400 a lot (2.1% of ₹5L).
 
 ### Small print behind the numbers
 
@@ -141,6 +162,7 @@ The data source decides these. With Breeze's last-traded close, trade 35 read +1
 - The four numbers (2%, 45%, 40%, 60% target) were chosen on this data, and the rule trades about six times a year. Treat the backtest as an upper bound.
 - No slippage is included: with 0.5 point per leg 2021–26 is ₹77,669; with 1 point ₹69,609.
 - Maximum loss per lot (lot 65): about ₹13,600 for the 400-point condor and ₹10,400 for the 300-point one. The user's limit is 2–3% of the account, so a rich-credit trade needs an account of about ₹4.5L or more. Say so if the account or the lot size changes.
+- If the user asks about going back to 600 points, give both sides: more profit in the backtest, but a largest possible loss of about ₹22,500 a lot, outside the 2–3% limit for ₹3–5L. The agreed plan is to review the width after 6–12 months of forward testing, with real fills and margin.
 - Widening the 300-point limit from ±1.5% to ±2% added six trades worth +₹4,382 (four winners; losers 22 and 55), with the same drawdown.
 
 ### What to do with this live
@@ -221,7 +243,7 @@ The rules call for ~30-delta sold CE and PE and bought legs `HEDGE_WIDTH` points
 python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py strikes --expiry YYYY-MM-DD --save journal/entry_quotes_N.csv
 ```
 
-It prints the five strikes nearest 0.30 delta on each side (Black-Scholes delta from the bid-ask mid, the same method as the backtest's `select_strikes.py`), then prices the 400-point credit-test condor and the 600 and 300-point condors, and prints:
+It prints the five strikes nearest 0.30 delta on each side (Black-Scholes delta from the bid-ask mid, the same method as the backtest's `select_strikes.py`), then prices the 400-point condor (the credit test, and the trade when the credit is rich) and the 300-point condor, and prints:
 
 - the **forward-test decision**: 400-point condor, 300-point condor or SKIP, with the reason (10-day move and the 400-point credit as points and as a percentage of width);
 - what the **earlier rule** would do, for the shadow log;
