@@ -1309,6 +1309,16 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   up to ₹19.7k (28: 200-pt inner gap); every trade a time exit – at 18 DTE the structure has barely moved (P&L −103 … +49 pts); a TP of 25% of
   max profit never fired. A ratio/butterfly earns in the last 2 weeks, which the 18-DTE exit gives away (holding longer needs data to
   expiry – not downloaded). Call broken-wing after a fall ("bounce"): 3 tr +₹509. Normal 30Δ/300 IC on the same months −₹18,755. Skipping = ₹0.
+  HEDGED RATIO SPREAD HELD TO EXPIRY IN THE SKIPPED MONTHS (21-Oct-2026; data to expiry downloaded for 16 months; broken-wing 1×2×1 in the
+  direction of the move: +1 30Δ, −2 20Δ, +1 20Δ±500; output/skipped_months_ratio_spread_to_expiry.xlsx; n=16, net / W-L / worst / DD):
+  exit 18 DTE −₹10,368 / 6-10 / −₹5,371 / −₹12,780; 7 DTE −₹9,173; 3 DTE +₹2,296 / DD −₹8,868; EXPIRY +₹18,089 / 4-12 / −₹5,971 / −₹13,108;
+  expiry + TP 50% of max profit +₹11,313 / DD −₹7,796; expiry + TP 25% −₹4,892; expiry + TP50 + SL 50% of max loss +₹7,006. By year (expiry):
+  2021 +₹16.2k, 2022 −₹5.3k, 2023 +₹1.2k, 2024 −₹1.1k, 2025 +₹12.1k, 2026 −₹4.9k. LOTTERY-LIKE: the 4 winners are the months NIFTY finished within
+  ≈200 pts of the sold strikes (57 +₹17.0k, 5 +₹13.2k, 28 +₹8.2k, 9 +₹4.2k = +₹42.7k); the other 12 lose about the debit (−₹0.5k…−₹3.1k; 33
+  −₹6.0k with a 115-pt debit) because the move reversed. The max-loss case (finish beyond the far hedge) never happened. Theoretical max
+  loss avg ₹11.5k, up to ₹19.7k (28, 200-pt inner gap). Whole strategy (45 months ±2.5% at 300-pt + these at expiry): ₹84,141 / DD −₹14,566
+  vs skipping ₹66,052 / −₹7,527. NOT ADOPTED yet: 16 trades, profit from 3–4 of them, exit chosen after seeing the results, 2019–20 not
+  tested (8 skipped months; needs data). Candidate to shadow-log in the forward test.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
