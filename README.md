@@ -1282,6 +1282,12 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   max loss 5.2× vs 4.7× (per rupee at risk 400 is slightly better); wins needed to repay one stop ≈ 2.8 vs 2.7, one max loss ≈ 3.1 vs 3.7.
   Worst intra-trade dip (MAE) only 37% (400, trade 21) / 34% (600) of max loss – no rich month came near a stop. 600 = more absolute profit,
   same efficiency or slightly worse per rupee at risk, ≈ 1.7× the worst case and the margin. User's call; config holds 600 (variant 6).
+  TREND-BIASED IC IN THE FILTER-SKIPPED MONTHS – RE-CHECKED 21-Oct-2026 (user asked again; same as the 29-Sep test, now with NSE closes and
+  the current engine; 300-pt; 21 months beyond ±2.5%, 19 with data): normal condor −₹18,755 (19 common −₹17,527); A = trend-side leg moved
+  out to 20Δ −₹27,207; B = trend side 20Δ + other side moved in to 35Δ −₹24,482. Whole strategy: skip ₹66,052 / −₹7,527; trade normal
+  ₹47,298 / −₹11,860; A ₹38,844 / −₹13,187; B ₹41,570 / −₹12,779. Shifting cuts the credit (≈145 → 89–121 pts) so reversals hit the stop
+  sooner (50: −₹2.4k → −₹9.8k / −₹10.4k; 48, 16, 8 stops). Helps the continued rallies (5, 36, 46, 28) but not enough. Do not re-test;
+  400-pt version would need 141–201 calls and has the same mechanics.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
