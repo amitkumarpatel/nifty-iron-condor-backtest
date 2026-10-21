@@ -1319,6 +1319,13 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   loss avg ₹11.5k, up to ₹19.7k (28, 200-pt inner gap). Whole strategy (45 months ±2.5% at 300-pt + these at expiry): ₹84,141 / DD −₹14,566
   vs skipping ₹66,052 / −₹7,527. NOT ADOPTED yet: 16 trades, profit from 3–4 of them, exit chosen after seeing the results, 2019–20 not
   tested (8 skipped months; needs data). Candidate to shadow-log in the forward test.
+  RATIO SPREAD TO EXPIRY – TRADE BY TRADE (21-Oct-2026, output/ratio_spread_trade_by_trade.xlsx): result is decided by where NIFTY finishes.
+  Near the sold strikes (±200 pts) 4 tr +₹42,656 (57, 5, 28, 9 – NIFTY carried on 2.8–6.5% in the direction; sold strikes were 3.5–6.6% away);
+  past the sold strike towards the hedge 1 tr −₹450 (46); never reached the bought strike (move stalled or reversed) 11 tr −₹24,117, each
+  ≈ the entry debit + costs (−₹670…−₹3,135; 33 −₹5,971 because its 500-pt inner gap made the debit 115 pts). Max-loss zone (beyond the far
+  hedge) never reached. Trades 36 and 12 were near the sold strike mid-trade (+5.4%, +4.6%) but reversed by expiry. After a RISE (call
+  version) 13 tr +₹23,654; after a FALL (put version) 3 tr −₹5,565 – the market bounced (52 +8.8%), as the direction study said. Entry VIX
+  and the 10-day move do not separate winners from losers; winners had cheaper entries (debit avg 17 vs 34 pts).
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
