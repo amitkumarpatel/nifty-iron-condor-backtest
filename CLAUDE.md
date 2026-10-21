@@ -692,6 +692,11 @@ not worth downloading. 20 tr −₹42,030 / 10 W / 10 L / worst −₹10,622 vs 
 After a rise 17 tr −₹33,552 (30Δ −₹15,664); after a fall 3 tr −₹8,478 (−₹3,694). Exits 7 stop / 6 target / 7 time. Credit 121 vs 144 pts
 but max loss 379 pts (≈ ₹24.6k at lot 65) – credit ÷ max loss 0.32. More winners, much bigger losers: stops at −100% to −147% (62, 52, 50,
 19, 8, 9, 36). Whole strategy: skip ₹66,052 / −₹7,527; add 30Δ/300 ₹46,694 / −₹11,860; add 20Δ/500 ₹24,023 / −₹22,305.
+20Δ / 500-PT IN SKIPPED MONTHS WITH TIGHTER STOPS (21-Oct-2026; output/skipped_months_20delta_500pt_stops.xlsx; 20 trades): SL 100% −₹42,029
+(7 stops); SL 75% −₹37,286 (10 stops, worst −₹9,182); SL 50% −₹31,253 (11 stops, worst −₹9,182) vs 30Δ/300-pt SL 100% −₹19,357. Whole strategy
+(45 months inside ±2.5% at 300-pt + these): SL 50% ₹34,799 / DD −₹18,648 vs skipping ₹66,052 / −₹7,527. Tighter stops cut the big losers
+(52 −₹10.3k → −₹5.9k, 62 −₹10.6k → −₹6.4k, 19, 8) but stop out a winner (12 +₹2.3k → −₹5.2k) and with one check a day the stop overshoots
+(50: −94% of credit at the 50% stop). Still far worse than skipping. Not adopted; do not re-test.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.

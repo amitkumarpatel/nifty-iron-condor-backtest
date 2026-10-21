@@ -1294,6 +1294,11 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   After a rise 17 tr −₹33,552 (30Δ −₹15,664); after a fall 3 tr −₹8,478 (−₹3,694). Exits 7 stop / 6 target / 7 time. Credit 121 vs 144 pts
   but max loss 379 pts (≈ ₹24.6k at lot 65) – credit ÷ max loss 0.32. More winners, much bigger losers: stops at −100% to −147% (62, 52, 50,
   19, 8, 9, 36). Whole strategy: skip ₹66,052 / −₹7,527; add 30Δ/300 ₹46,694 / −₹11,860; add 20Δ/500 ₹24,023 / −₹22,305.
+  20Δ / 500-PT IN SKIPPED MONTHS WITH TIGHTER STOPS (21-Oct-2026; output/skipped_months_20delta_500pt_stops.xlsx; 20 trades): SL 100% −₹42,029
+  (7 stops); SL 75% −₹37,286 (10 stops, worst −₹9,182); SL 50% −₹31,253 (11 stops, worst −₹9,182) vs 30Δ/300-pt SL 100% −₹19,357. Whole strategy
+  (45 months inside ±2.5% at 300-pt + these): SL 50% ₹34,799 / DD −₹18,648 vs skipping ₹66,052 / −₹7,527. Tighter stops cut the big losers
+  (52 −₹10.3k → −₹5.9k, 62 −₹10.6k → −₹6.4k, 19, 8) but stop out a winner (12 +₹2.3k → −₹5.2k) and with one check a day the stop overshoots
+  (50: −94% of credit at the 50% stop). Still far worse than skipping. Not adopted; do not re-test.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
