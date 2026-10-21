@@ -686,6 +686,12 @@ out to 20Δ −₹27,207; B = trend side 20Δ + other side moved in to 35Δ −�
 ₹47,298 / −₹11,860; A ₹38,844 / −₹13,187; B ₹41,570 / −₹12,779. Shifting cuts the credit (≈145 → 89–121 pts) so reversals hit the stop
 sooner (50: −₹2.4k → −₹9.8k / −₹10.4k; 48, 16, 8 stops). Helps the continued rallies (5, 36, 46, 28) but not enough. Do not re-test;
 400-pt version would need 141–201 calls and has the same mechanics.
+20Δ SOLD + 500-PT HEDGES IN THE FILTER-SKIPPED MONTHS (21-Oct-2026, user idea; strike set d20_skip, deltas 0.18–0.21; 20 of 21 months ran (1 no
+price), 4 on fallback strikes, 0 days with value > width; output/skipped_months_20delta_500pt.xlsx) – NOT ADOPTED, do not re-test, and 15Δ
+not worth downloading. 20 tr −₹42,030 / 10 W / 10 L / worst −₹10,622 vs the normal 30Δ/300-pt on the same months −₹19,358 / 8 W / 12 L.
+After a rise 17 tr −₹33,552 (30Δ −₹15,664); after a fall 3 tr −₹8,478 (−₹3,694). Exits 7 stop / 6 target / 7 time. Credit 121 vs 144 pts
+but max loss 379 pts (≈ ₹24.6k at lot 65) – credit ÷ max loss 0.32. More winners, much bigger losers: stops at −100% to −147% (62, 52, 50,
+19, 8, 9, 36). Whole strategy: skip ₹66,052 / −₹7,527; add 30Δ/300 ₹46,694 / −₹11,860; add 20Δ/500 ₹24,023 / −₹22,305.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
