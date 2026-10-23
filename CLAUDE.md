@@ -732,6 +732,20 @@ pts (sold put 3.9% below spot vs 2.2% for 30Δ) against a max loss of 170 / 258 
 0.16; average win ₹807 / ₹1,190 vs average loss −₹2,161 / −₹2,823. Same 6 losers at both widths (12, 16, 33, 48, 50, 62 – the reversal
 months), stops overshoot to −102%…−202% of credit. By entry period 2021–23 +₹2.3k / +₹4.2k, 2024–26 −₹5.6k / −₹6.8k. 0.5-pt slippage per leg
 → −₹5.2k / −₹4.6k. Not adopted; improvement ideas (VIX/50-DMA condition, lower target, NIFTY-level stop) still to revisit.
+PUT SPREAD AFTER A RISE – FILTERS TO SKIP REVERSALS AND EARLY EXITS (23-Oct-2026, user request; 18 months 2021–26; 20Δ 200 / 20Δ 300 / 30Δ 300;
+output/put_spread_filters_and_exits.xlsx; n / net / W-L / DD). Base TP50 SL100: 20Δ200 −₹3,286 / 12-6 / −₹7,765; 20Δ300 −₹2,657 / −₹9,548; 30Δ300
+−₹5,024 / −₹14,970. All 6 losers (12, 16, 33, 48, 50, 62) came after a 10-day rise in which VIX FELL 9.6–24.5% and NIFTY was barely above its
+50-DMA (avg +0.6% vs +3.5% for winners); their last-5-day move was small (avg +0.7% vs +2.5%) = the rally had already stalled.
+ENTRY FILTERS (TP50 SL100): VIX not down >10% in 10 days → 8 tr, 7-1: 20Δ200 +₹3,821 / −₹1,568; 20Δ300 +₹6,827 / −₹1,206; 30Δ300 +₹8,252 / −₹2,774.
+5-day move > +1% → 13 tr, 11-2: +₹5,469 / −₹1,891; +₹8,383 / −₹2,573; +₹12,672 / −₹3,630 (best balance of trades and result). 5-day > +1.5% 12 tr
++₹4,626 / +₹7,159 / +₹10,795. NIFTY > 50-DMA by >2% 7 tr 6-1; >4% 6 tr 6-0; 60-day move > +2% 7 tr 6-1; 20-day move > +2% no help. VIX > −5% or
+50-DMA > 4%: 6 tr all winners (knife edge, tiny). EXITS (no filter): lower target + 50% stop helps – TP40 SL50 20Δ200 +₹3,224 / −₹1,848, 20Δ300
++₹4,001 / −₹2,724; TP30 SL50 30Δ300 +₹4,244 / −₹4,347; SL 75% is worse than 50% and 100%; NIFTY-level exits (close below entry −2/−3%, below the
+sold put) only trim the 30Δ DD (−₹15.0k → −₹6.5k…−₹9.7k) with no profit; gap-down 1% exit much worse. COMBINED: mv5>1 + TP40 SL50 20Δ300 13 tr
++₹6,471 / −₹1,799; 30Δ300 +₹7,783 / −₹2,493 (TP50 SL100 with mv5>1 is as good). 2019–20 CHECK (30Δ put spread, 5 rise months, all 5 targets: 300-pt
++₹13,155, 400-pt +₹16,856): no losers there, so the filters only cut winners (VIX filter keeps 3, −₹5.2k; mv5>1 keeps 3; 50-DMA>2% keeps all 5).
+CAVEATS: 18 trades / 6 losers, thresholds read off the same data; VIX filter passes 0 of 4 rise months in 2025–26. Not adopted – best
+candidates to shadow-log: 5-day move > +1% at entry (and/or VIX not down >10%), 20Δ or 30Δ sold put, 300-pt hedge.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
