@@ -724,6 +724,14 @@ past the sold strike towards the hedge 1 tr −₹450 (46); never reached the bo
 hedge) never reached. Trades 36 and 12 were near the sold strike mid-trade (+5.4%, +4.6%) but reversed by expiry. After a RISE (call
 version) 13 tr +₹23,654; after a FALL (put version) 3 tr −₹5,565 – the market bounced (52 +8.8%), as the direction study said. Entry VIX
 and the 10-day move do not separate winners from losers; winners had cheaper entries (debit avg 17 vs 34 pts).
+PUT CREDIT SPREAD AFTER A RISE WITH A 20Δ SOLD PUT (23-Oct-2026, user request; 18 skipped months after a 10-day rise > 2.5%, 2021–26; TP 50% /
+SL 100% of own credit, 18 DTE; all 18 ran; output/put_spread_20delta_vs_30delta_skipped_months.xlsx; net / W-L / max DD / worst / PF):
+20Δ 200-pt −₹3,286 / 12-6 / −₹7,765 / −₹3,210 / 0.75; 20Δ 300-pt −₹2,657 / 12-6 / −₹9,548 / −₹4,607 / 0.84; vs 30Δ 200-pt −₹10,238 / 10-8 /
+−₹13,253; 30Δ 300-pt −₹5,024 / 12-6 / −₹14,970. Drawdown about halves and the total loss shrinks, but it is still a loss: credit only 30 / 42
+pts (sold put 3.9% below spot vs 2.2% for 30Δ) against a max loss of 170 / 258 pts (≈ ₹11.1k / ₹16.8k at lot 65) – credit ÷ max loss 0.18 /
+0.16; average win ₹807 / ₹1,190 vs average loss −₹2,161 / −₹2,823. Same 6 losers at both widths (12, 16, 33, 48, 50, 62 – the reversal
+months), stops overshoot to −102%…−202% of credit. By entry period 2021–23 +₹2.3k / +₹4.2k, 2024–26 −₹5.6k / −₹6.8k. 0.5-pt slippage per leg
+→ −₹5.2k / −₹4.6k. Not adopted; improvement ideas (VIX/50-DMA condition, lower target, NIFTY-level stop) still to revisit.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
