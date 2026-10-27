@@ -108,7 +108,7 @@ Backtest 2021–26 (1 lot, net, the 30 months the condor rule skips; `output/put
 
 Why 200 and not 300: 300 points makes about ₹4k more over six years, but only because each trade carries about 50% more risk; per rupee at risk it is slightly worse, and its largest loss breaks the 2–3% rule. Same reasoning as 400 vs 600 for the condor; review both widths together.
 
-Small print: the 5-day filter was chosen on these 30 months; only 3 put spreads lost, so the stop is barely tested; the profit per trade is small (≈ ₹485), so fills matter. The 20-delta version has **not** been tested on 2019–20 yet; a 30-delta preview there lost money in the thin-credit months (stops in Jul-19, Aug-19, Feb-20, Mar-20, Sep-20). Tell the user if that test is still pending.
+Small print: the 5-day filter was chosen on these 30 months; only 3 put spreads lost, so the stop is barely tested; the profit per trade is small (≈ ₹485), so fills matter. 2019–20 out of sample (27-Oct-2026, lot 75, 5-day filter): 200-point 15 trades +₹2,795, 12–3, drawdown −₹5,280; 300-point 17 trades +₹9,285, drawdown −₹7,028. Losers Jul-19, Sep-19 and Sep-20 (falls of 3–6%). The Mar-2020 crash month had no price and could not be tested. With the 4 condors of those years: +₹9,835, drawdown −₹5,280 (200-point).
 
 ### Same for both widths
 

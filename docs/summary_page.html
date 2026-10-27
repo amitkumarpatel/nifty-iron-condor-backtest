@@ -330,7 +330,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
     <li><b>Adds about ₹12k with no deeper drawdown</b>: the combined drawdown is still August 2026's condor (−₹5,523), and every year stays positive.</li>
     <li><b>Small trades.</b> About ₹485 profit per trade, so fills and slippage matter; with 0.5 point per leg the 200-point result falls to about ₹8.9k.</li>
     <li><b>The 5-day filter was chosen on these same 30 months</b>, and only 3 put spreads lost, so the stop is barely tested.</li>
-    <li><b>2019–20 not yet tested at 20 delta.</b> A 30-delta preview there lost money in the thin-credit months (stops in Jul-19, Aug-19, Feb-20, Mar-20, Sep-20).</li>
+    <li><b>2019–20 out of sample:</b> 15 put spreads +₹2,795, 12 winners, drawdown −₹5,280 (lot 75); with that period's 4 condors +₹9,835. The losers were the 3–6% falls of Jul-19, Sep-19 and Sep-20. The March 2020 crash month had no price and could not be tested.</li>
   </ul>
 </section>
 
@@ -450,8 +450,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   </div>
   <ol class="steps">
     <li><b>Forward test with 1 lot</b> using the rules above: the condor, or the 20-delta / 200-point put spread in a month without one. The next decision is on Monday 16 November 2026, for the 29 December expiry.</li>
-    <li><b>Test the 20-delta put spread on 2019–20</b> (needs a Breeze download) before trusting it.</li>
-    <li><b>Shadow-log the earlier rule every month</b>, including this October's 300-point condor (time exit 5 November 2026).</li>
+        <li><b>Shadow-log the earlier rule every month</b>, including this October's 300-point condor (time exit 5 November 2026).</li>
     <li><b>Keep a journal</b>: bid, ask and fill of every leg at entry and exit, margin blocked, the 400-point credit, and the exit reason.</li>
     <li><b>Flag borderline readings</b>: a 10-day move within 0.1 of ±2%, or a credit within a few points of 160 or 180.</li>
     <li><b>Decide in advance what would stop the test</b>, for example a drawdown beyond about ₹19,000 a lot or slippage above 1 point per leg.</li>

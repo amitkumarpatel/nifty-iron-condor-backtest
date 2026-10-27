@@ -811,6 +811,17 @@ rise > 2.5% months with 5-day move <= +1% (9, 16, 48, 50, 62); output/combined_i
 IC only 36 / ₹85,729 / 28-8 / −₹5,523 / −₹5,523 / 5.67. + PCS 200-pt 61 / ₹97,843 / 50-11 / −₹5,523 / −₹5,523 / 5.27. + PCS 300-pt (41 no price) 60 /
 ₹102,075 / 49-11 / −₹5,523 / 5.18. The put spreads add ₹12.1k / ₹16.3k without deepening the drawdown (still trade 67); every year positive (2022:
 IC +₹0.7k, PCS +₹4.5k / +₹6.5k). CAVEAT: 5-day filter fitted on these months; 2019–20 not tested at 20Δ (30Δ preview lost in thin-credit months).
+20Δ PUT CREDIT SPREAD IN THE 2019–20 FORWARD-RULE SKIPPED MONTHS (27-Oct-2026; strike set d20_2019_2020, deltas 0.18–0.22; lot 75; TP50 SL100,
+18 DTE; output/put20_credit_spread_2019_2020_skipped_months.xlsx; n / net / W-L / DD / worst). 20 skipped months; not run: 2003 (Mar-2020 crash, no
+price), 1905 and 2004 at 200-pt (no hedge price; fallback not simulated). 5-DAY FILTER (removes 1911, 2006 – both winners): 200-pt 15 / +₹2,795 /
+12-3 / −₹5,280 / −₹4,487; 300-pt 17 / +₹9,285 / 14-3 / −₹7,028 / −₹6,349. No filter: 200-pt 17 / +₹5,064; 300-pt 19 / +₹12,529. Losers: 1907
+(Jul-19, −3.1% fall, −₹3,052 / −₹4,169), 1909 (Sep-19, −3.4% in 3 days, −₹2,334 / −₹3,210), 2009 (Sep-20, −5.8%, −₹4,487 / −₹6,349; stops at −112…−212%
+of credit). By group (200-pt, filtered): rise > 2.5% 4 / +₹4,789 / 4-0; C/W < 40% 9 / +₹29 / 7-2; move 2–2.5% 2 / −₹2,023. Feb-2020 (2002) took its
+target on 12-Feb, before the COVID fall (30Δ: −₹5,694 stop). 30Δ preview on the same months: 300-pt 18 / +₹1,639 / DD −₹15,388 → 20Δ is much safer.
+Combined with the 4 forward-rule condors (+₹7,040): 200-pt 19 tr +₹9,835 / DD −₹5,280 (2019 +₹2.3k, 2020 +₹7.5k); 300-pt 21 tr +₹16,325 / DD −₹7,028.
+Risk per lot at 75: ≈ ₹13.0k (200) / ₹19.6k (300). On top of 5-day: above 50-DMA 11 tr +₹6,586 (200); VIX not down >10% 7 tr +₹863 – no help.
+VERDICT: the 20Δ/200 put spread with the 5-day filter stays profitable out of sample (small, +₹2.8k), with a drawdown inside the 2021–26 condor's
+−₹5.5k; thin-credit calm months are about break-even. Caveat: the crash month 2003 could not be priced (30Δ lost −₹5,315 there).
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
