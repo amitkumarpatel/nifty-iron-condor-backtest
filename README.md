@@ -82,8 +82,27 @@ test and, when the credit is rich, the trade.
 |---|---|---|---|
 | within ±2% | 180 points or more (≥ 45% of width) | **400-point condor** | **60%** of credit |
 | within ±2% | 160–180 points (40–45%) | **300-point condor** | 50% of credit |
-| within ±2% | below 160 points (< 40%) | **Skip** – minimum-credit floor | – |
-| beyond ±2% | any | **Skip** | – |
+| within ±2% | below 160 points (< 40%) | no condor (floor) → **put credit spread** (below) | 50% of its credit |
+| beyond ±2% | any | no condor → **put credit spread** (below) | 50% of its credit |
+
+**Put credit spread in the months the condor rule skips** (added 27-Oct-2026, user's decision; `FWD_PCS_*`):
+
+| Condor skipped and … | Action |
+|---|---|
+| 10-day move above +2.5% **and** last 5 days +1% or less (rally has stalled) | **Skip the month** |
+| anything else (strong rise, 2–2.5% band either way, a fall, thin credit) | **Sell the ~20-delta put, buy the put 200 points lower**; target 50% / stop 100% of its own credit; same entry, 15:16 check and 18-DTE exit |
+
+| 2021–26, 1 lot, net | Put spread trades / net | Won–lost / max DD | Largest possible loss per lot (65) | Condor + put spread |
+|---|---|---|---|---|
+| **20Δ / 200-pt (chosen)** | 25 / ₹12,114 | 22–3 / −₹1,891 | ≈ ₹11,000 | 61 trades ₹97,843 / DD −₹5,523 |
+| 20Δ / 300-pt (shadow log, review in 6–12 months) | 24 / ₹16,346 | 21–3 / −₹2,573 | ≈ ₹16,800 | 60 trades ₹102,075 / DD −₹5,523 |
+
+  300 points earns more only by taking about 50% more risk per trade (profit ÷ largest loss 0.97× vs 1.10×) and
+  breaks the 2–3% rule – the same reasoning as 400 vs 600 for the condor, so both widths are reviewed together
+  (to switch: `FWD_PCS_WIDTHS = [300]`). The 300-point spread is priced and logged every time. Caveats: 5-day
+  filter fitted on these 30 months, only 3 losers, about ₹485 per trade (fills matter); **2019–20 not yet tested
+  at 20Δ** (a 30Δ preview lost in that period's thin-credit months). Files: `output/put20_credit_spread_all_skipped_filters.xlsx`,
+  `output/combined_ic_plus_put20_spread.xlsx`.
 
 - **A 400-point hedge on rich-credit months** ("variant 3"; user's decision 18-Oct-2026). The 600-point version
   (variant 6, chosen on 12-Oct) earns more in the backtest but its maximum loss, about ₹22,500 a lot, is 4.5–7.5%
@@ -705,8 +724,10 @@ Run it after changing the code. The fake prices are not market data.
 ### 5.10 Monthly routine (paper or live trading)
 **Forward-test plan (400-point wide condor from 18-Oct-2026):** 1 lot for 3–6 months with the rule set
 of §1b – Monday ~11:15–11:16 entry (~43 DTE), ~30Δ CE + PE sold; trade only when the 10-day move is within ±2%:
-a 400-point condor (60% target) when its credit is at least 180 points, a 300-point condor (50% target) when that credit is 160–180 points, no trade below 160 points; stop at
-−100% of credit, time exit at 18 DTE.
+a 400-point condor (60% target) when its credit is at least 180 points, a 300-point condor (50% target) when that credit is 160–180 points, no condor below 160 points; stop at
+−100% of credit, time exit at 18 DTE. In every month without a condor: a 20-delta put credit spread with a 200-point
+hedge (50% target, 100% stop of its own credit), except after a 10-day rise above 2.5% whose last 5 days added
++1% or less (skip); the 300-point put spread is shadow-logged.
 Every month also log what the earlier rule (300-point, ±2.5%) would have done, and note (not act on) the
 condor's 15:16 P&L on every 1% gap-up day.
 
@@ -714,7 +735,8 @@ The project only reads historical data – it never places orders. Each month:
 
 1. **Evening before the planned entry (43 DTE, the Monday six weeks before the Tuesday expiry):** check
    NIFTY's 10-day move (last close vs the close 10 trading days earlier) against the forward-test rule of §1b:
-   within ±2% → trade (the 400-point credit at entry decides the width, or a skip below 160 points); beyond ±2% → skip.
+   within ±2% → trade (the 400-point credit at entry decides the width, or no condor below 160 points); beyond ±2% → no
+   condor. With no condor, `filter` also prints the put credit spread verdict (5-day move check).
    `python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py plan --expiry YYYY-MM-DD` gives the entry and
    time-exit dates, `... ic_tools.py filter --entry-date YYYY-MM-DD --show` gives the reading from NSE's website
    (no Breeze login), with the verdict of both the forward-test rule and the earlier ±2.5% rule.
@@ -726,7 +748,8 @@ The project only reads historical data – it never places orders. Each month:
    `... ic_tools.py strikes --expiry YYYY-MM-DD` reads NSE's option chain, prices the 400-point and the
    300-point condor, applies the §1b table (credit of the 400-point condor against 180 / 160 points) and prints
    the decision, the legs with bid/ask, the credit, the target (60% or 50%), the stop and the maximum loss, plus
-   what the earlier rule would do (NSE's chain lags a few minutes – confirm prices in the broker terminal). If a
+   what the earlier rule would do; when the condor is skipped it also prices the 20-delta put spread (200-point
+   chosen, 300-point shadow) (NSE's chain lags a few minutes – confirm prices in the broker terminal). If a
    strike has no price, use the fallback rule (spread 50/100 points closer or further, else a
    350/400-point hedge).
 3. **Every day at 15:16:** exit all 4 legs at −100% of the credit (stop) or at the target – +60% for a

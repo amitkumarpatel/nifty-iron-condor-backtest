@@ -100,6 +100,18 @@ FWD_WIDE_MIN_CREDIT_PCT = 45.0    # 45% of 400 = 180 points
 FWD_NARROW_MOVE_PCT     = 2.0     # |10-day move| limit for the normal (300-pt) condor (was 1.5 until 11-Oct-2026)
 FWD_MIN_CREDIT_PCT      = 40.0    # floor: below 40% of 400 = 160 points -> no trade at all
 FWD_WIDE_TP_FRACTION    = 0.60    # 60% target for the wide condor
+# Put credit spread in the months the condor rule skips (adopted 27-Oct-2026, user's decision; README section 1b):
+#   condor rule says SKIP -> sell the ~FWD_PCS_DELTA put, buy the put FWD_PCS_WIDTHS points lower,
+#   UNLESS the 10-day move is > +FWD_PCS_RISE_PCT% and the last 5 days added <= +FWD_PCS_MIN_5D_PCT% (rally has stalled) -> no trade.
+#   Target FWD_PCS_TP_FRACTION of the spread's own credit, stop SL_FRACTION, same 15:16 check and 18-DTE time exit, 1 lot.
+FWD_PCS_DELTA           = 0.20    # sold put delta
+FWD_PCS_WIDTHS          = [200]   # traded hedge width. 300 makes more (2021-26 Rs 16.3k vs 12.1k) but risks ~Rs 16.8k a lot vs
+                                  # ~Rs 11.0k (beyond the 2-3% rule) -> priced as a shadow line (FWD_PCS_ALT_WIDTHS);
+                                  # review after 6-12 months with the condor width (e.g. [300]).
+FWD_PCS_ALT_WIDTHS      = [300]   # priced and logged only
+FWD_PCS_RISE_PCT        = 2.5     # 5-day check applies after a 10-day rise above this
+FWD_PCS_MIN_5D_PCT      = 1.0     # ... and then needs the last 5 days > +1%
+FWD_PCS_TP_FRACTION     = 0.50
 def _frac(v):                # IC_TP=40 or 0.4 -> 0.40
     v = float(v)
     return v / 100 if v > 1 else v

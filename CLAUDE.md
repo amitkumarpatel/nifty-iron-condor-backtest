@@ -37,6 +37,12 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
 - |move| <= 2% AND credit 160–180 pts (40–45%) → 300-pt IC, target 50%.
 - else skip. **Minimum-credit floor:** no IC of any width when the 400-pt credit is below 160 pts.
 - Stop 100% of credit, 15:16 daily check, 18-DTE time exit, 1 lot, fallback strikes – unchanged.
+- PUT CREDIT SPREAD in the condor-skipped months (ADOPTED 27-Oct-2026, user's decision; `FWD_PCS_*`): sell ~20Δ put, buy 200 pts lower,
+  TP 50% / SL 100% of its own credit, same entry/check/exit; skip the month if 10-day move > +2.5% and last 5 days <= +1%. 300-pt
+  hedge = shadow log (₹16.3k vs ₹12.1k 2021–26 but ≈ ₹16.8k vs ₹11.0k max loss/lot – beyond 2–3%); review with the condor width.
+  Combined 2021–26: 61 tr ₹97,843 / DD −₹5,523 (300-pt ₹102,075). 2019–20 at 20Δ still to test (needs download). Tools: `filter`
+  prints the 5-day move and the PCS verdict; `strikes` prices the 200/300 put spreads when the condor is skipped; `check` handles a
+  journal row with empty CE legs; template has structure, move_5d_pct, pcs_credit_200/300_pts.
 - NOTE: the earlier rule (300-pt IC whenever |move| <= 2.5%) is the SHADOW LOG – record every month what it would have done.
 - USER DECISIONS: 11-Oct-2026 one ±2% limit for all widths (was ±1.5% for 300-pt); 12-Oct-2026 first "variant 5 and 6 in place of variant 3", then the same
   day "finalise version 6" → 600-pt only on rich months (500-pt can be logged again via FWD_WIDE_WIDTHS = [500, 600]). Do not re-open

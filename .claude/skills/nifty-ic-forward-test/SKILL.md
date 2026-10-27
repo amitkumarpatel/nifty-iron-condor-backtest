@@ -19,7 +19,7 @@ Do not quote strategy numbers from memory. Take them from the `rules` output. Th
 
 ## The rule set being forward-tested (README section 1b)
 
-Adopted on 10-Oct-2026, finalised on 11-Oct-2026 (one ±2% limit for all widths) and set to a **400-point condor on rich-credit months** on 18-Oct-2026, from the October-2026 cycle. A 600-point condor makes more profit in the backtest, but the user chose 400 points because of the lower risk: its largest possible loss stays within 2–3% of the account. The width is to be reviewed after 6–12 months of forward testing (around April–October 2027). The numbers below are the values at adoption; `rules` prints the live ones from `ic/config.py` (`FWD_*`). If they differ, the `rules` output wins and the user should be told.
+Adopted on 10-Oct-2026, finalised on 11-Oct-2026 (one ±2% limit for all widths) and set to a **400-point condor on rich-credit months** on 18-Oct-2026, from the October-2026 cycle. A 600-point condor makes more profit in the backtest, but the user chose 400 points because of the lower risk: its largest possible loss stays within 2–3% of the account. The width is to be reviewed after 6–12 months of forward testing (around April–October 2027). On 27-Oct-2026 the user added a **20-delta put credit spread with a 200-point hedge** for the months the condor rule skips (section "Put credit spread in the skipped months" below); a 300-point hedge makes more profit but is kept as a shadow line for the same reason as 600 points. The numbers below are the values at adoption; `rules` prints the live ones from `ic/config.py` (`FWD_*`). If they differ, the `rules` output wins and the user should be told.
 
 ### Two readings
 
@@ -34,13 +34,44 @@ Adopted on 10-Oct-2026, finalised on 11-Oct-2026 (one ±2% limit for all widths)
 |---|---|---|---|
 | within ±2% | 180 points or more (45% of width or more) | **400-point condor** | 60% of credit |
 | within ±2% | 160 to 180 points (40% to 45%) | **300-point condor** | 50% of credit |
-| within ±2% | below 160 points (below 40%) | **Skip**: minimum-credit floor | none |
-| beyond ±2% | any | **Skip** | none |
+| within ±2% | below 160 points (below 40%) | no condor (minimum-credit floor) → **put credit spread** rule below | 50% of its credit |
+| beyond ±2% | any | no condor → **put credit spread** rule below | 50% of its credit |
 
 What the evening reading already tells the user:
 
 - within ±2%: a trade is expected; the credit at entry decides the width (or a skip, if it is under the floor).
-- beyond ±2%: no trade this month.
+- beyond ±2%: no condor this month; the put credit spread rule decides (`filter` prints its verdict too).
+
+### Put credit spread in the skipped months (adopted 27-Oct-2026)
+
+| Reading (evening before entry) | Decision |
+|---|---|
+| Condor skipped, 10-day move above +2.5% **and** the last 5 days added +1% or less (the rally has stalled) | **Skip the month**: nothing traded |
+| Condor skipped, any other case (rise with a strong last 5 days, move 2–2.5% either way, any fall, credit under the floor) | **Put credit spread**: sell the ~20-delta put, buy the put **200 points** lower |
+
+| Rule | Value |
+|---|---|
+| Entry, daily check, time exit, size | same as the condor: Monday 11:16, 15:16 check, expiry minus 18 days, 1 lot |
+| Profit target | 50% of the spread's own credit |
+| Stop-loss | minus 100% of the spread's own credit |
+| Fallback strikes | same rule as the condor (move the spread, then widen the hedge) |
+| Shadow line | price and log the same sold put with a **300-point** hedge every time |
+| Config | `FWD_PCS_DELTA`, `FWD_PCS_WIDTHS` = [200], `FWD_PCS_ALT_WIDTHS` = [300], `FWD_PCS_RISE_PCT`, `FWD_PCS_MIN_5D_PCT`, `FWD_PCS_TP_FRACTION` |
+
+Backtest 2021–26 (1 lot, net, the 30 months the condor rule skips; `output/put20_credit_spread_all_skipped_filters.xlsx`, `output/combined_ic_plus_put20_spread.xlsx`):
+
+| | 200-point (chosen) | 300-point (shadow; review in 6–12 months) |
+|---|---|---|
+| Put spread trades / net | 25 / ₹12,114 | 24 / ₹16,346 |
+| Won–lost / max drawdown / worst | 22–3 / −₹1,891 / −₹1,891 | 21–3 / −₹2,573 / −₹2,573 |
+| Average credit | 30 points (≈ ₹2,000 a lot) | 41 points |
+| Largest possible loss per lot (65) | ≈ ₹11,000 (2.2% of ₹5L, 3.7% of ₹3L) | ≈ ₹16,800 (3.4% of ₹5L, 5.6% of ₹3L) |
+| Profit ÷ average largest loss | 1.10× | 0.97× |
+| Condor + put spread | 61 trades ₹97,843, DD −₹5,523 | 60 trades ₹102,075, DD −₹5,523 |
+
+Why 200 and not 300: 300 points makes about ₹4k more over six years, but only because each trade carries about 50% more risk; per rupee at risk it is slightly worse, and its largest loss breaks the 2–3% rule. Same reasoning as 400 vs 600 for the condor; review both widths together.
+
+Small print: the 5-day filter was chosen on these 30 months; only 3 put spreads lost, so the stop is barely tested; the profit per trade is small (≈ ₹485), so fills matter. The 20-delta version has **not** been tested on 2019–20 yet; a 30-delta preview there lost money in the thin-credit months (stops in Jul-19, Aug-19, Feb-20, Mar-20, Sep-20). Tell the user if that test is still pending.
 
 ### Same for both widths
 
@@ -225,7 +256,9 @@ Prints NIFTY's 10-day move and two verdicts:
 - **FORWARD-TEST RULE:** `TRADE` (width decided at entry by the credit), `TRADE ONLY IF RICH` (the wide condor only if the 400-point credit reaches the rich line at entry, else skip; not used while both move limits are ±2%) or `SKIP`.
 - **earlier rule (shadow log):** TRADE or SKIP.
 
-Report both. When the forward-test rule says SKIP, the month is skipped: record a journal row with a note so the skip is visible later. If the earlier rule would have traded, it still needs its shadow row at entry time.
+It also prints the 5-day move and, on the line "if the condor is skipped", the put credit spread verdict (PUT CREDIT SPREAD or SKIP the month).
+
+Report all three. When the forward-test rule says SKIP for the condor, the put spread verdict decides; when that also says SKIP, the month is skipped: record a journal row with a note so the skip is visible later. If the earlier rule would have traded, it still needs its shadow row at entry time.
 
 Where the closes come from:
 
@@ -249,7 +282,9 @@ It prints the five strikes nearest 0.30 delta on each side (Black-Scholes delta 
 - what the **earlier rule** would do, for the shadow log;
 - for each width: the four legs with bid and ask, the credit at those prices and at bid/ask, the target (60% for the 400-point condor), the stop and the maximum loss. The 400-point block is both the credit test and the trade.
 
-The 10-day move is worked out from NSE closes before the entry day; `--move X.XX` overrides it. If a hedge has no usable price the README fallback is applied and noted. If the 400-point condor cannot be priced at all, the credit test cannot be made: say so and let the user decide from broker quotes.
+When the condor decision is SKIP it also prints the **put credit spread** block: the 5-day move, the put spread decision, and the 20-delta sold put with the 200-point hedge (CHOSEN) and the 300-point hedge (shadow log), each with bid/ask, credit, target, stop and maximum loss.
+
+The 10-day and 5-day moves are worked out from NSE closes before the entry day; `--move X.XX --move5 Y.YY` override them. If a hedge has no usable price the README fallback is applied and noted. If the 400-point condor cannot be priced at all, the credit test cannot be made: say so and let the user decide from broker quotes.
 
 Limits to state when reporting it:
 
@@ -262,6 +297,7 @@ Then:
 - Use read-only Kite quotes if available to confirm bid, ask and LTP for all four legs. Otherwise use the script's output or ask the user.
 - Flag a hedge whose bid-ask spread is wide or whose price is at or above its sold leg (the README calls out BAD_PRICE and the slippage risk on the 300-pt hedges).
 - Write the trade row: strikes, `paper_px_*` (the paper fills, using the 11:16 prices), `bidask_*`, `filter_move_pct`, `rule_decision` (400 / 300 / SKIP), `hedge_width`, `credit_400_pts`, `credit_300_pts` and `earlier_rule_decision` (`credit_500_pts` and `credit_600_pts` stay empty unless those widths are added to `FWD_WIDE_WIDTHS`).
+- A put credit spread row: leave `sell_ce` / `buy_ce` and their prices empty, fill `sell_pe` / `buy_pe`, `structure` = PCS, `hedge_width` = 200, `move_5d_pct`, `pcs_credit_200_pts` and `pcs_credit_300_pts`. Add a shadow row for the 300-point put spread (`notes` = shadow). For a condor row, `structure` = IC.
 - If the earlier rule would have acted differently (traded when this rule skips, or a 300-point condor when this rule takes the 400-point condor), add the shadow row for its 300-point condor.
 
 Paper fills are optimistic. Always record real bid and ask at entry so slippage can be estimated later (the README says 1 pt of slippage per leg cuts the 300-pt result to about 11k).
@@ -274,7 +310,7 @@ python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py check --trade-id
   --open <NIFTY open today> --prev-close <previous close> --log
 ```
 
-Prices are the 15:16 prices of the four legs. The script reads the hedge width from the journal row and uses the matching profit target (60% for a condor 400 points wide or more). It prints credit, P&L, the target and stop levels and one action:
+Prices are the 15:16 prices of the four legs. For a put credit spread leave out `--sce` / `--bce`: the script sees the empty call legs in the journal row and uses the spread's own 50% target and 100% stop. The script reads the hedge width from the journal row and uses the matching profit target (60% for a condor 400 points wide or more). It prints credit, P&L, the target and stop levels and one action:
 
 | Action | Meaning |
 | --- | --- |
@@ -296,7 +332,7 @@ When an exit action fires and the user has exited, fill `exit_date`, `exit_reaso
 python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py export-ref --trade-id N
 ```
 
-It prints the rows for `data/reference/ic_reference_trades.csv` and `data/reference/ic_reference_legs.csv`. It does not write to them. Show the output, and append only if the user agrees. After that follow README section 5.8 and 5.10, step 5: `python download.py`, then `python backtest.py`, and compare the forward fills with the backtest's prices for the same trade. `qty_stockmock` is informational only, and the engine uses `config.LOT_SIZES`.
+(For a put credit spread it stops with a message: the backtest reference files hold condors only, so the put spread stays in the journal.) For a condor it prints the rows for `data/reference/ic_reference_trades.csv` and `data/reference/ic_reference_legs.csv`. It does not write to them. Show the output, and append only if the user agrees. After that follow README section 5.8 and 5.10, step 5: `python download.py`, then `python backtest.py`, and compare the forward fills with the backtest's prices for the same trade. `qty_stockmock` is informational only, and the engine uses `config.LOT_SIZES`.
 
 ## Reporting style
 

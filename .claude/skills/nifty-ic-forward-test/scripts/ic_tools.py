@@ -8,8 +8,9 @@ Run from the repo root (the folder that contains ic/config.py):
     python .../ic_tools.py plan --expiry YYYY-MM-DD [--holiday YYYY-MM-DD ...]
     python .../ic_tools.py holidays [--write]
     python .../ic_tools.py strikes --expiry YYYY-MM-DD [--delta 0.30] [--save FILE]
-    python .../ic_tools.py check --trade-id N --sce P --bce P --spe P --bpe P
+    python .../ic_tools.py check --trade-id N [--sce P --bce P] --spe P --bpe P
                                  [--date D] [--open X --prev-close Y] [--log]
+                                 (put credit spread: journal row with sell_ce/buy_ce empty; leave out --sce/--bce)
     python .../ic_tools.py export-ref --trade-id N
 
 All strategy numbers come from ic/config.py, so the README/config stay the single
@@ -36,7 +37,8 @@ REQUIRED = ["SKIP_IF_10D_MOVE_PCT", "TREND_LOOKBACK_DAYS", "HEDGE_WIDTH", "TP_FR
             "SL_FRACTION", "EXIT_DTE", "ENTRY_DTE", "EXPIRY_WEEKDAY", "ENTRY_TIME", "CHECK_TIME"]
 OPTIONAL = ["GAP_UP_EXIT_PCT", "MUHURAT_DAYS", "EXTRA_HOLIDAYS", "NSE_HOLIDAYS"]
 FWD = ["FWD_SIGNAL_WIDTH", "FWD_WIDE_WIDTHS", "FWD_WIDE_MOVE_PCT", "FWD_WIDE_MIN_CREDIT_PCT", "FWD_NARROW_MOVE_PCT",
-       "FWD_MIN_CREDIT_PCT", "FWD_WIDE_TP_FRACTION"]
+       "FWD_MIN_CREDIT_PCT", "FWD_WIDE_TP_FRACTION", "FWD_PCS_DELTA", "FWD_PCS_WIDTHS", "FWD_PCS_ALT_WIDTHS",
+       "FWD_PCS_RISE_PCT", "FWD_PCS_MIN_5D_PCT", "FWD_PCS_TP_FRACTION"]
 JOURNAL_TRADES = "journal/forward_trades.csv"
 JOURNAL_DAILY = "journal/forward_daily.csv"
 DAILY_COLS = ["date", "trade_id", "sell_ce", "buy_ce", "sell_pe", "buy_pe", "pnl_pts",
@@ -206,7 +208,10 @@ def fwd_text(cfg):
         f" -> {wide_label(cfg)} condor{'s (paper trade each)' if len(wide_widths(cfg)) > 1 else ''}, target {cfg.FWD_WIDE_TP_FRACTION:.0%} of credit",
         f"2. else |10-day move| <= {cfg.FWD_NARROW_MOVE_PCT}% and that credit >= {floor:.0f} pts ({cfg.FWD_MIN_CREDIT_PCT:.0f}%)"
         f" -> {n}-pt condor, target {cfg.TP_FRACTION:.0%} of credit",
-        "3. else skip the month",
+        f"3. else (condor skipped) -> put credit spread: sell the ~{cfg.FWD_PCS_DELTA:.2f}-delta put, buy the put "
+        f"{'/'.join(map(str, cfg.FWD_PCS_WIDTHS))} pts lower, target {cfg.FWD_PCS_TP_FRACTION:.0%} of its own credit"
+        f" - NOT if the 10-day move is > +{cfg.FWD_PCS_RISE_PCT}% and the last 5 days added <= +{cfg.FWD_PCS_MIN_5D_PCT}% (skip the month)"
+        f"; shadow-log the {'/'.join(map(str, cfg.FWD_PCS_ALT_WIDTHS))}-pt put spread",
         f"all: stop {cfg.SL_FRACTION:.0%} of credit, one check a day at {cfg.CHECK_TIME}, time exit at expiry - {cfg.EXIT_DTE} days",
         f"shadow-log every month: the earlier rule ({n}-pt condor if |10-day move| <= {cfg.SKIP_IF_10D_MOVE_PCT}%)",
     ]
@@ -242,6 +247,22 @@ def fwd_decide(cfg, move, signal_credit):
                 f"{cfg.FWD_WIDE_MIN_CREDIT_PCT:.0f}%, it is {ratio:.1f}%")
 
 
+def pcs_decide(cfg, move, move5):
+    """(trade?, reason) for the put credit spread in a month the condor rule skips."""
+    if move > cfg.FWD_PCS_RISE_PCT and move5 <= cfg.FWD_PCS_MIN_5D_PCT:
+        return False, (f"10-day rise {move:+.2f}% > +{cfg.FWD_PCS_RISE_PCT}% but last 5 days only {move5:+.2f}% "
+                       f"(<= +{cfg.FWD_PCS_MIN_5D_PCT}%: rally has stalled)")
+    if move > cfg.FWD_PCS_RISE_PCT:
+        return True, f"10-day rise {move:+.2f}% and last 5 days {move5:+.2f}% > +{cfg.FWD_PCS_MIN_5D_PCT}%"
+    return True, f"10-day move {move:+.2f}%, last 5 days {move5:+.2f}% (5-day check only after a rise > +{cfg.FWD_PCS_RISE_PCT}%)"
+
+
+def pcs_text(cfg, move, move5):
+    ok, why = pcs_decide(cfg, move, move5)
+    w = "/".join(map(str, cfg.FWD_PCS_WIDTHS))
+    return (f"PUT CREDIT SPREAD {cfg.FWD_PCS_DELTA:.2f}-delta / {w}-pt" if ok else "SKIP the month (no put spread)") + f" - {why}"
+
+
 def tp_fraction(cfg, width):
     """60% for a wide condor (any width from the smallest in FWD_WIDE_WIDTHS up), TP_FRACTION otherwise."""
     return float(cfg.FWD_WIDE_TP_FRACTION) if width >= min(wide_widths(cfg)) else float(cfg.TP_FRACTION)
@@ -271,12 +292,15 @@ def cmd_filter(cfg, a):
         sys.exit("Not enough NIFTY history for the lookback.")
     (d0, c0), (d1, c1) = closes[0], closes[-1]
     move = (c1 / c0 - 1) * 100
+    move5 = (c1 / closes[-6][1] - 1) * 100
     lim = cfg.SKIP_IF_10D_MOVE_PCT
     verdict = "SKIP" if (lim and abs(move) > float(lim)) else "TRADE"
     print(f"source: {src}")
     print(f"NIFTY close {c1:.2f} on {d1} vs {c0:.2f} on {d0} ({n} trading days earlier)")
     print(f"10-day move = {move:+.2f}%")
+    print(f"5-day move  = {move5:+.2f}% (vs {closes[-6][0]})")
     print(f"FORWARD-TEST RULE: {fwd_band(cfg, move)}")
+    print(f"  if the condor is skipped: {pcs_text(cfg, move, move5)}")
     print(f"earlier rule (shadow log, {int(cfg.HEDGE_WIDTH)}-pt, limit +/-{lim}%): {verdict}")
     if a.entry_date:
         print(f"valid for an entry on {before} (closes before that day)")
@@ -507,6 +531,9 @@ def cmd_strikes(cfg, a):
         before = ts.date() if ts.time() < dt.time(15, 30) else ts.date() + dt.timedelta(days=1)
         closes, move_src = get_closes(before, n_ + 1)
         move = (closes[-1][1] / closes[0][1] - 1) * 100 if len(closes) > n_ else None
+        move5 = (closes[-1][1] / closes[-6][1] - 1) * 100 if len(closes) > n_ else None
+    if a.move is not None:
+        move5 = a.move5
 
     print("\n=== Forward-test decision ===")
     if move is None:
@@ -529,6 +556,53 @@ def cmd_strikes(cfg, a):
               f"(|10-day move| limit {lim}%)")
 
     saved = []
+    if widths == [] or widths is None:               # condor skipped (or undecided): the put credit spread
+        print("\n=== Put credit spread (months the condor rule skips) ===")
+        if move is None or move5 is None:
+            print("10-day / 5-day move not known - pass --move and --move5")
+            pcs_ok = None
+        else:
+            pcs_ok, why = pcs_decide(cfg, move, move5)
+            print(f"5-day move {move5:+.2f}%")
+            print(f"PUT SPREAD DECISION: {pcs_text(cfg, move, move5)}" if widths == [] else
+                  f"(condor undecided) put spread would be: {pcs_text(cfg, move, move5)}")
+        otm = [q for q in chain.values() if q["opt"] == "PE" and q["delta"] and q["strike"] < spot]
+        best = min(otm, key=lambda q: abs(q["delta"] - cfg.FWD_PCS_DELTA)) if otm else None
+        if best is None:
+            print("No priced out-of-the-money puts in the chain.")
+        for w in [int(x) for x in cfg.FWD_PCS_WIDTHS] + [int(x) for x in cfg.FWD_PCS_ALT_WIDTHS]:
+            if best is None:
+                break
+            role = (" - CHOSEN" if pcs_ok else " (would be traded)") if w in cfg.FWD_PCS_WIDTHS else " (shadow log)"
+            pair, note = None, ""
+            tries = [(best["strike"], best["strike"] - w, "")] + [
+                (best["strike"] - s_, best["strike"] - s_ - w, f"spread {abs(s_)} pts {'closer' if s_ < 0 else 'further out'}")
+                for s_ in cfg.FALLBACK_SHIFTS] + [(best["strike"], best["strike"] - w - e, f"hedge widened to {w + e} pts")
+                                                  for e in cfg.FALLBACK_HEDGE_EXTRA]
+            for ks, kb, why_ in tries:
+                s_, b_ = chain.get((ks, "PE")), chain.get((kb, "PE"))
+                if s_ and b_ and s_["px"] and b_["px"] and b_["bid"] > 0 and b_["ask"] > 0 and b_["px"] < s_["px"]:
+                    pair, note = (s_, b_), why_
+                    break
+            if pair is None:
+                print(f"\n{w}-pt put spread: no usable hedge price for {best['strike']} or its fallback strikes")
+                continue
+            s_, b_ = pair
+            cr, worst = s_["px"] - b_["px"], s_["bid"] - b_["ask"]
+            wd, qty = s_["strike"] - b_["strike"], lot_size(exp)
+            print(f"\n{w}-pt put spread{role} ({cfg.FWD_PCS_DELTA:.2f} delta sold):")
+            print("  leg      strike    delta      bid      ask    price   note")
+            for name, q in (("sell_pe", s_), ("buy_pe", b_)):
+                dl = f"{q['delta']:6.3f}" if q["delta"] else "     -"
+                print(f"  {name:8} {q['strike']:6d}   {dl} {q['bid']:8.2f} {q['ask']:8.2f} {q['px']:8.2f}   {q['flag']}")
+            if note:
+                print(f"NOTE: PE: {best['strike']}/{best['strike'] - w} has no usable hedge price -> "
+                      f"{s_['strike']}/{b_['strike']} ({note})")
+            tpf = float(cfg.FWD_PCS_TP_FRACTION)
+            print(f"credit {cr:.2f} pts ({cr / wd * 100:.1f}% of width); at bid/ask {worst:.2f} (slippage {cr - worst:.2f})")
+            print(f"target +{tpf * cr:.2f} pts ({tpf:.0%}), stop -{float(cfg.SL_FRACTION) * cr:.2f} pts, max loss {wd - cr:.2f} pts; "
+                  f"lot {qty} -> credit Rs {cr * qty:,.0f}, max loss Rs {(wd - cr) * qty:,.0f}")
+            saved += [(f"PCS{w}", ("sell_pe", s_)), (f"PCS{w}", ("buy_pe", b_))]
     if legs_s is not None and signal not in wides:     # the signal condor is printed with the others when it is traded
         saved += [(signal, r) for r in report(signal, legs_s, notes_s, tp_fraction(cfg, signal),
                                               f"{signal}-pt condor (credit test only - not traded)")]
@@ -568,14 +642,18 @@ def find_trade(tid):
 def cmd_check(cfg, a):
     t = find_trade(a.trade_id)
     today = d(a.date) if a.date else dt.date.today()
-    e = [float(t[k]) for k in ENTRY_PX]
+    pcs = not str(t.get("sell_ce", "")).strip()      # put credit spread: no call legs in the journal row
+    e = [float(t[k] or 0) for k in ENTRY_PX]
     credit = e[0] + e[2] - e[1] - e[3]
     now = [a.sce, a.bce, a.spe, a.bpe]
     to_close = now[0] + now[2] - now[1] - now[3]
     pnl = credit - to_close
     pct = pnl / credit * 100 if credit else float("nan")
-    width = max(float(t["buy_ce"]) - float(t["sell_ce"]), float(t["sell_pe"]) - float(t["buy_pe"]))
-    tpf = tp_fraction(cfg, width)                    # 60% for the wide condor, TP_FRACTION otherwise
+    if pcs:
+        width, tpf = float(t["sell_pe"]) - float(t["buy_pe"]), float(cfg.FWD_PCS_TP_FRACTION)
+    else:
+        width = max(float(t["buy_ce"]) - float(t["sell_ce"]), float(t["sell_pe"]) - float(t["buy_pe"]))
+        tpf = tp_fraction(cfg, width)                # 60% for the wide condor, TP_FRACTION otherwise
     tp, sl = tpf * credit, -float(cfg.SL_FRACTION) * credit
     ex = time_exit_date(cfg, d(t["expiry"]), holidays(cfg, a.holiday))
 
@@ -605,7 +683,7 @@ def cmd_check(cfg, a):
 
     print(f"trade {a.trade_id} on {today}: credit {credit:.2f}  cost-to-close {to_close:.2f}  "
           f"P&L {pnl:+.2f} pts ({pct:+.0f}% of credit)")
-    print(f"{width:.0f}-pt condor: target {tp:+.2f} ({tpf:.0%}), stop {sl:+.2f}, time exit date {ex}")
+    print(f"{width:.0f}-pt {'put credit spread' if pcs else 'condor'}: target {tp:+.2f} ({tpf:.0%}), stop {sl:+.2f}, time exit date {ex}")
     if gap_pct is not None:
         state = "ON" if gap_rule_on else "OFF - log only"
         print(f"gap {gap_pct:+.2f}% vs prev close; gap-up >= {threshold}%: {'YES' if gap_flag else 'no'} "
@@ -626,6 +704,8 @@ def cmd_check(cfg, a):
 
 def cmd_export_ref(cfg, a):
     t = find_trade(a.trade_id)
+    if not str(t.get("sell_ce", "")).strip():
+        sys.exit("This is a put credit spread - the backtest reference files hold condors only; keep it in the journal.")
     if any(not t.get(k) for k in ("exit_date", *EXIT_PX)):
         sys.exit("Fill exit_date and the four exit_px_* columns for this trade first.")
     e, x = [float(t[k]) for k in ENTRY_PX], [float(t[k]) for k in EXIT_PX]
@@ -663,10 +743,13 @@ def main():
     x.add_argument("--expiry", required=True)
     x.add_argument("--delta", type=float, default=TARGET_DELTA)
     x.add_argument("--move", type=float, help="10-day move in percent (default: worked out from NSE closes)")
+    x.add_argument("--move5", type=float, help="5-day move in percent, with --move (for the put-spread check)")
     x.add_argument("--save", help="write the four legs with bid/ask to this CSV (e.g. journal/entry_quotes_N.csv)")
     x = s.add_parser("check")
     x.add_argument("--trade-id", required=True)
-    for k in ("sce", "bce", "spe", "bpe"):
+    for k in ("sce", "bce"):
+        x.add_argument(f"--{k}", type=float, default=0.0, help="leave out for a put credit spread")
+    for k in ("spe", "bpe"):
         x.add_argument(f"--{k}", type=float, required=True)
     x.add_argument("--date")
     x.add_argument("--open", type=float)

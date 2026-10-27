@@ -102,7 +102,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
 <div class="wrap">
 
 <header>
-  <span class="eyebrow">Backtest summary · 18 Oct 2026</span>
+  <span class="eyebrow">Backtest summary · 27 Oct 2026</span>
   <h1>NIFTY Iron Condor Playbook</h1>
   <p class="lede">The rule set chosen for the forward test of a monthly NIFTY iron condor, and the backtest behind it: 66 monthly trades from January 2021 to August 2026, replayed on 1-minute option prices from ICICI Breeze and checked against StockMock.</p>
   <div class="meta">
@@ -166,8 +166,8 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
       <tbody>
         <tr class="hl"><td class="lbl">within ±2%</td><td>180 points or more (≥ 45% of width)</td><td><b>400-point condor</b></td><td>60% of its credit</td></tr>
         <tr><td class="lbl">within ±2%</td><td>160–180 points (40–45%)</td><td><b>300-point condor</b></td><td>50% of its credit</td></tr>
-        <tr><td class="lbl">within ±2%</td><td>below 160 points</td><td>Skip: minimum-credit floor</td><td>–</td></tr>
-        <tr><td class="lbl">beyond ±2%</td><td>any</td><td>Skip</td><td>–</td></tr>
+        <tr><td class="lbl">within ±2%</td><td>below 160 points</td><td>No condor (minimum-credit floor) → <b>put credit spread</b> rule</td><td>50% of its credit</td></tr>
+        <tr><td class="lbl">beyond ±2%</td><td>any</td><td>No condor → <b>put credit spread</b> rule</td><td>50% of its credit</td></tr>
       </tbody>
     </table>
   </div>
@@ -243,6 +243,44 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
     <li><b>Neither width was tested by a bad month.</b> The worst point inside any rich-credit trade was about a third of its largest possible loss.</li>
     <li><b>The 300-point middle tier can lose about ₹10,400 a lot</b>, 2.1% of ₹5L.</li>
     <li><b>Review after 6–12 months</b> of forward testing, with real fills and margin, before considering a wider hedge again.</li>
+  </ul>
+</section>
+
+<section aria-labelledby="h-pcs">
+  <div class="sec-head">
+    <span class="eyebrow">Added 27 Oct 2026 · months without a condor</span>
+    <h2 id="h-pcs">In the skipped months, a 20-delta put credit spread with a 200-point hedge</h2>
+    <p>When the condor rule skips a month, sell the ~20-delta put and buy the put 200 points lower, with the same entry, 15:16 check and 18-DTE exit. Target 50% and stop 100% of the spread's own credit. One exception: after a 10-day rise above 2.5% whose last five days added +1% or less, the rally has stalled, and the month is skipped. A 300-point hedge makes more, but for the same reason as 400 against 600 it is only shadow-logged and will be reviewed together with the condor width.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Condor skipped and …</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">10-day move above +2.5% and last 5 days ≤ +1%</td><td>Skip the month</td></tr>
+        <tr class="hl"><td class="lbl">anything else (strong rise, 2–2.5% band, a fall, thin credit)</td><td><b>Sell ~20Δ put, buy the put 200 points lower</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>2021–26, 1 lot, net</th><th class="n hlc">20Δ / 200-pt (chosen: lower risk)</th><th class="n">20Δ / 300-pt (more profit, shadow log)</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">Put spread trades, net P&amp;L</td><td class="n hlc"><b>25 · ₹12,114</b></td><td class="n">24 · ₹16,346</td></tr>
+        <tr><td class="lbl">Winners / losers</td><td class="n hlc">22 / 3</td><td class="n">21 / 3</td></tr>
+        <tr><td class="lbl">Max drawdown / worst trade</td><td class="n neg hlc">−₹1,891 / −₹1,891</td><td class="n neg">−₹2,573 / −₹2,573</td></tr>
+        <tr><td class="lbl">Average credit</td><td class="n hlc">30 pts · ≈ ₹2,000</td><td class="n">41 pts · ≈ ₹2,700</td></tr>
+        <tr><td class="lbl">Largest possible loss per lot (65)</td><td class="n hlc">≈ ₹11,000</td><td class="n">≈ ₹16,800</td></tr>
+        <tr><td class="lbl">Largest loss as % of ₹3L / ₹5L</td><td class="n hlc">3.7% / 2.2%</td><td class="n">5.6% / 3.4%</td></tr>
+        <tr><td class="lbl">Profit ÷ average largest loss</td><td class="n hlc">1.10×</td><td class="n">0.97×</td></tr>
+        <tr><td class="lbl">Condor rule + put spread</td><td class="n hlc"><b>61 trades · ₹97,843 · DD −₹5,523</b></td><td class="n">60 trades · ₹102,075 · DD −₹5,523</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="risks">
+    <li><b>Adds about ₹12k with no deeper drawdown</b>: the combined drawdown is still August 2026's condor (−₹5,523), and every year stays positive.</li>
+    <li><b>Small trades.</b> About ₹485 profit per trade, so fills and slippage matter; with 0.5 point per leg the 200-point result falls to about ₹8.9k.</li>
+    <li><b>The 5-day filter was chosen on these same 30 months</b>, and only 3 put spreads lost, so the stop is barely tested.</li>
+    <li><b>2019–20 not yet tested at 20 delta.</b> A 30-delta preview there lost money in the thin-credit months (stops in Jul-19, Aug-19, Feb-20, Mar-20, Sep-20).</li>
   </ul>
 </section>
 
@@ -361,12 +399,13 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
     <h2 id="h-next">Next steps</h2>
   </div>
   <ol class="steps">
-    <li><b>Forward test with 1 lot</b> using the rule above. The next decision is in mid-November 2026, for the December expiry.</li>
+    <li><b>Forward test with 1 lot</b> using the rules above: the condor, or the 20-delta / 200-point put spread in a month without one. The next decision is on Monday 16 November 2026, for the 29 December expiry.</li>
+    <li><b>Test the 20-delta put spread on 2019–20</b> (needs a Breeze download) before trusting it.</li>
     <li><b>Shadow-log the earlier rule every month</b>, including this October's 300-point condor (time exit 5 November 2026).</li>
     <li><b>Keep a journal</b>: bid, ask and fill of every leg at entry and exit, margin blocked, the 400-point credit, and the exit reason.</li>
     <li><b>Flag borderline readings</b>: a 10-day move within 0.1 of ±2%, or a credit within a few points of 160 or 180.</li>
     <li><b>Decide in advance what would stop the test</b>, for example a drawdown beyond about ₹19,000 a lot or slippage above 1 point per leg.</li>
-    <li><b>Review the hedge width after 6–12 months</b> (around April–October 2027): 400 against 600 points, with real fills and margin.</li>
+    <li><b>Review the hedge width after 6–12 months</b> (around April–October 2027): 400 against 600 points for the condor and 200 against 300 points for the put spread, with real fills and margin.</li>
   </ol>
 </section>
 
