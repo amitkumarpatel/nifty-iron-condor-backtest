@@ -799,6 +799,12 @@ PUT CREDIT SPREAD IN THE 2019–20 FORWARD-RULE SKIPPED MONTHS – 30Δ PREVIEW 
 −₹15,388 / −₹8,306; 400-pt 16 / +₹4,184 / −₹12,630 / −₹10,580. Rise > 2.5% months 5 / +₹13,155 / 5-0 (300-pt); all OTHER skipped months 13 / −₹11,516 /
 8-5 / DD −₹23,185 – stops 1907, 1908, 2002, 2003 (COVID), 2009. The 5-day filter only removes two winners (1911, 2006) → 16 / −₹3,548 / DD −₹20,575.
 WARNING for the "put spread in every skipped month" idea: the thin-credit (C/W < 40%) and non-rise months were the losers in 2019–20.
+COMBINED: FORWARD-RULE IC + 20Δ PUT SPREAD IN ITS SKIPPED MONTHS (27-Oct-2026, 2021–26, 1 lot, net, one position per month – they never overlap;
+IC = variant 3 (400-pt TP 60% if C/W >= 45%, 300-pt if 40–45%, |move| <= 2%); PCS = 20Δ put spread TP50 SL100 18 DTE in the other months, skipping
+rise > 2.5% months with 5-day move <= +1% (9, 16, 48, 50, 62); output/combined_ic_plus_put20_spread.xlsx; n / net / W-L / max DD / worst / PF):
+IC only 36 / ₹85,729 / 28-8 / −₹5,523 / −₹5,523 / 5.67. + PCS 200-pt 61 / ₹97,843 / 50-11 / −₹5,523 / −₹5,523 / 5.27. + PCS 300-pt (41 no price) 60 /
+₹102,075 / 49-11 / −₹5,523 / 5.18. The put spreads add ₹12.1k / ₹16.3k without deepening the drawdown (still trade 67); every year positive (2022:
+IC +₹0.7k, PCS +₹4.5k / +₹6.5k). CAVEAT: 5-day filter fitted on these months; 2019–20 not tested at 20Δ (30Δ preview lost in thin-credit months).
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
