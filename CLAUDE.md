@@ -756,6 +756,16 @@ calls; only 8 of 13 have a far-call price): 18 DTE +₹282; to expiry +₹25,420
 risks a third as much per trade (≈ ₹5.4k vs ₹16.7k), so its result per rupee at risk is much better and its worst case fits a 2% limit even
 at ₹3L, but it wins less often and its DD is larger in rupees. The ratio is a 3-winner lottery on 8 trades. All fitted on 13 trades;
 TP/SL for the debit spread chosen after seeing results. Not adopted – shadow-log candidates.
+PUT vs CALL CREDIT SPREAD IN ALL MONTHS THE FORWARD-TEST RULE SKIPS (27-Oct-2026, user request; 2021–26; skipped = |10-day move| > 2% or 400-pt
+C/W < 40%: 30 months; 30Δ sold, 300-pt hedge, TP50 SL100, 18 DTE; output/skipped_months_put_vs_call_credit_spread.xlsx; n / net / W-L / DD):
+PUT spread in every skipped month 30 / +₹7,936 / 22-8 / −₹10,659 (worst −₹6,129); CALL spread 30 / −₹18,738 / 17-13 / −₹30,722; normal 300-pt IC
+−₹20,491. By reason: rise > 2.5% (18) PCS −₹5,024 / CCS −₹2,576 (calls win the reversal months 12, 16, 33, 48, 50, 62 and lose the continuations);
+move 2–2.5% up (7) PCS +₹8,946 / 6-1 vs CCS −₹5,207; fall < −2.5% (3) PCS +₹2,226 (bounce) vs CCS −₹6,105; move −2…−2.5% (1, trade 41) PCS +₹974;
+C/W < 40% (1, trade 45) PCS +₹814 / CCS −₹2,602. Direction-matched (PCS after rise, CCS after fall) −₹3,617; against the move −₹7,185. Put spread
+in all skipped months + the 5-day filter (skip rise > 2.5% months whose last-5-day move <= +1%): 25 / +₹25,632 / 21-4 / −₹3,630; filter on every
+rise > 2%: 21 / +₹19,323 / −₹3,630. Credit avg PCS 65 / CCS 80 pts; max loss ≈ ₹15.3k / ₹14.3k at lot 65 (3–5% of ₹3–5L). Added to the variant-3
+forward rule (₹85,729): +PCS ≈ ₹93.7k; +PCS with 5-day filter ≈ ₹111.4k (combined drawdown not computed). CAVEATS: 5-day filter fitted on these
+months; 2019–20 put spreads after a rise all won (no test of the filter); NIFTY's upward drift in 2021–26 favours puts. Not adopted.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.

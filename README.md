@@ -1358,6 +1358,16 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   risks a third as much per trade (≈ ₹5.4k vs ₹16.7k), so its result per rupee at risk is much better and its worst case fits a 2% limit even
   at ₹3L, but it wins less often and its DD is larger in rupees. The ratio is a 3-winner lottery on 8 trades. All fitted on 13 trades;
   TP/SL for the debit spread chosen after seeing results. Not adopted – shadow-log candidates.
+  PUT vs CALL CREDIT SPREAD IN ALL MONTHS THE FORWARD-TEST RULE SKIPS (27-Oct-2026, user request; 2021–26; skipped = |10-day move| > 2% or 400-pt
+  C/W < 40%: 30 months; 30Δ sold, 300-pt hedge, TP50 SL100, 18 DTE; output/skipped_months_put_vs_call_credit_spread.xlsx; n / net / W-L / DD):
+  PUT spread in every skipped month 30 / +₹7,936 / 22-8 / −₹10,659 (worst −₹6,129); CALL spread 30 / −₹18,738 / 17-13 / −₹30,722; normal 300-pt IC
+  −₹20,491. By reason: rise > 2.5% (18) PCS −₹5,024 / CCS −₹2,576 (calls win the reversal months 12, 16, 33, 48, 50, 62 and lose the continuations);
+  move 2–2.5% up (7) PCS +₹8,946 / 6-1 vs CCS −₹5,207; fall < −2.5% (3) PCS +₹2,226 (bounce) vs CCS −₹6,105; move −2…−2.5% (1, trade 41) PCS +₹974;
+  C/W < 40% (1, trade 45) PCS +₹814 / CCS −₹2,602. Direction-matched (PCS after rise, CCS after fall) −₹3,617; against the move −₹7,185. Put spread
+  in all skipped months + the 5-day filter (skip rise > 2.5% months whose last-5-day move <= +1%): 25 / +₹25,632 / 21-4 / −₹3,630; filter on every
+  rise > 2%: 21 / +₹19,323 / −₹3,630. Credit avg PCS 65 / CCS 80 pts; max loss ≈ ₹15.3k / ₹14.3k at lot 65 (3–5% of ₹3–5L). Added to the variant-3
+  forward rule (₹85,729): +PCS ≈ ₹93.7k; +PCS with 5-day filter ≈ ₹111.4k (combined drawdown not computed). CAVEATS: 5-day filter fitted on these
+  months; 2019–20 put spreads after a rise all won (no test of the filter); NIFTY's upward drift in 2021–26 favours puts. Not adopted.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
