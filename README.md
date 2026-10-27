@@ -1395,6 +1395,12 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   11 tr +₹8,673 / 11-0. Exits: TP40 SL50 helps only without a filter (200-pt +₹7,122 / −₹2,380); with the 5-day filter it lowers profit (₹9,066).
   Risk per lot (65): 200-pt ≈ ₹11.1k (3.7% of ₹3L, 2.2% of ₹5L), 300-pt ≈ ₹16.9k. Candidate for the shadow log: 20Δ/200 put spread in every skipped
   month, skipping rise > 2.5% months with 5-day move <= +1%. Not adopted (fitted on 30 months; 2019–20 not tested at 20Δ).
+PUT CREDIT SPREAD IN THE 2019–20 FORWARD-RULE SKIPPED MONTHS – 30Δ PREVIEW (27-Oct-2026; cached data; 20Δ needs strike selection + candles).
+2019–20: the forward rule skips 20 of 24 months – 13 of them only because the 400-pt C/W was < 40% (thin credit; in 2021–26 only 1 such month).
+30Δ sold put, TP50 SL100, 18 DTE, lot 75 (output/put30_spread_2019_2020_skipped_months.xlsx; n / net / W-L / DD / worst): 300-pt 18 / +₹1,639 / 13-5 /
+−₹15,388 / −₹8,306; 400-pt 16 / +₹4,184 / −₹12,630 / −₹10,580. Rise > 2.5% months 5 / +₹13,155 / 5-0 (300-pt); all OTHER skipped months 13 / −₹11,516 /
+8-5 / DD −₹23,185 – stops 1907, 1908, 2002, 2003 (COVID), 2009. The 5-day filter only removes two winners (1911, 2006) → 16 / −₹3,548 / DD −₹20,575.
+WARNING for the "put spread in every skipped month" idea: the thin-credit (C/W < 40%) and non-rise months were the losers in 2019–20.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
