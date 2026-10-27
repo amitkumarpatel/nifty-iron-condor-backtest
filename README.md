@@ -1368,6 +1368,14 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   rise > 2%: 21 / +₹19,323 / −₹3,630. Credit avg PCS 65 / CCS 80 pts; max loss ≈ ₹15.3k / ₹14.3k at lot 65 (3–5% of ₹3–5L). Added to the variant-3
   forward rule (₹85,729): +PCS ≈ ₹93.7k; +PCS with 5-day filter ≈ ₹111.4k (combined drawdown not computed). CAVEATS: 5-day filter fitted on these
   months; 2019–20 put spreads after a rise all won (no test of the filter); NIFTY's upward drift in 2021–26 favours puts. Not adopted.
+  PUT CREDIT vs CALL DEBIT SPREAD IN ALL 30 FORWARD-RULE SKIPPED MONTHS (27-Oct-2026, user request; 2021–26; PCS = sell 30Δ put / buy 300 lower,
+  TP50 SL100; CDS = buy 30Δ call / sell call 300 higher, debit ≈ 80 pts ≈ ₹5.2k at lot 65 (max ₹7.3k); 18 DTE; output/skipped_months_put_credit_vs_
+  call_debit.xlsx; n / net / W-L / DD / worst). ALL 30: PCS +₹7,936 / 22-8 / −₹10,659 / −₹6,129; CDS hold +₹17,799 / 13-17 / −₹15,478 / −₹5,678; CDS TP50
+  SL50 +₹7,504 / 16-14 / −₹5,825 / −₹3,319; CDS TP100 SL50 +₹11,472 / 12-18 / −₹8,077. By reason: rise > 2.5% (18) PCS −₹5,024 / CDS hold +₹1,603 /
+  TP50-SL50 +₹286 (DD −₹8.0k); rise 2–2.5% (7) PCS +₹8,946 / 6-1 vs CDS hold +₹11,844 / 3-4 (35 +₹10.5k); falls (4) CDS better (bounces: 52 +₹6.0k).
+  With the 5-day filter on rise > 2.5% (25 tr): PCS +₹25,632 / 21-4 / −₹3,630; CDS hold +₹30,413 / 12-13 / −₹6,667; TP100 SL50 +₹17,355 / −₹5,245.
+  PCS = higher win rate and the lowest drawdown in rupees, but ≈ ₹15.3k at risk per trade; CDS = about a third of the risk per trade (fits 2%
+  of ₹3L), wins less than half the time, profit per rupee at risk far higher (filtered: CDS ≈ 5.9× its average risk vs PCS ≈ 1.7×). Not adopted.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
