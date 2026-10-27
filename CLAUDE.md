@@ -774,6 +774,13 @@ TP50-SL50 +₹286 (DD −₹8.0k); rise 2–2.5% (7) PCS +₹8,946 / 6-1 vs CDS 
 With the 5-day filter on rise > 2.5% (25 tr): PCS +₹25,632 / 21-4 / −₹3,630; CDS hold +₹30,413 / 12-13 / −₹6,667; TP100 SL50 +₹17,355 / −₹5,245.
 PCS = higher win rate and the lowest drawdown in rupees, but ≈ ₹15.3k at risk per trade; CDS = about a third of the risk per trade (fits 2%
 of ₹3L), wins less than half the time, profit per rupee at risk far higher (filtered: CDS ≈ 5.9× its average risk vs PCS ≈ 1.7×). Not adopted.
+20Δ PUT CREDIT SPREAD vs CALL DEBIT SPREAD HELD TO 18 DTE (27-Oct-2026, user's two candidates; 20Δ puts only exist for the 18 rise > 2.5% months;
+output/put20_credit_vs_call_debit_hold18.xlsx; n / net / win / DD / worst / PF / risk per lot at 65). 18 rise months: PCS 20Δ/200 −₹3,286 / 67% /
+−₹7,765 / −₹3,210 / 0.75 / ₹11.1k; PCS 20Δ/300 −₹2,657 / −₹9,548 / ₹16.8k; CDS (buy 30Δ call, sell +300) +₹1,603 / 44% / −₹17,356 / −₹5,678 / 1.05 /
+₹5.2k. 13 months with the 5-day filter: PCS 20Δ/200 +₹5,469 / 85% / −₹1,891 / −₹1,891 / 2.53; PCS 20Δ/300 +₹8,383 / 85% / −₹2,573 / 2.71; CDS +₹14,217 /
+54% / −₹6,004 / −₹5,174 / 1.94. CDS profit is concentrated in 2021 (+₹14.0k of +₹14.2k; 2025–26 −₹2.7k) while PCS 20Δ is positive in 2025–26
+(+₹1.9k / +₹2.9k). Avg win/loss: PCS 20Δ/200 ₹822 / −₹1,786; CDS ₹4,199 / −₹2,530. Not run yet: 20Δ PCS in the other 12 skipped months (2–2.5%
+band, falls, C/W < 40%) – needs 20Δ put strikes for 9 months + hedges for 12.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
