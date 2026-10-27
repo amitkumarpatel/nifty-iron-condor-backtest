@@ -1383,6 +1383,18 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   54% / −₹6,004 / −₹5,174 / 1.94. CDS profit is concentrated in 2021 (+₹14.0k of +₹14.2k; 2025–26 −₹2.7k) while PCS 20Δ is positive in 2025–26
   (+₹1.9k / +₹2.9k). Avg win/loss: PCS 20Δ/200 ₹822 / −₹1,786; CDS ₹4,199 / −₹2,530. Not run yet: 20Δ PCS in the other 12 skipped months (2–2.5%
   band, falls, C/W < 40%) – needs 20Δ put strikes for 9 months + hedges for 12.
+  20Δ PUT CREDIT SPREAD IN ALL 30 FORWARD-RULE SKIPPED MONTHS (27-Oct-2026; strikes d20_skip + d20_rest (9 new months); 200 and 300-pt hedges;
+  trade 41 has no 300-pt hedge price; output/put20_credit_spread_all_skipped_filters.xlsx; n / net / W-L / DD / worst; TP50 SL100 unless stated).
+  No filter: 200-pt 30 / +₹3,359 / 23-7 / −₹6,318 / −₹3,210; 300-pt 29 / +₹5,306 / −₹7,895. 5-DAY FILTER (skip rise > 2.5% months whose last 5 days
+  added <= +1%): 200-pt 25 / +₹12,114 / 22-3 / −₹1,891 / −₹1,891, every year positive (2021 +₹2.6k, 2022 +₹4.5k, 2023 +₹1.0k, 2024 +₹0.9k, 2025 +₹2.2k,
+  2026 +₹0.9k); 300-pt 24 / +₹16,346 / 21-3 / −₹2,573. By group (200-pt, filtered): rise > 2.5% 13 tr +₹5,469; rise 2–2.5% 7 tr +₹5,020; falls 4 tr +₹1,274;
+  C/W < 40% 1 tr +₹351. Filter on every rise > 2% (also the band): 21 tr +₹9,355 / −₹1,891 (worse – band months with a small 5-day move won).
+  Other filters (200-pt): VIX <= 20 −₹2,107 (no); VIX <= 22 +₹993; VIX not down >10% 18 tr +₹8,699 / −₹2,536; above 50-DMA 20 tr +₹7,571 / −₹1,838;
+  sold put below 20-day low 9 tr −₹5,132 (no); spread credit >= 15% of width 12 tr +₹6,835 (300-pt only 4 tr). ON TOP of the 5-day filter: + VIX not
+  down >10% 16 tr +₹9,625 / DD −₹968 (fewest losses, fewer trades); + above 50-DMA 17 tr +₹10,335 / −₹1,680; + VIX <= 22 22 tr +₹9,748; + credit >= 15%
+  11 tr +₹8,673 / 11-0. Exits: TP40 SL50 helps only without a filter (200-pt +₹7,122 / −₹2,380); with the 5-day filter it lowers profit (₹9,066).
+  Risk per lot (65): 200-pt ≈ ₹11.1k (3.7% of ₹3L, 2.2% of ₹5L), 300-pt ≈ ₹16.9k. Candidate for the shadow log: 20Δ/200 put spread in every skipped
+  month, skipping rise > 2.5% months with 5-day move <= +1%. Not adopted (fitted on 30 months; 2019–20 not tested at 20Δ).
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
