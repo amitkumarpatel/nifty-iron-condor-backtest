@@ -1348,6 +1348,16 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   +₹13,155, 400-pt +₹16,856): no losers there, so the filters only cut winners (VIX filter keeps 3, −₹5.2k; mv5>1 keeps 3; 50-DMA>2% keeps all 5).
   CAVEATS: 18 trades / 6 losers, thresholds read off the same data; VIX filter passes 0 of 4 rise months in 2025–26. Not adopted – best
   candidates to shadow-log: 5-day move > +1% at entry (and/or VIX not down >10%), 20Δ or 30Δ sold put, 300-pt hedge.
+  PUT CREDIT vs CALL DEBIT vs HEDGED RATIO on the 13 months that pass "5-day move > +1%" (27-Oct-2026, user request; 2021–26, strikes from the
+  reference 30Δ call and the d20_skip 20Δ legs; output/filtered13_put_spread_vs_call_debit_vs_ratio.xlsx; n / net / W-L / DD / avg max risk per lot at 65):
+  PUT CREDIT 20Δ/300 TP50 SL100 13 / +₹8,383 / 11-2 / −₹2,573 / ₹16.7k; 30Δ/300 +₹12,672 / 11-2 / −₹3,630 / ₹15.4k. CALL DEBIT (buy 30Δ CE, sell 20Δ CE,
+  debit ≈ ₹5.4k at lot 65, max ₹7.5k): hold to 18 DTE +₹10,765 / 7-6 / −₹7,195; TP 100% of debit / SL 50% +₹1,815 / 5-8; TP 50% / SL 50% +₹13,301 /
+  9-4 / −₹5,664 (profit ÷ risk 2.47 vs 0.50–0.83 for the put spreads); hold to expiry +₹18,476 / 6-7 / −₹9,875. HEDGED RATIO (+1 30Δ, −2 20Δ, +1 20Δ+500
+  calls; only 8 of 13 have a far-call price): 18 DTE +₹282; to expiry +₹25,420 / 3-5 / −₹4,950 (57 +₹14.3k, 5 +₹13.2k, 28 +₹8.2k); to expiry TP 50%
+  +₹12,504. VERDICT: none lowers the DRAWDOWN below the put spread (−₹2.6k / −₹3.6k) – the put spread wins often and small; the call debit spread
+  risks a third as much per trade (≈ ₹5.4k vs ₹16.7k), so its result per rupee at risk is much better and its worst case fits a 2% limit even
+  at ₹3L, but it wins less often and its DD is larger in rupees. The ratio is a 3-winner lottery on 8 trades. All fitted on 13 trades;
+  TP/SL for the debit spread chosen after seeing results. Not adopted – shadow-log candidates.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
