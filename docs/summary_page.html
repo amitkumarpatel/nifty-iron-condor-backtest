@@ -115,7 +115,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   <div class="sec-head">
     <span class="eyebrow">The short version</span>
     <h2 id="h-verdict">Trade only calm months, and widen the hedge to 400 points when the premium is rich</h2>
-    <p>The forward-test rule made ₹85,729 on 36 trades in the backtest, against ₹66,052 on 45 trades for the earlier rule, with a smaller drawdown. A 600-point version earned more (₹114,939), but its worst case per trade breaks the limit of 2–3% of capital, so it is set aside for a review after 6–12 months. The thresholds were chosen on this same data, so treat the figures as an upper bound.</p>
+    <p>The forward-test rule made ₹85,729 on 36 trades in the backtest, against ₹66,052 on 45 trades for the earlier rule, with a smaller drawdown. With a 20-delta put credit spread in the months the condor skips, the whole rulebook made ₹97,843 on 61 trades with the same −₹5,523 drawdown. A 600-point version earned more (₹114,939), but its worst case per trade breaks the limit of 2–3% of capital, so it is set aside for a review after 6–12 months. The thresholds were chosen on this same data, so treat the figures as an upper bound.</p>
   </div>
   <div class="verdict">
     <div><span class="k">Net P&amp;L, forward-test rule</span><span class="v good">₹85,729</span><span class="s">36 trades · earlier rule ₹66,052 on 45</span></div>
@@ -152,6 +152,56 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
     </div>
     <figcaption>Cumulative net P&amp;L after costs, stepped at each trade's exit date. Lot size per expiry (50 → 25 → 75 → 65).</figcaption>
   </figure>
+</section>
+
+<section aria-labelledby="h-combined">
+  <div class="sec-head">
+    <span class="eyebrow">The whole rulebook · condor + put spread</span>
+    <h2 id="h-combined">Every month: a condor, a put spread, or nothing</h2>
+    <p>Three readings decide the month: the 10-day and 5-day moves the evening before entry, and the credit of the 400-point condor at 11:16. Both versions below trade the same 61 of 66 months in 2021–26. Only the hedge widths, and so the risk per trade, differ.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Step</th><th>Condition</th><th>Trade</th><th>Target</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="lbl">1</td><td>10-day move within ±2% and 400-pt credit ≥ 180 pts (≥ 45%)</td><td><b>Iron condor</b>, ~30Δ sold, 400-pt hedges</td><td>60% of credit</td></tr>
+        <tr><td class="lbl">2</td><td>10-day move within ±2% and credit 160–180 pts (40–45%)</td><td><b>Iron condor</b>, 300-pt hedges</td><td>50% of credit</td></tr>
+        <tr class="hl"><td class="lbl">3</td><td>Otherwise, unless step 4 applies</td><td><b>Put credit spread</b>: sell ~20Δ put, buy the put 200 pts lower</td><td>50% of its credit</td></tr>
+        <tr><td class="lbl">4</td><td>10-day rise above +2.5% and 5-day move ≤ +1%</td><td>Skip the month</td><td>–</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Same for every trade: Monday 11:16 entry at 43 DTE · one check at 15:16 (stop, then target, then time exit) · stop at 100% of the trade's own credit · time exit at expiry − 18 days · 1 lot, one position at a time, no adjustment.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th></th><th class="n hlc">Version A · traded (lower risk)</th><th class="n">Version B · shadow, review later (more profit)</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">Condor on rich-credit months</td><td class="n hlc">400-pt</td><td class="n">600-pt</td></tr>
+        <tr><td class="lbl">Put spread</td><td class="n hlc">20Δ / 200-pt</td><td class="n">20Δ / 300-pt</td></tr>
+        <tr><td class="lbl">Largest possible loss per lot (65)</td><td class="n hlc">≈ ₹13,600 condor · ≈ ₹11,000 put spread</td><td class="n">≈ ₹22,500 · ≈ ₹16,800</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>2021–26, net</th><th class="n">Condor</th><th class="n">Put spread 200</th><th class="n hlc">Total, traded</th><th class="n">Put spread 300</th><th class="n">Total, 300 shadow</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">2021</td><td class="n">₹9,624</td><td class="n">₹2,639</td><td class="n hlc">₹12,263</td><td class="n">₹3,527</td><td class="n">₹13,151</td></tr>
+        <tr><td class="lbl">2022</td><td class="n">₹676</td><td class="n">₹4,530</td><td class="n hlc">₹5,206</td><td class="n">₹6,492</td><td class="n">₹7,168</td></tr>
+        <tr><td class="lbl">2023</td><td class="n">₹11,201</td><td class="n">₹1,018</td><td class="n hlc">₹12,219</td><td class="n">₹1,456</td><td class="n">₹12,657</td></tr>
+        <tr><td class="lbl">2024</td><td class="n">₹8,192</td><td class="n">₹851</td><td class="n hlc">₹9,043</td><td class="n">₹555</td><td class="n">₹8,747</td></tr>
+        <tr><td class="lbl">2025</td><td class="n">₹39,122</td><td class="n">₹2,209</td><td class="n hlc">₹41,331</td><td class="n">₹2,954</td><td class="n">₹42,076</td></tr>
+        <tr><td class="lbl">2026 (to Aug)</td><td class="n">₹16,914</td><td class="n">₹867</td><td class="n hlc">₹17,781</td><td class="n">₹1,362</td><td class="n">₹18,276</td></tr>
+        <tr><td class="lbl"><b>Total</b></td><td class="n"><b>36 · ₹85,729</b></td><td class="n"><b>25 · ₹12,114</b></td><td class="n hlc"><b>61 · ₹97,843</b></td><td class="n">24 · ₹16,346</td><td class="n">60 · ₹102,075</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="risks">
+    <li><b>82% winners (50 / 11), max drawdown −₹5,523</b> (the Aug-26 condor), every year positive. About ₹1,440 a month: 0.3–0.5% a month on ₹3–5L, before slippage (≈ ₹86k with 0.5 point per leg).</li>
+    <li><b>Same 61 months for both versions.</b> The 300-pt backtest shows 60 only because May-2024 had no 300-pt hedge price. Skipped by step 4: Sep-21, Apr-22, Dec-24, Feb-25, Feb-26.</li>
+    <li><b>Version B with the 600-pt condor is an estimate</b> (≈ ₹1.31L), not a combined backtest. Both widths are reviewed together after 6–12 months.</li>
+    <li><b>Shadow logs:</b> the 300-pt put spread, the earlier rule (300-pt condor within ±2.5%), and the condor's 15:16 P&amp;L on every 1% gap-up day.</li>
+  </ul>
 </section>
 
 <section aria-labelledby="h-rules">

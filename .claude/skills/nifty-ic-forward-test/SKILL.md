@@ -21,6 +21,43 @@ Do not quote strategy numbers from memory. Take them from the `rules` output. Th
 
 Adopted on 10-Oct-2026, finalised on 11-Oct-2026 (one ±2% limit for all widths) and set to a **400-point condor on rich-credit months** on 18-Oct-2026, from the October-2026 cycle. A 600-point condor makes more profit in the backtest, but the user chose 400 points because of the lower risk: its largest possible loss stays within 2–3% of the account. The width is to be reviewed after 6–12 months of forward testing (around April–October 2027). On 27-Oct-2026 the user added a **20-delta put credit spread with a 200-point hedge** for the months the condor rule skips (section "Put credit spread in the skipped months" below); a 300-point hedge makes more profit but is kept as a shadow line for the same reason as 600 points. The numbers below are the values at adoption; `rules` prints the live ones from `ic/config.py` (`FWD_*`). If they differ, the `rules` output wins and the user should be told.
 
+### Combined rulebook at a glance (condor + put spread, 27-Oct-2026)
+
+Every month is one of four outcomes, decided by three readings: the 10-day move and the 5-day move (`filter`, evening before entry) and the 400-point condor credit (`strikes`, 11:16).
+
+| Step | Condition | Trade | Target |
+|---|---|---|---|
+| 1 | 10-day move within ±2% and 400-pt credit ≥ 180 pts (≥ 45%) | Iron condor, ~30Δ sold, **400-pt** hedges | 60% of credit |
+| 2 | 10-day move within ±2% and credit 160–180 pts (40–45%) | Iron condor, **300-pt** hedges | 50% of credit |
+| 3 | Otherwise, unless step 4 applies | Put credit spread: sell ~20Δ put, buy the put **200 pts** lower | 50% of its credit |
+| 4 | 10-day rise > +2.5% and 5-day move ≤ +1% | Skip the month | – |
+
+For every trade: entry Monday 11:16 at 43 DTE; one check at 15:16 (stop, then target, then time exit); stop at 100% of the trade's own credit; time exit at expiry − 18 days; 1 lot, one position at a time, no adjustment.
+
+| | Version A – traded (lower risk) | Version B – shadow / review (more profit) |
+|---|---|---|
+| Condor on rich-credit months | 400-pt | 600-pt |
+| Put spread | 20Δ / 200-pt | 20Δ / 300-pt (priced and logged every put-spread month) |
+| Largest possible loss per lot (65) | condor ≈ ₹13,600 · put spread ≈ ₹11,000 | ≈ ₹22,500 · ≈ ₹16,800 |
+
+Backtest 2021–26, net, no slippage (`output/combined_ic_plus_put20_spread.xlsx`):
+
+| Year | Condor | Put spread 200 | **Total (traded)** | Put spread 300 | Total (300 shadow) |
+|---|---|---|---|---|---|
+| 2021 | ₹9,624 | ₹2,639 | **₹12,263** | ₹3,527 | ₹13,151 |
+| 2022 | ₹676 | ₹4,530 | **₹5,206** | ₹6,492 | ₹7,168 |
+| 2023 | ₹11,201 | ₹1,018 | **₹12,219** | ₹1,456 | ₹12,657 |
+| 2024 | ₹8,192 | ₹851 | **₹9,043** | ₹555 | ₹8,747 |
+| 2025 | ₹39,122 | ₹2,209 | **₹41,331** | ₹2,954 | ₹42,076 |
+| 2026 (to Aug) | ₹16,914 | ₹867 | **₹17,781** | ₹1,362 | ₹18,276 |
+| **Total** | **36 tr ₹85,729** | **25 tr ₹12,114** | **61 tr ₹97,843** | 24 tr ₹16,346 | 60 tr ₹102,075 |
+
+- Both versions trade the same 61 of 66 months; the 300-pt backtest shows 60 only because May-2024 had no 300-pt hedge price (live, the fallback rule would place it). The 5 months skipped by step 4: Sep-21, Apr-22, Dec-24, Feb-25, Feb-26.
+- Combined: 50 W / 11 L (82%), max drawdown −₹5,523 (Aug-26 condor), profit factor 5.27, about ₹1,440 a month = 0.3–0.5% a month on ₹3–5L. With 0.5 pt slippage per leg about ₹86k.
+- Version B with the 600-pt condor is not backtested as a combined set (estimate ≈ ₹1.31L). Review both widths together after 6–12 months (about Apr–Oct 2027), with real fills and margin.
+- Shadow logs: the 300-pt put spread; the earlier rule (300-pt condor whenever |10-day move| ≤ 2.5%); the condor's 15:16 P&L on every 1% gap-up day.
+- Next decision: Monday 16-Nov-2026 for the 29-Dec-2026 expiry (`filter` from the evening of Friday 13-Nov).
+
 ### Two readings
 
 | When | Reading | How to get it |
