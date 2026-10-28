@@ -1459,6 +1459,13 @@ being wide at NIFTY 10–12k (the %-width question), not from cheap premium. Dro
 the same rule and was not adopted. Not adopted – user's call.
 USER DECISION 28-Oct-2026: NO credit (C/W < 40%) filter on the put spread – 9 of the 10 affected months are 2019–20, where the low ratio came from the fixed
 400-pt width at NIFTY 10–12k. The put spread trades in every condor-skipped month except the 5-day-filter skips. Do not propose it again.
+PUT SPREAD TARGET × EXIT DTE WITH THE 5-DAY FILTER (28-Oct-2026, point 5; 20Δ, SL 100%, fallback strikes; 2021–26 25 tr + 2019–20 17 tr = 42;
+output/put_spread_target_exitdte_5day_2019_2026.xlsx; net 2021–26 / DD 2021–26 | net 2019–20 / DD 2019–20 | 2019–26 net). 200-pt, 18 DTE: TP 30% ₹8,234 /
+−₹1,891 | ₹7,077 / −₹4,487 | ₹15,311; TP 40% ₹11,234 / −₹1,891 | ₹10,501 / −₹4,487 | ₹21,735 (hold 7.8 days); TP 50% ₹12,114 / −₹1,891 | ₹9,702 / −₹5,281 |
+₹21,816 (10.7 days); TP 60% ₹10,245 / −₹4,384 | ₹21,305; TP 70% ₹20,771; no target ₹13,895 / −₹4,384 | ₹10,797 | ₹24,692 (time exit only, 22.6 days).
+21 DTE ≈ ₹1k less at every target; 25 DTE much worse (₹8–14k). 300-pt, 18 DTE: TP 40% ₹22,973; TP 50% ₹26,181 (best); TP 60% ₹15,840 / DD −₹6,119 (2021–26);
+no target ₹25,440 / −₹6,119. VERDICT: keep TP 50% and 18 DTE. TP 40% ≈ the same at 200-pt (−₹81 over 8 years, smaller 2019–20 DD, 3 days shorter) –
+equivalent alternative; above 50% the 2021–26 DD more than doubles (trades held into the late losses). Do not re-test.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
