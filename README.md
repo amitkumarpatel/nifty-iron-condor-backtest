@@ -1506,7 +1506,18 @@ id = expiry YYMM; strike sets d30_w4 / d20_w4; full rulebook applied at the seco
 60 of 81 become put spreads (2021–26: 39 tr −₹2,056) and only 21 condors (2021–26: 20 tr +₹5,735 / DD −₹6,707; all time exits – 11 days is too short for a
 target). Combined A + B, 2021–26: all 120 tr ₹101,030 / DD −₹10,287 vs A alone 61 tr ₹97,350 / −₹5,503; B condor only 81 tr ₹103,085 / −₹10,287; 2019–20 A+B
 ₹17,618 / −₹15,203 vs A ₹16,700 / −₹5,281. 0.5-pt slippage on B's extra fills (≈ ₹5k on its 20 condors) removes the gain. VERDICT: about +₹4–6k over six years
-for twice the drawdown, twice the margin in overlapping weeks and 20–60 more trades – NOT adopted. Part 2 (exit 7 DTE) still optional (≈ 3,000 calls).
+for twice the drawdown, twice the margin in overlapping weeks and 20–60 more trades – NOT adopted. Part 2 (exit 7 DTE) below.
+SECOND ENTRY TWO WEEKS LATER, EXIT 7 DTE (28-Oct-2026, point 8 part 2; same w4 entries and rulebook, time exit at 7 DTE instead of 18; normal entry A
+unchanged at 18 DTE; output/second_entry_2weeks_7dte.xlsx; n / net / DD / worst / PF). Second entry alone: 2021–26 59 / +₹44,127 / −₹20,213 / −₹11,247 / 1.87
+(18 DTE: +₹3,680); 2019–20 22 / +₹11,010 / −₹13,295. By structure 2021–26: 400-pt condors 7 tr +₹35,890 (4 targets, held ≈ 21 days); 300-pt condors 13 tr
++₹2,543 incl. two stops near the full max loss (2510 −₹11,247, 2603 −₹11,198) and 2609 −₹6,840; put spreads 39 tr +₹5,694 (DD −₹12.4k alone). Combined A + B:
+2021–26 120 tr ₹141,477 / DD −₹14,748 / worst −₹11,247 / PF 2.92 vs A alone ₹97,350 / −₹5,503 / 5.26; 2019–20 ₹27,710 / −₹13,846 vs ₹16,700 / −₹5,281; slippage
+0.5 pt ₹122.4k / −₹15.3k, 1 pt ₹103.4k / −₹15.9k (A: ₹86.9k / ₹76.4k). Hindsight subset 'B only when it is a 400-pt condor': 2021–26 68 tr ₹133,240 / −₹5,503
+(7 trades, 6 winners; 2019–20 had none, so untested out of sample). WHY: the profit comes from holding through 18 → 7 DTE (the last-two-weeks gamma zone
+the 18-DTE rule avoids) – more targets, but the losers run to max loss (worst trade doubles, DD ≈ 2.7×). The normal entry was never tested below 17 DTE
+(no data), so part of the gain may simply be 'exit later', not 'second entry'. VERDICT: big extra profit (+₹44k) for a ≈ ₹15k drawdown, ₹11k single
+losses and two positions for two weeks – NOT adopted (fails the 2–3%-max-loss rule of thumb at ₹3–5L). Candidate to shadow-log: the 400-pt condor at the
+second entry held to 7 DTE.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
