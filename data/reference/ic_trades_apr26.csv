@@ -1,0 +1,2 @@
+trade_id,entry_date,entry_time,expiry,sell_ce,buy_ce,sell_pe,buy_pe,qty_stockmock,ref_exit_date,ref_exit_reason,ref_pnl_pts,ref_pnl_rs,ref_note
+2603,2026-03-16,11:16,2026-04-28,24200,24500,22350,22050,,,,,,"generated; start strikes from NIFTY 23151, VIX 22.6"

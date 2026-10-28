@@ -1,0 +1,2 @@
+trade_id,opt_type,strike,delta,iv,spot,price,quality,ref_strike,ref_delta
+2603,PE,22000,0.2418,0.2547,23124.4,302.15,EXACT,22350,

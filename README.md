@@ -1492,6 +1492,13 @@ now passes and 7–8 thin-credit months switch from put spread to a 200-pt condo
 1910 −₹2,553). In 2021–23 the widths shrink to 200–300 pts, and narrower hedges earn less (same as the 200/300/400 ladder). VERDICT: % widths cost ₹13–14k
 in 2021–26 and ≈ ₹16k in 2019–20 and double the drawdown – NOT adopted; keep fixed 400/300/200. The level question stays real: re-check widths at the
 6–12-month review or if NIFTY moves more than ≈ 20% from 22,500 (credit/width drifts with the level). Do not re-test.
+APR-2026 EXPIRY PUT SPREAD (28-Oct-2026; entry Mon 16-Mar-2026, expiry 28-Apr, time exit 10-Apr; trade set apr26, strike set d20_apr26). Filter: 10-day
+move −9.20%, 5-day −5.31% → no condor; a fall, so the 5-day check does not apply → the rule TRADES the 20Δ/200 put spread. NOT TESTABLE on Breeze data:
+on 16-Mar only round strikes traded (22000, 22300, 22400 PE); the picked put is 22000 at 0.24Δ (the ~20Δ strikes 21600–21950 had no trades); the
+200/300-pt hedges 21800/21700 had NO trades until 23-Mar, and 23-Mar shows an impossible 22000/21800 spread value of 354 pts on a 200-pt width (bad
+print). Rough indication only (entry on 24-Mar instead, 22000/21800 ≈ 45 pts credit): worst mark 30-Mar ≈ −51% of credit (NIFTY low close 22,331 stayed
+above 22,000), target reached ≈ 8-Apr as NIFTY rallied to 24,051 → probably a ≈ +₹2k winner, but it rests on thin, partly bad prints. Kept OUT of all
+totals (rulebook stays 61 tr ₹97,843 for 2021–26). Live lesson: after a crash far puts trade only on round 100/500 strikes – use the chain's bid/ask.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
