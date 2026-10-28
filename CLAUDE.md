@@ -847,6 +847,22 @@ output/put_spread_target_exitdte_5day_2019_2026.xlsx; net 2021–26 / DD 2021–
 21 DTE ≈ ₹1k less at every target; 25 DTE much worse (₹8–14k). 300-pt, 18 DTE: TP 40% ₹22,973; TP 50% ₹26,181 (best); TP 60% ₹15,840 / DD −₹6,119 (2021–26);
 no target ₹25,440 / −₹6,119. VERDICT: keep TP 50% and 18 DTE. TP 40% ≈ the same at 200-pt (−₹81 over 8 years, smaller 2019–20 DD, 3 days shorter) –
 equivalent alternative; above 50% the 2021–26 DD more than doubles (trades held into the late losses). Do not re-test.
+PUT SPREAD SOLD DELTA 15 / 20 / 25 (28-Oct-2026, point 6; condor-skipped months, 5-day filter, TP50 SL100, 18 DTE, fallback strikes; output/
+put_spread_15_20_25_delta_2019_2026.xlsx; net 2021–26 / DD | net 2019–20 / DD | 2019–26). 15Δ/200 −₹316 / −₹3,090 | +₹6,595 / −₹3,665 | ₹6,279 (credit 21 pts,
+6 stops in 23); 15Δ/300 ₹10,374 / −₹2,152 | ₹1,951 / −₹6,400 | ₹12,325. 20Δ/200 ₹12,114 / −₹1,891 | ₹9,702 / −₹5,281 | ₹21,816; 20Δ/300 ₹16,896 / −₹2,573 |
+₹9,284 / −₹7,028 | ₹26,181. 25Δ/200 ₹14,892 / −₹2,358 | ₹5,513 / −₹9,756 | ₹20,405; 25Δ/300 ₹29,338 / −₹2,999 (PF 7.6) | −₹1,764 / −₹18,552 | ₹27,575.
+VERDICT: 20Δ is the only delta that is solid in BOTH periods; 15Δ collects too little (stops at the same rate), 25Δ/300 is the best 2021–26 result but loses
+out of sample with a −₹18.6k drawdown. Keep 20Δ/200. Do not re-test.
+WALK-FORWARD OF THE RULEBOOK THRESHOLDS (28-Oct-2026, point 1; 900 rules = 10-day limit 1.5–2.5% × rich line 43–47% × floor 36–42% × put-spread rise
+2/2.5/3% × 5-day limit 0.5/1/1.5%; every month's condor 400 (TP60; 2019–20 TP50) / condor 300 / 20Δ-200 put spread priced; output/
+walk_forward_rulebook_thresholds.xlsx). ALL 900 rules are profitable in every period (2021–23, 2024–26, 2019–20); grid medians 2021–26 ₹88.1k / DD −₹5.5k,
+2019–20 ₹18.8k. Fit on 2021–23 → best rule (1.75%, 43%, 42%) makes ₹60.6k / −₹7.0k in 2024–26 vs the adopted rule ₹68.2k / −₹5.5k (adopted beats 81% of the
+grid there); fit on 2024–26 → ₹28.5k / −₹4.9k in 2021–23 vs adopted ₹29.7k / −₹3.7k (beats 98%); fit on 2021–26 → ₹28.1k in 2019–20 vs adopted ₹16.7k (beats 32%,
+because a lower floor turns the 2019–20 thin-credit months into 300-pt condors – the %-width effect). Re-optimising does NOT beat the adopted thresholds out of
+sample: the result comes from the structure, not the exact numbers. One-at-a-time (2021–26 / 2019–20): move limit 1.5% ₹87.6k, 1.75–2% ₹98k, 2.25–2.5% DD
+−₹9.1k (trade 35 enters) – the only cliff; rich 43% ₹101.8k but DD −₹7.0k; floor 36–40% same in 2021–26, 42% ₹84.1k; rise 2/2.5/3% and 5-day 0.5/1/1.5%
+within ±₹3k. Put spread in the 40 condor months instead of the condor: +₹4.0k (2021–26, 36 tr, DD −₹9.2k) vs condors ₹85.7k → condor is right in calm months.
+VERDICT: thresholds robust; keep them. Do not re-test.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
