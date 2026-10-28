@@ -1457,6 +1457,8 @@ entry and exit would take most of its edge → use limit orders near mid for the
 Same profit, 10 fewer trades, smaller 2019–20 drawdown. CAVEAT: 9 of the 10 months are 2019–20, where C/W < 40% came mostly from the fixed 400-pt width
 being wide at NIFTY 10–12k (the %-width question), not from cheap premium. Dropping a PCS when credit was low for a big-move month (e.g. 8, 28, 1910) is NOT
 the same rule and was not adopted. Not adopted – user's call.
+USER DECISION 28-Oct-2026: NO credit (C/W < 40%) filter on the put spread – 9 of the 10 affected months are 2019–20, where the low ratio came from the fixed
+400-pt width at NIFTY 10–12k. The put spread trades in every condor-skipped month except the 5-day-filter skips. Do not propose it again.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give

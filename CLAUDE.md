@@ -838,6 +838,8 @@ entry and exit would take most of its edge → use limit orders near mid for the
 Same profit, 10 fewer trades, smaller 2019–20 drawdown. CAVEAT: 9 of the 10 months are 2019–20, where C/W < 40% came mostly from the fixed 400-pt width
 being wide at NIFTY 10–12k (the %-width question), not from cheap premium. Dropping a PCS when credit was low for a big-move month (e.g. 8, 28, 1910) is NOT
 the same rule and was not adopted. Not adopted – user's call.
+USER DECISION 28-Oct-2026: NO credit (C/W < 40%) filter on the put spread – 9 of the 10 affected months are 2019–20, where the low ratio came from the fixed
+400-pt width at NIFTY 10–12k. The put spread trades in every condor-skipped month except the 5-day-filter skips. Do not propose it again.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
