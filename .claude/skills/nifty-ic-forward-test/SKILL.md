@@ -233,6 +233,30 @@ The data source decides these. With Breeze's last-traded close, trade 35 read +1
 - If the user asks about going back to 600 points, give both sides: more profit in the backtest, but a largest possible loss of about ₹22,500 a lot, outside the 2–3% limit for ₹3–5L. The agreed plan is to review the width after 6–12 months of forward testing, with real fills and margin.
 - Widening the 300-point limit from ±1.5% to ±2% added six trades worth +₹4,382 (four winners; losers 22 and 55), with the same drawdown.
 
+### Robustness checks (28-Oct-2026)
+
+Run on the whole rulebook (condor + 20-delta / 200-point put spread), including 2019–20, which the rules were never fitted on. None of them changed a rule. Files: `output/walk_forward_rulebook_thresholds.xlsx`, `output/put_spread_15_20_25_delta_2019_2026.xlsx`, `output/put_spread_target_exitdte_5day_2019_2026.xlsx`, `output/rulebook_2019_2026_fallback_slippage_thin_credit.xlsx`.
+
+| Check | Result | Verdict |
+|---|---|---|
+| Whole rulebook 2019–26 | 82 trades, ₹1,14,585, max drawdown −₹5,523, no losing year; 2019–20 alone 21 trades +₹16,742 | Holds out of sample |
+| Drawdown to plan for | Reshuffling the 80 trades into 20,000 random orders: median worst drawdown −₹6.8k, 1 in 10 −₹11.1k, 1 in 20 −₹12.9k, 1 in 100 −₹16.8k; about 1 path in 4 has a losing year | Plan for about −₹12–13k a lot, not −₹5.5k |
+| Walk-forward (900 threshold versions: 10-day limit 1.5–2.5%, rich line 43–47%, floor 36–42%, rise 2–3%, 5-day limit 0.5–1.5%) | All 900 profitable in 2021–23, 2024–26 and 2019–20. Fit 2021–23 → 2024–26: best-fitted ₹60.6k vs current ₹68.2k; fit 2024–26 → 2021–23: ₹28.5k vs current ₹29.7k | Re-optimising does not help; keep the thresholds |
+| One threshold at a time | Each step moves 2021–26 by about ±₹3–5k, except a 10-day limit of 2.25–2.5%, which lets in the Nov-2023 stop-loss (drawdown −₹5.5k → −₹9.1k) | ±2% is the line not to widen |
+| Sold-put delta | 2019–26: 15Δ ₹6.3k, 20Δ ₹21.8k, 25Δ ₹20.4k; 25Δ/300 best in 2021–26 (₹29.3k) but −₹1.8k with a −₹18.6k drawdown in 2019–20 | 20Δ is the only delta solid in both periods |
+| Put-spread target and exit day | Target 40% ≈ 50% (₹21.7k vs ₹21.8k); 60% or more doubles the 2021–26 drawdown; 21 or 25 DTE earn less than 18 | Keep 50% and 18 DTE |
+| Slippage per leg | 0.5 pt: 2021–26 ₹87.4k; 1 pt: ₹76.9k, still no losing year. Break-even: condor ≈ 5 pts/leg, put spread ≈ 2.2 pts/leg. The live half bid-ask of the 20Δ/200 spread was ≈ 1.3 pts/leg (27-Oct) | Put spread needs limit orders near mid |
+| Put spread instead of the condor in calm months | ₹4.0k on the 36 condor months of 2021–26 (drawdown −₹9.2k) vs ₹85.7k for the condors | The condor is right in calm months |
+| Fallback strikes for the put spread | Adds May-19, Apr-20 and May-24 (300-pt); everything else unchanged. Mar-2020 crash: no prices, untestable | Apply the same fallback rule live |
+
+How to use this live:
+
+- **Stop-test levels to suggest** (the user decides): a drawdown beyond about ₹13,000 a lot, or average slippage above 1 point per leg. Average slippage above about 2 points per leg on the put spread means it no longer earns.
+- **Log the put spread's fill against its mid price** at entry and exit. That is the number that decides whether it is worth trading.
+- If the user wants to change a threshold, point to the walk-forward: re-fitted thresholds did worse on new data than the current ones. Widening the 10-day limit beyond ±2% is the one change with a known cost.
+- **Robust is not the same as safe.** No rich-credit condor and few put spreads lost much in eight years, the March-2020 crash could not be tested for the put spread, and the out-of-sample evidence is 21 trades. The forward test is the real test.
+- **User decision (28-Oct-2026):** no credit filter on the put spread. 9 of the 10 thin-credit months were 2019–20, where the fixed 400-point width made the ratio low. Do not propose it again.
+
 ### What to do with this live
 
 - When the 10-day reading is within about 0.1 of ±2%, say so and show the two closes used.
