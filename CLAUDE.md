@@ -880,6 +880,14 @@ on 16-Mar only round strikes traded (22000, 22300, 22400 PE); the picked put is 
 print). Rough indication only (entry on 24-Mar instead, 22000/21800 ≈ 45 pts credit): worst mark 30-Mar ≈ −51% of credit (NIFTY low close 22,331 stayed
 above 22,000), target reached ≈ 8-Apr as NIFTY rallied to 24,051 → probably a ≈ +₹2k winner, but it rests on thin, partly bad prints. Kept OUT of all
 totals (rulebook stays 61 tr ₹97,843 for 2021–26). Live lesson: after a crash far puts trade only on round 100/500 strikes – use the chain's bid/ask.
+SECOND ENTRY TWO WEEKS LATER, EXIT 18 DTE (28-Oct-2026, point 8 part 1; trade set w4 = Monday 4 weeks before the expiry week, 28–31 DTE, 90 trades,
+id = expiry YYMM; strike sets d30_w4 / d20_w4; full rulebook applied at the second entry with its own 10-day / 5-day readings and 400-pt credit test;
+1 lot each; ic/spread_sim.py; output/second_entry_2weeks_18dte.xlsx; n / net / DD / worst / PF; DD in exit-date order). Second entry alone: 2021–26 59 /
++₹3,680 / −₹22,197 / −₹4,189 / 1.10 (2 losing years); 2019–20 22 / +₹919 / −₹14,652. At 29 DTE the 400-pt credit is thinner (C/W median 41.8% vs 44.3%), so
+60 of 81 become put spreads (2021–26: 39 tr −₹2,056) and only 21 condors (2021–26: 20 tr +₹5,735 / DD −₹6,707; all time exits – 11 days is too short for a
+target). Combined A + B, 2021–26: all 120 tr ₹101,030 / DD −₹10,287 vs A alone 61 tr ₹97,350 / −₹5,503; B condor only 81 tr ₹103,085 / −₹10,287; 2019–20 A+B
+₹17,618 / −₹15,203 vs A ₹16,700 / −₹5,281. 0.5-pt slippage on B's extra fills (≈ ₹5k on its 20 condors) removes the gain. VERDICT: about +₹4–6k over six years
+for twice the drawdown, twice the margin in overlapping weeks and 20–60 more trades – NOT adopted. Part 2 (exit 7 DTE) still optional (≈ 3,000 calls).
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
