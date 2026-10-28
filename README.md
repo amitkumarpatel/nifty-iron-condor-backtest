@@ -1482,6 +1482,16 @@ sample: the result comes from the structure, not the exact numbers. One-at-a-tim
 −₹9.1k (trade 35 enters) – the only cliff; rich 43% ₹101.8k but DD −₹7.0k; floor 36–40% same in 2021–26, 42% ₹84.1k; rise 2/2.5/3% and 5-day 0.5/1/1.5%
 within ±₹3k. Put spread in the 40 condor months instead of the condor: +₹4.0k (2021–26, 36 tr, DD −₹9.2k) vs condors ₹85.7k → condor is right in calm months.
 VERDICT: thresholds robust; keep them. Do not re-test.
+HEDGE WIDTHS AS A % OF NIFTY (28-Oct-2026, point 7, user idea; whole rulebook re-simulated with ic/spread_sim.py incl. per-side fallback; widths =
+% × NIFTY at entry rounded to 100 (min 100); A = calibrated to the 2021–26 average NIFTY 20,530 (wide 1.95% / normal 1.46% / put spread 0.97%), B = to
+today's 22,500 (1.78 / 1.33 / 0.89%); output/percent_width_hedges_2019_2026.xlsx; n / net / DD / worst / PF). Same simulator, fixed 400/300/200: 2021–26 61 /
+₹97,350 / −₹5,503 / 5.26 (engine ₹97,843 – simulator validated); 2019–20 21 / ₹16,700 / −₹5,281; 2019–26 ₹114,050. % A: 2021–26 ₹84,192 / −₹6,959 / 4.07;
+2019–20 19 / +₹406 / −₹11,452 (a losing year); 2019–26 ₹84,598 / −₹11,452. % B: 2021–26 ₹83,242 / −₹5,503; 2019–20 −₹830 / −₹11,452; 2019–26 ₹82,412.
+WHAT HAPPENS: the C/W ratio does become level-independent (median 45–48% in both periods vs 45% / 37% with fixed widths), so in 2019–20 the credit test
+now passes and 7–8 thin-credit months switch from put spread to a 200-pt condor – those condors made less (2002 Feb-2020 −₹6,902 vs put spread +₹1,489;
+1910 −₹2,553). In 2021–23 the widths shrink to 200–300 pts, and narrower hedges earn less (same as the 200/300/400 ladder). VERDICT: % widths cost ₹13–14k
+in 2021–26 and ≈ ₹16k in 2019–20 and double the drawdown – NOT adopted; keep fixed 400/300/200. The level question stays real: re-check widths at the
+6–12-month review or if NIFTY moves more than ≈ 20% from 22,500 (credit/width drifts with the level). Do not re-test.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
