@@ -102,7 +102,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
 <div class="wrap">
 
 <header>
-  <span class="eyebrow">Backtest summary · 27 Oct 2026</span>
+  <span class="eyebrow">Backtest summary · 28 Oct 2026</span>
   <h1>NIFTY Iron Condor Playbook</h1>
   <p class="lede">The rule set chosen for the forward test of a monthly NIFTY iron condor, and the backtest behind it: 66 monthly trades from January 2021 to August 2026, replayed on 1-minute option prices from ICICI Breeze and checked against StockMock.</p>
   <div class="meta">
@@ -428,6 +428,38 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   </ul>
 </section>
 
+<section aria-labelledby="h-robust">
+  <div class="sec-head">
+    <span class="eyebrow">Robustness checks · 28 Oct 2026</span>
+    <h2 id="h-robust">The result comes from the structure of the rules, not from lucky thresholds</h2>
+    <p>Six checks on the whole rulebook (condor + 20-delta / 200-point put spread), including the out-of-sample years 2019–20 that the rules were never fitted on. None of them changed a rule.</p>
+  </div>
+  <div class="verdict">
+    <div><span class="k">Whole rulebook, 2019–26</span><span class="v good">₹1,14,585</span><span class="s">82 trades · no losing year · 2019–20 alone +₹16,742</span></div>
+    <div><span class="k">Max drawdown, backtest</span><span class="v">−₹5,523</span><span class="s">plan for ≈ −₹12–13k a lot (trade-order reshuffle)</span></div>
+    <div><span class="k">Threshold versions that made money</span><span class="v good">900 / 900</span><span class="s">in every period: 2021–23, 2024–26, 2019–20</span></div>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Check</th><th>Result</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">Walk-forward: fit thresholds on one period, test on the other</td><td>Fit 2021–23 → 2024–26: best-fitted rule ₹60.6k vs current <b>₹68.2k</b>. Fit 2024–26 → 2021–23: ₹28.5k vs current <b>₹29.7k</b>. The current rule beats 81% and 98% of the 900 versions.</td><td>Re-optimising does not help; keep the thresholds</td></tr>
+        <tr><td class="lbl">One threshold at a time</td><td>Every step changes 2021–26 by about ±₹3–5k, except a 10-day limit of 2.25–2.5%, which lets in the Nov-2023 stop-loss (DD −₹5.5k → −₹9.1k)</td><td>±2% is the one line not to widen</td></tr>
+        <tr><td class="lbl">Sold-put delta 15 / 20 / 25</td><td>2019–26: 15Δ ₹6.3k · <b>20Δ ₹21.8k</b> · 25Δ ₹20.4k. 25Δ/300 is best in 2021–26 (₹29.3k) but loses in 2019–20 (DD −₹18.6k)</td><td>20Δ is the only delta solid in both periods</td></tr>
+        <tr><td class="lbl">Put-spread target and exit day</td><td>Target 40% ≈ 50% (₹21.7k vs ₹21.8k, 2019–26); 60%+ doubles the 2021–26 drawdown; exit at 21 or 25 DTE earns less than 18</td><td>Keep 50% and 18 DTE</td></tr>
+        <tr><td class="lbl">Slippage per leg</td><td>0.5 pt: 2021–26 ₹87.4k · 1 pt: ₹76.9k, still no losing year. Break-even: condor ≈ 5 pts/leg, put spread ≈ 2.2 pts/leg</td><td>Use limit orders near mid for the put spread</td></tr>
+        <tr><td class="lbl">Put spread instead of the condor in calm months</td><td>₹4.0k on the 36 condor months of 2021–26 (DD −₹9.2k) vs ₹85.7k for the condors</td><td>The condor is the right trade in calm months</td></tr>
+        <tr><td class="lbl">Missing strikes (fallback rule)</td><td>Adds May-19 (+₹3,171), Apr-20 (+₹3,737) and May-24 at 300-pt (+₹551); all other results unchanged. Mar-2020 crash: no prices, untestable</td><td>Fallback rule works for the put spread too</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="risks">
+    <li><b>Robust is not the same as safe.</b> No rich-credit condor and only 6 put spreads in eight years lost much, so a really bad month has not been seen. The March-2020 crash could not be tested for the put spread.</li>
+    <li><b>Out-of-sample means 2019–20 only</b>, 21 trades. The forward test is the real test.</li>
+    <li><b>Decided after these checks (user):</b> no credit filter on the put spread. 9 of the 10 thin-credit months were 2019–20, where the fixed 400-point width, not cheap premium, made the ratio low.</li>
+  </ul>
+</section>
+
 <section aria-labelledby="h-risks">
   <div class="sec-head">
     <span class="eyebrow">Before real money</span>
@@ -453,7 +485,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
         <li><b>Shadow-log the earlier rule every month</b>, including this October's 300-point condor (time exit 5 November 2026).</li>
     <li><b>Keep a journal</b>: bid, ask and fill of every leg at entry and exit, margin blocked, the 400-point credit, and the exit reason.</li>
     <li><b>Flag borderline readings</b>: a 10-day move within 0.1 of ±2%, or a credit within a few points of 160 or 180.</li>
-    <li><b>Decide in advance what would stop the test</b>, for example a drawdown beyond about ₹19,000 a lot or slippage above 1 point per leg.</li>
+    <li><b>Decide in advance what would stop the test</b>, for example a drawdown beyond about ₹13,000 a lot (the reshuffled-trade estimate) or average slippage above 1 point per leg.</li>
     <li><b>Review the hedge width after 6–12 months</b> (around April–October 2027): 400 against 600 points for the condor and 200 against 300 points for the put spread, with real fills and margin.</li>
   </ol>
 </section>
