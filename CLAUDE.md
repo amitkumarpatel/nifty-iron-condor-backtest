@@ -822,6 +822,22 @@ Combined with the 4 forward-rule condors (+₹7,040): 200-pt 19 tr +₹9,835 / D
 Risk per lot at 75: ≈ ₹13.0k (200) / ₹19.6k (300). On top of 5-day: above 50-DMA 11 tr +₹6,586 (200); VIX not down >10% 7 tr +₹863 – no help.
 VERDICT: the 20Δ/200 put spread with the 5-day filter stays profitable out of sample (small, +₹2.8k), with a drawdown inside the 2021–26 condor's
 −₹5.5k; thin-credit calm months are about break-even. Caveat: the crash month 2003 could not be priced (30Δ lost −₹5,315 there).
+WHOLE RULEBOOK 2019–26 – FALLBACK, SLIPPAGE, THIN-CREDIT PUT SPREADS (28-Oct-2026, points 2–4 of the improvement list; condor = variant 3, put spread
+20Δ TP50 SL100 with the 5-day filter; new module ic/spread_sim.py = the put-spread simulator; output/rulebook_2019_2026_fallback_slippage_thin_credit.xlsx).
+(2) FALLBACK STRIKES for put spreads (move the spread −50/+50/−100/+100, then widen the hedge +50/+100): reproduces every earlier result within ₹0.5 and
+adds 1905 (200-pt → 300-pt hedge, +₹3,171), 2004 (spread 100 pts out, 7700/7500, +₹3,737), 41 at 300-pt (100 closer, +₹551). 2003 (Mar-2020 crash) still
+has no price except the sold put – untestable. Rulebook, 200-pt put spread (n / net / DD / worst / PF): 2021–26 61 / ₹97,843 / −₹5,523 / −₹5,523 / 5.27;
+2019–20 21 (4 IC + 17 PCS) / ₹16,742 / −₹5,281 / −₹4,487 / 2.41; 2019–26 82 / ₹114,585 / −₹5,523 / 4.30, no losing year. 300-pt: 2021–26 ₹102,625;
+2019–20 ₹16,324 / −₹7,028; 2019–26 ₹118,949 / −₹7,028.
+(3) SLIPPAGE per leg per fill (condor 8 fills, put spread 4): 0.5 pt → 2021–26 ₹87,353 / DD −₹5,783 (300-pt ₹92,135); 2019–26 ₹100,345; 1 pt → ₹76,863 /
+−₹6,043; 2019–26 ₹86,105. No losing year at 1 pt. Break-even slippage: condor ≈ 5.0 pts/leg, put spread 2.2 (200-pt) / 2.6 (300-pt) – the put spread
+loses ≈ 20% of its profit per 0.5 pt. Live NSE quote (27-Oct, Dec expiry): the 20Δ/200 spread's half bid-ask ≈ 1.3 pts/leg, so crossing the spread on
+entry and exit would take most of its edge → use limit orders near mid for the put spread.
+(4) NO PUT SPREAD IN THIN-CREDIT-ONLY MONTHS (|move| <= 2%, 400-pt C/W < 40%): 10 months (9 in 2019–20, +₹29; trade 45 +₹351). 200-pt: 2019–26 72 tr
+₹114,204 / −₹5,523 / PF 5.09 vs base 82 tr ₹114,585 / PF 4.30; 2019–20 DD −₹5,281 → −₹3,052; with 0.5-pt slip it is +₹1.0k better (₹101,364 vs ₹100,345).
+Same profit, 10 fewer trades, smaller 2019–20 drawdown. CAVEAT: 9 of the 10 months are 2019–20, where C/W < 40% came mostly from the fixed 400-pt width
+being wide at NIFTY 10–12k (the %-width question), not from cheap premium. Dropping a PCS when credit was low for a big-move month (e.g. 8, 28, 1910) is NOT
+the same rule and was not adopted. Not adopted – user's call.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
