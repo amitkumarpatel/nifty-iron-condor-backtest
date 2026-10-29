@@ -40,7 +40,9 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
 - PUT CREDIT SPREAD in the condor-skipped months (ADOPTED 27-Oct-2026, user's decision; `FWD_PCS_*`): sell ~20Δ put, buy 200 pts lower,
   TP 50% / SL 100% of its own credit, same entry/check/exit; skip the month if 10-day move > +2.5% and last 5 days <= +1%. 300-pt
   hedge = shadow log (₹16.3k vs ₹12.1k 2021–26 but ≈ ₹16.8k vs ₹11.0k max loss/lot – beyond 2–3%); review with the condor width.
-  Combined 2021–26: 61 tr ₹97,843 / DD −₹5,523 (300-pt ₹102,075). 2019–20 at 20Δ still to test (needs download). Tools: `filter`
+  Combined 2021–26 (corrected 29-Oct-2026: lot fix, trades 38/41/45): 61 of 68 cycles traded (37 IC + 24 PCS; 5 skipped by the 5-day filter,
+  2 no Breeze data), ₹103,880 / DD −₹5,523 / PF 5.54 (300-pt PCS ₹109,510); 2019–20 20 tr ₹12,963; 2019–26 81 tr ₹116,843. PCS SIZE = 1 LOT (user
+  decision 29-Oct-2026): 2 lots ≈ ₹22k max loss = 4.4–7.4% of ₹3–5L (2019–20 PCS DD −₹10.6k at 2 lots); revisit at the 6–12-month review. Tools: `filter`
   prints the 5-day move and the PCS verdict; `strikes` prices the 200/300 put spreads when the condor is skipped; `check` handles a
   journal row with empty CE legs; template has structure, move_5d_pct, pcs_credit_200/300_pts.
 - NOTE: the earlier rule (300-pt IC whenever |move| <= 2.5%) is the SHADOW LOG – record every month what it would have done.

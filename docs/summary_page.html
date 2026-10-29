@@ -350,6 +350,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
     <li><b>Adds about ₹13k with no deeper drawdown</b>: the combined drawdown is still August 2026's condor (−₹5,523), and every year stays positive.</li>
     <li><b>Small trades.</b> About ₹550 profit per trade, so fills and slippage matter; with 0.5 point per leg the 200-point result falls to about ₹10.7k.</li>
     <li><b>The 5-day filter was chosen on these same 30 months</b>, and only 3 put spreads lost, so the stop is barely tested.</li>
+    <li><b>Size: 1 lot (decided 29 Oct).</b> The put spread needs about half the condor's margin, but 2 lots could lose about ₹22,000 (4.4–7.4% of ₹3–5L), outside the 2–3% limit. In the backtest 2 lots add ≈ ₹13k in 2021–26 with the same drawdown, but double the 2019–20 drawdown to −₹10.6k. Revisit at the 6–12 month review; 2 lots fit 3% from an account of about ₹7.4L.</li>
     <li><b>2019–20 out of sample:</b> 16 put spreads +₹5,965, 13 winners, drawdown −₹5,281 (lot 75); with that period's 4 condors 20 trades +₹12,963. The losers were the 3–6% falls of Jul-19, Sep-19 and Sep-20. March 2020 (no price) and April 2020 (unusable prices) could not be tested.</li>
   </ul>
 </section>
@@ -508,6 +509,8 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
         <li><b>Shadow-log the earlier rule every month</b>, including this October's 300-point condor (time exit 5 November 2026).</li>
     <li><b>Keep a journal</b>: bid, ask and fill of every leg at entry and exit, margin blocked, the 400-point credit, and the exit reason.</li>
     <li><b>Flag borderline readings</b>: a 10-day move within 0.1 of ±2%, or a credit within a few points of 160 or 180.</li>
+    <li><b>Check the credit ladder at 11:16</b>: the 300 and 400-point condor credits, and the 200 and 300-point put-spread credits, must rise with the width. If not, a far strike has an old price (the backtest had two such months); use bid/ask or the neighbouring strikes before deciding.</li>
+    <li><b>Run the 15:16 check on the entry day too</b>: a target or stop can be hit the same afternoon.</li>
     <li><b>Decide in advance what would stop the test</b>, for example a drawdown beyond about ₹13,000 a lot (the reshuffled-trade estimate) or average slippage above 1 point per leg.</li>
     <li><b>Review the hedge width after 6–12 months</b> (around April–October 2027): 400 against 600 points for the condor and 200 against 300 points for the put spread, with real fills and margin.</li>
   </ol>

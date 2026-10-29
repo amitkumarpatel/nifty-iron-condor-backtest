@@ -21,7 +21,7 @@ Do not quote strategy numbers from memory. Take them from the `rules` output. Th
 
 Adopted on 10-Oct-2026, finalised on 11-Oct-2026 (one ±2% limit for all widths) and set to a **400-point condor on rich-credit months** on 18-Oct-2026, from the October-2026 cycle. A 600-point condor makes more profit in the backtest, but the user chose 400 points because of the lower risk: its largest possible loss stays within 2–3% of the account. The width is to be reviewed after 6–12 months of forward testing (around April–October 2027). On 27-Oct-2026 the user added a **20-delta put credit spread with a 200-point hedge** for the months the condor rule skips (section "Put credit spread in the skipped months" below); a 300-point hedge makes more profit but is kept as a shadow line for the same reason as 600 points. The numbers below are the values at adoption; `rules` prints the live ones from `ic/config.py` (`FWD_*`). If they differ, the `rules` output wins and the user should be told.
 
-### Combined rulebook at a glance (condor + put spread, 27-Oct-2026)
+### Combined rulebook at a glance (condor + put spread, 27-Oct-2026; figures corrected 29-Oct-2026)
 
 Every month is one of four outcomes, decided by three readings: the 10-day move and the 5-day move (`filter`, evening before entry) and the 400-point condor credit (`strikes`, 11:16).
 
@@ -40,21 +40,21 @@ For every trade: entry Monday 11:16 at 43 DTE; one check at 15:16 (stop, then ta
 | Put spread | 20Δ / 200-pt | 20Δ / 300-pt (priced and logged every put-spread month) |
 | Largest possible loss per lot (65) | condor ≈ ₹13,600 · put spread ≈ ₹11,000 | ≈ ₹22,500 · ≈ ₹16,800 |
 
-Backtest 2021–26, net, no slippage (`output/combined_ic_plus_put20_spread.xlsx`):
+Backtest 2021–26, net, no slippage (`output/combined_ic_plus_put20_spread.xlsx`; includes the 29-Oct corrections – see "Data corrections" below):
 
 | Year | Condor | Put spread 200 | **Total (traded)** | Put spread 300 | Total (300 shadow) |
 |---|---|---|---|---|---|
-| 2021 | ₹9,624 | ₹2,639 | **₹12,263** | ₹3,527 | ₹13,151 |
+| 2021 | ₹13,620 | ₹4,089 | **₹17,709** | ₹5,550 | ₹19,171 |
 | 2022 | ₹676 | ₹4,530 | **₹5,206** | ₹6,492 | ₹7,168 |
 | 2023 | ₹11,201 | ₹1,018 | **₹12,219** | ₹1,456 | ₹12,657 |
-| 2024 | ₹8,192 | ₹851 | **₹9,043** | ₹555 | ₹8,747 |
+| 2024 | ₹9,135 | ₹500 | **₹9,635** | ₹1,028 | ₹10,163 |
 | 2025 | ₹39,122 | ₹2,209 | **₹41,331** | ₹2,954 | ₹42,076 |
 | 2026 (to Aug) | ₹16,914 | ₹867 | **₹17,781** | ₹1,362 | ₹18,276 |
-| **Total** | **36 tr ₹85,729** | **25 tr ₹12,114** | **61 tr ₹97,843** | 24 tr ₹16,346 | 60 tr ₹102,075 |
+| **Total** | **37 tr ₹90,667** | **24 tr ₹13,212** | **61 tr ₹1,03,880** | 24 tr ₹18,842 | 61 tr ₹1,09,510 |
 
-- Both versions trade the same 61 of 66 months; the 300-pt backtest shows 60 only because May-2024 had no 300-pt hedge price (live, the fallback rule would place it). The 5 months skipped by step 4: Sep-21, Apr-22, Dec-24, Feb-25, Feb-26.
-- Combined: 50 W / 11 L (82%), max drawdown −₹5,523 (Aug-26 condor), profit factor 5.27, about ₹1,440 a month = 0.3–0.5% a month on ₹3–5L. With 0.5 pt slippage per leg about ₹86k.
-- Version B with the 600-pt condor is not backtested as a combined set (estimate ≈ ₹1.31L). Review both widths together after 6–12 months (about Apr–Oct 2027), with real fills and margin.
+- 2021–26 has 68 monthly cycles: 61 traded (37 condors, 24 put spreads; the same 61 for both versions – May-2024's 300-pt put spread runs on fallback strikes), 5 skipped by step 4 (entries Sep-21, Apr-22, Dec-24, Feb-25, Feb-26) and 2 without usable Breeze data (Dec-22 entry, which would have been a 300-pt condor, StockMock ≈ −₹1,925; Mar-26 entry, a put spread, indicative ≈ +₹2.2k on a week-late entry).
+- Combined: 50 W / 11 L (82%), max drawdown −₹5,523 (Aug-26 condor), profit factor 5.54, about ₹1,530 a month = 0.3–0.5% a month on ₹3–5L. With 0.5 pt slippage per leg about ₹93k, with 1 pt about ₹82k.
+- Version B with the 600-pt condor is not backtested as a combined set (estimate ≈ ₹1.41L: 600-pt condor rule ₹1,22,477 + 300-pt put spreads ₹18,842). Review both widths together after 6–12 months (about Apr–Oct 2027), with real fills and margin.
 - Shadow logs: the 300-pt put spread; the earlier rule (300-pt condor whenever |10-day move| ≤ 2.5%); the condor's 15:16 P&L on every 1% gap-up day.
 - Next decision: Monday 16-Nov-2026 for the 29-Dec-2026 expiry (`filter` from the evening of Friday 13-Nov).
 
@@ -99,16 +99,18 @@ Backtest 2021–26 (1 lot, net, the 30 months the condor rule skips; `output/put
 
 | | 200-point (chosen) | 300-point (shadow; review in 6–12 months) |
 |---|---|---|
-| Put spread trades / net | 25 / ₹12,114 | 24 / ₹16,346 |
-| Won–lost / max drawdown / worst | 22–3 / −₹1,891 / −₹1,891 | 21–3 / −₹2,573 / −₹2,573 |
-| Average credit | 30 points (≈ ₹2,000 a lot) | 41 points |
+| Put spread trades / net | 24 / ₹13,212 | 24 / ₹18,842 |
+| Won–lost / max drawdown / worst | 21–3 / −₹1,891 / −₹1,891 | 21–3 / −₹2,573 / −₹2,573 |
+| Average credit | 30 points (≈ ₹2,000 a lot) | 42 points |
 | Largest possible loss per lot (65) | ≈ ₹11,000 (2.2% of ₹5L, 3.7% of ₹3L) | ≈ ₹16,800 (3.4% of ₹5L, 5.6% of ₹3L) |
-| Profit ÷ average largest loss | 1.10× | 0.97× |
-| Condor + put spread | 61 trades ₹97,843, DD −₹5,523 | 60 trades ₹102,075, DD −₹5,523 |
+| Profit ÷ average largest loss | 1.20× | 1.12× |
+| Condor + put spread | 61 trades ₹1,03,880, DD −₹5,523 | 61 trades ₹1,09,510, DD −₹5,523 |
 
-Why 200 and not 300: 300 points makes about ₹4k more over six years, but only because each trade carries about 50% more risk; per rupee at risk it is slightly worse, and its largest loss breaks the 2–3% rule. Same reasoning as 400 vs 600 for the condor; review both widths together.
+Why 200 and not 300: 300 points makes about ₹5.6k more over six years, but only because each trade carries about 50% more risk; per rupee at risk it is slightly worse, and its largest loss breaks the 2–3% rule. Same reasoning as 400 vs 600 for the condor; review both widths together.
 
-Small print: the 5-day filter was chosen on these 30 months; only 3 put spreads lost, so the stop is barely tested; the profit per trade is small (≈ ₹485), so fills matter. 2019–20 out of sample (27-Oct-2026, lot 75, 5-day filter): 200-point 15 trades +₹2,795, 12–3, drawdown −₹5,280; 300-point 17 trades +₹9,285, drawdown −₹7,028. Losers Jul-19, Sep-19 and Sep-20 (falls of 3–6%). The Mar-2020 crash month had no price and could not be tested. With the 4 condors of those years: +₹9,835, drawdown −₹5,280 (200-point).
+Small print: the 5-day filter was chosen on these 30 months; only 3 put spreads lost, so the stop is barely tested; the profit per trade is small (≈ ₹550), so fills matter. 2019–20 out of sample (lot 75, 5-day filter, corrected 29-Oct): 200-point 16 trades +₹5,965, 13–3, drawdown −₹5,281; 300-point 16 trades +₹7,278, drawdown −₹7,028. Losers Jul-19, Sep-19 and Sep-20 (falls of 3–6%). Mar-2020 (no price) and Apr-2020 (only a few odd trades on the put strikes) could not be tested. With the 4 condors of those years: 20 trades +₹12,963, drawdown −₹5,281 (200-point). Leg-by-leg detail of every put spread: `output/pcs_trade_details.xlsx`.
+
+**Size (user decision, 29-Oct-2026): 1 lot.** The put spread needs about half the margin of the 400-point condor, but 2 lots would carry a largest possible loss of about ₹22,000 (7.4% / 5.5% / 4.4% of ₹3L / ₹4L / ₹5L) – outside the 2–3% limit, like the 600-point condor. Backtest at 2 lots: 2021–26 rulebook ₹1,17,094 with the same −₹5,523 drawdown, but 2019–20 put-spread drawdown −₹10,562 and worst trade −₹8,974. Revisit at the 6–12-month review with real fills; 2 lots fit 3% only from an account of about ₹7.4L. If the user asks again, give these numbers; sizing is the user's call.
 
 ### Same for both widths
 
@@ -150,21 +152,21 @@ A shadow row holds the 300-point condor's strikes and 11:16 prices and has `shad
 
 ### Backtest of this rule set
 
-1 lot, net of costs, NSE official closes for the 10-day move, 60% target on the 400-point trades. The first table is the rule being forward-tested; the second compares hedge widths on the same months. Files: `output/six_variant_comparison.xlsx`, `output/final_variant_comparison.xlsx`, `output/risk_reward_400_vs_600.xlsx`.
+1 lot, net of costs, NSE official closes for the 10-day move, 60% target on the 400-point trades. The first table is the rule being forward-tested; the second compares hedge widths on the same months. Files: `output/variants_400_500_600_corrected.xlsx` (29-Oct, with the corrections), older `output/six_variant_comparison.xlsx`, `output/risk_reward_400_vs_600.xlsx`.
 
 | Period | Trades (400 / 300) | Net P&L | Max drawdown | Worst trade | Win rate | Profit factor |
 |---|---|---|---|---|---|---|
-| 2021–26 | 36 (17 / 19) | ₹85,729 | −₹5,523 | −₹5,523 | 78% | 5.67 |
+| 2021–26 | 37 (18 / 19) | ₹90,667 | −₹5,523 | −₹5,523 | 78% | 5.94 |
 | 2019–20 | 4 (2 / 2) | ₹7,040 | −₹1,986 | −₹1,986 | 75% | 4.54 |
-| 2019–26 | 40 (19 / 21) | ₹92,768 | −₹5,523 | −₹5,523 | 78% | 5.56 |
+| 2019–26 | 41 (20 / 21) | ₹97,707 | −₹5,523 | −₹5,523 | 78% | 5.8 |
 
-Earlier rule (shadow log) on the same data: 2021–26 45 trades, ₹66,052, drawdown −₹7,527; 2019–26 60 trades, ₹58,472, drawdown −₹18,795.
+Earlier rule (shadow log) on the same data: 2021–26 45 trades, ₹69,855, drawdown −₹7,527; 2019–26 60 trades, ≈ ₹62,300, drawdown −₹18,795.
 
-| Condor on the 17 rich-credit months (2021–26, same 36 trades in total) | Net P&L | Max drawdown | Profit factor | Largest possible loss on one rich-month trade (lot 65) |
+| Condor on the 18 rich-credit months (2021–26, same 37 trades in total) | Net P&L | Max drawdown | Profit factor | Largest possible loss on one rich-month trade (lot 65) |
 |---|---|---|---|---|
-| **400-point (chosen)** | ₹85,729 | −₹5,523 | 5.67 | about ₹13,600 |
-| 500-point (not chosen) | ₹100,287 | −₹5,523 | 6.47 | about ₹17,900 |
-| 600-point (more profit, more risk; review in 6–12 months) | ₹114,939 | −₹5,523 | 7.23 | about ₹22,500 |
+| **400-point (chosen)** | ₹90,667 | −₹5,523 | 5.94 | about ₹13,600 |
+| 500-point (not chosen) | ₹1,06,462 | −₹5,523 | 6.81 | about ₹17,900 |
+| 600-point (more profit, more risk; review in 6–12 months) | ₹1,22,477 | −₹5,523 | 7.63 | about ₹22,500 |
 
 The drawdown is identical because it comes from a 300-point trade. No rich-credit month in the backtest lost more than about ₹1,600 at 400 points (about ₹2,000 at 600), so the last column has never been tested. 2019–20 was only run at 400 points.
 
@@ -235,19 +237,19 @@ The data source decides these. With Breeze's last-traded close, trade 35 read +1
 
 ### Robustness checks (28-Oct-2026)
 
-Run on the whole rulebook (condor + 20-delta / 200-point put spread), including 2019–20, which the rules were never fitted on. None of them changed a rule. Files: `output/walk_forward_rulebook_thresholds.xlsx`, `output/put_spread_15_20_25_delta_2019_2026.xlsx`, `output/put_spread_target_exitdte_5day_2019_2026.xlsx`, `output/rulebook_2019_2026_fallback_slippage_thin_credit.xlsx`.
+Run on the whole rulebook (condor + 20-delta / 200-point put spread), including 2019–20, which the rules were never fitted on. None of them changed a rule. The walk-forward, delta, target and reshuffle rows were measured before the 29-Oct corrections; their conclusions do not depend on them. Files: `output/walk_forward_rulebook_thresholds.xlsx`, `output/put_spread_15_20_25_delta_2019_2026.xlsx`, `output/put_spread_target_exitdte_5day_2019_2026.xlsx`, `output/rulebook_2019_2026_fallback_slippage_thin_credit.xlsx`.
 
 | Check | Result | Verdict |
 |---|---|---|
-| Whole rulebook 2019–26 | 82 trades, ₹1,14,585, max drawdown −₹5,523, no losing year; 2019–20 alone 21 trades +₹16,742 | Holds out of sample |
+| Whole rulebook 2019–26 (corrected 29-Oct) | 81 trades, ₹1,16,843, max drawdown −₹5,523, no losing year; 2019–20 alone 20 trades +₹12,963 | Holds out of sample |
 | Drawdown to plan for | Reshuffling the 80 trades into 20,000 random orders: median worst drawdown −₹6.8k, 1 in 10 −₹11.1k, 1 in 20 −₹12.9k, 1 in 100 −₹16.8k; about 1 path in 4 has a losing year | Plan for about −₹12–13k a lot, not −₹5.5k |
 | Walk-forward (900 threshold versions: 10-day limit 1.5–2.5%, rich line 43–47%, floor 36–42%, rise 2–3%, 5-day limit 0.5–1.5%) | All 900 profitable in 2021–23, 2024–26 and 2019–20. Fit 2021–23 → 2024–26: best-fitted ₹60.6k vs current ₹68.2k; fit 2024–26 → 2021–23: ₹28.5k vs current ₹29.7k | Re-optimising does not help; keep the thresholds |
 | One threshold at a time | Each step moves 2021–26 by about ±₹3–5k, except a 10-day limit of 2.25–2.5%, which lets in the Nov-2023 stop-loss (drawdown −₹5.5k → −₹9.1k) | ±2% is the line not to widen |
 | Sold-put delta | 2019–26: 15Δ ₹6.3k, 20Δ ₹21.8k, 25Δ ₹20.4k; 25Δ/300 best in 2021–26 (₹29.3k) but −₹1.8k with a −₹18.6k drawdown in 2019–20 | 20Δ is the only delta solid in both periods |
 | Put-spread target and exit day | Target 40% ≈ 50% (₹21.7k vs ₹21.8k); 60% or more doubles the 2021–26 drawdown; 21 or 25 DTE earn less than 18 | Keep 50% and 18 DTE |
-| Slippage per leg | 0.5 pt: 2021–26 ₹87.4k; 1 pt: ₹76.9k, still no losing year. Break-even: condor ≈ 5 pts/leg, put spread ≈ 2.2 pts/leg. The live half bid-ask of the 20Δ/200 spread was ≈ 1.3 pts/leg (27-Oct) | Put spread needs limit orders near mid |
+| Slippage per leg (corrected 29-Oct) | 0.5 pt: 2021–26 ₹93.0k; 1 pt: ₹82.1k (drawdown −₹6.0k), still no losing year. Break-even: condor ≈ 5 pts/leg, put spread ≈ 2.2 pts/leg. The live half bid-ask of the 20Δ/200 spread was ≈ 1.3 pts/leg (27-Oct) | Put spread needs limit orders near mid |
 | Put spread instead of the condor in calm months | ₹4.0k on the 36 condor months of 2021–26 (drawdown −₹9.2k) vs ₹85.7k for the condors | The condor is right in calm months |
-| Fallback strikes for the put spread | Adds May-19, Apr-20 and May-24 (300-pt); everything else unchanged. Mar-2020 crash: no prices, untestable | Apply the same fallback rule live |
+| Fallback strikes for the put spread | Adds May-19 and May-24 (300-pt); everything else unchanged. Mar-2020 (no prices) and Apr-2020 (a few odd trades on the put strikes) untestable | Apply the same fallback rule live |
 
 How to use this live:
 
@@ -257,11 +259,25 @@ How to use this live:
 - **Robust is not the same as safe.** No rich-credit condor and few put spreads lost much in eight years, the March-2020 crash could not be tested for the put spread, and the out-of-sample evidence is 21 trades. The forward test is the real test.
 - **User decision (28-Oct-2026):** no credit filter on the put spread. 9 of the 10 thin-credit months were 2019–20, where the fixed 400-point width made the ratio low. Do not propose it again.
 
+### Data corrections (29-Oct-2026) and what they mean live
+
+A leg-by-leg check of the backtest found four problems; all figures above include the fixes.
+
+| Fix | What was wrong | Live lesson |
+|---|---|---|
+| Lot size, Feb–Jun 2021 expiries | The backtest used 50; NSE kept 75 until the Jun-2021 expiry (circular FAOP47854). `ic/config.py` fixed | The lot that counts is the contract's own lot (NSE changes apply by expiry). Take it from the broker's contract details |
+| Sep-2024 entry | The 400-pt call hedge (and the 500/600-pt ones) showed old quotes with zero volume, priced above a nearer strike → credit 158.6 (put spread). Realistic 180.45 = 45.1% → 400-pt condor (+₹942) | A stale far-strike price can flip the decision at the 160 / 180 lines. Use live bid/ask; compare with the neighbouring strikes |
+| Mar-2024 expiry, 300-pt put spread | The 20650 PE was an old quote, so the 300-pt spread "collected" less than the 200-pt one | Same check: a wider spread must collect more |
+| Entry-day 15:16 check | The put-spread simulator skipped the entry day's 15:16 check (the condor engine had it). No 2021–26 trade changed; Apr-2020's put prices turned out to be unusable | Run `check` at 15:16 on the entry day too – a target or stop can hit the same afternoon |
+
+Files: `output/pcs_trade_details.xlsx` (every put spread, legs, volumes, daily path), `output/combined_ic_plus_put20_spread.xlsx` (Changes sheet), `output/variants_400_500_600_corrected.xlsx`.
+
 ### What to do with this live
 
 - When the 10-day reading is within about 0.1 of ±2%, say so and show the two closes used.
 - When the 400-point credit is within a few points of 160 or 180, say so and let the user confirm the leg prices before deciding.
-- If a hedge is priced oddly against its neighbouring strike, flag it as a possible bad print; it can move the credit across the floor.
+- If a hedge is priced oddly against its neighbouring strike, flag it as a possible bad print; it can move the credit across the floor (see "Data corrections" – the backtest had two such months).
+- Check the credit ladder before deciding: the 300, 400 (and 500/600 if logged) condor credits, and the 200/300 put-spread credits, must rise with the width. A wider spread collecting less, or a far strike priced above a nearer one, means a stale price – use bid/ask or the neighbouring strikes.
 - The credit is only known at 11:16, so an evening reading inside ±2% is not yet a decision on the width.
 - Do not present the backtest results as what to expect.
 
@@ -364,6 +380,8 @@ Then:
 Paper fills are optimistic. Always record real bid and ask at entry so slippage can be estimated later (the README says 1 pt of slippage per leg cuts the 300-pt result to about 11k).
 
 ### 4. Daily check at 15:16: `check`
+
+The first check is on the entry day itself (15:16), as in the backtest engine.
 
 ```
 python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py check --trade-id N \
