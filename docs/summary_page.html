@@ -115,7 +115,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   <div class="sec-head">
     <span class="eyebrow">The short version</span>
     <h2 id="h-verdict">Trade only calm months, and widen the hedge to 400 points when the premium is rich</h2>
-    <p>The forward-test rule made ₹90,667 on 37 trades in the backtest, against ₹69,855 on 45 trades for the earlier rule, with a smaller drawdown. With a 20-delta put credit spread in the months the condor skips, the whole rulebook made ₹1,03,880 on 61 trades with the same −₹5,523 drawdown. A 600-point version earned more (≈ ₹1.15L before today's corrections), but its worst case per trade breaks the limit of 2–3% of capital, so it is set aside for a review after 6–12 months. The thresholds were chosen on this same data, so treat the figures as an upper bound.</p>
+    <p>The forward-test rule made ₹90,667 on 37 trades in the backtest, against ₹69,855 on 45 trades for the earlier rule, with a smaller drawdown. With a 20-delta put credit spread in the months the condor skips, the whole rulebook made ₹1,03,880 on 61 trades with the same −₹5,523 drawdown. A 600-point version earned more (₹1,22,477), but its worst case per trade breaks the limit of 2–3% of capital, so it is set aside for a review after 6–12 months. The thresholds were chosen on this same data, so treat the figures as an upper bound.</p>
   </div>
   <div class="verdict">
     <div><span class="k">Net P&amp;L, forward-test rule</span><span class="v good">₹90,667</span><span class="s">37 trades · earlier rule ₹69,855 on 45</span></div>
@@ -171,7 +171,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
       </tbody>
     </table>
   </div>
-  <p class="note">Not yet re-run after these fixes: the 500 and 600-point variants (4–6), the 400 vs 600 risk table and the walk-forward grid. Their comparisons do not change, but their rupee totals are a few thousand low. An automatic check for old quotes on hedge strikes (zero volume, or priced above a nearer strike) is not built yet; the two found so far were caught by hand.</p>
+  <p class="note">The 500 and 600-point variants and the 400 vs 600 risk table were re-run with these fixes on 29 Oct (at 500 and 600 points trade 45's call hedge needed the same correction). Not yet re-run: the walk-forward grid; its comparison does not change, but its rupee totals are a few thousand low. An automatic check for old quotes on hedge strikes (zero volume, or priced above a nearer strike) is not built yet; the two found so far were caught by hand.</p>
 </section>
 
 <section aria-labelledby="h-combined">
@@ -219,7 +219,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   <ul class="risks">
     <li><b>82% winners (50 / 11), max drawdown −₹5,523</b> (the Aug-26 condor), every year positive. About ₹1,530 a month: 0.3–0.5% a month on ₹3–5L, before slippage (≈ ₹93k with 0.5 point per leg, ≈ ₹82k with 1 point).</li>
     <li><b>68 cycles = 61 traded + 7 not traded.</b> 37 condors and 24 put spreads, the same 61 for both versions (May-2024's 300-pt put spread runs on fallback strikes). Skipped by step 4 (5): entries Sep-21, Apr-22, Dec-24, Feb-25, Feb-26. No usable Breeze data (2): Dec-22 entry (would have been a 300-pt condor; StockMock ≈ −₹1,925) and Mar-26 entry (a put spread; indicative ≈ +₹2.2k on a week-late entry).</li>
-    <li><b>Version B with the 600-pt condor is an estimate</b> (≈ ₹1.31L before today's corrections, which would add a few thousand), not a combined backtest. Both widths are reviewed together after 6–12 months.</li>
+    <li><b>Version B with the 600-pt condor is an estimate</b> (≈ ₹1.41L: 600-pt condor rule ₹1,22,477 + 300-pt put spreads ₹18,842), not a combined backtest. Both widths are reviewed together after 6–12 months.</li>
     <li><b>Shadow logs:</b> the 300-pt put spread, the earlier rule (300-pt condor within ±2.5%), and the condor's 15:16 P&amp;L on every 1% gap-up day.</li>
   </ul>
 </section>
@@ -288,22 +288,21 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   <div class="sec-head">
     <span class="eyebrow">Risk and reward</span>
     <h2 id="h-rr">600 points makes more profit; 400 points is chosen for its lower risk</h2>
-    <p class="note">Figures in this section are from before the 29-Oct corrections (the 400-point side is now ₹90,667 on 37 trades); the comparison between the two widths is unchanged.</p>
-    <p>The two versions trade the same 36 months and differ only in the 17 rich-credit months. The 600-point hedge gives the better profit, ₹114,939 against ₹85,729. The 400-point hedge is still the one being traded, because the 600-point condor can lose about ₹22,500 a lot on a single bad month, more than the 2–3% of capital limit allows on a ₹3–5L account, and per rupee at risk it is no better.</p>
+    <p>The two versions trade the same 37 months and differ only in the 18 rich-credit months. The 600-point hedge gives the better profit, ₹1,22,477 against ₹90,667. The 400-point hedge is still the one being traded, because the 600-point condor can lose about ₹22,500 a lot on a single bad month, more than the 2–3% of capital limit allows on a ₹3–5L account, and per rupee at risk it is no better.</p>
   </div>
   <div class="tbl">
     <table>
       <thead><tr><th></th><th class="n hlc">400-pt (chosen: lower risk)</th><th class="n">600-pt (better profit, higher risk)</th></tr></thead>
       <tbody>
-        <tr><td class="lbl">Whole rule, net P&amp;L</td><td class="n hlc"><b>₹85,729</b></td><td class="n">₹114,939</td></tr>
+        <tr><td class="lbl">Whole rule, net P&amp;L</td><td class="n hlc"><b>₹90,667</b></td><td class="n">₹1,22,477</td></tr>
         <tr><td class="lbl">Whole rule, max drawdown</td><td class="n neg hlc">−₹5,523</td><td class="n neg">−₹5,523</td></tr>
-        <tr><td class="lbl">Rich months, net P&amp;L</td><td class="n hlc">₹59,061</td><td class="n">₹88,271</td></tr>
-        <tr><td class="lbl">Rich months, winners / losers</td><td class="n hlc">14 / 3</td><td class="n">15 / 2</td></tr>
-        <tr><td class="lbl">Average win / average loss</td><td class="n hlc">₹4,407 / −₹879</td><td class="n">₹6,068 / −₹1,372</td></tr>
-        <tr><td class="lbl">Average credit</td><td class="n hlc">191.5 pts</td><td class="n">254.1 pts</td></tr>
-        <tr><td class="lbl">Largest possible loss per condor</td><td class="n hlc">208.5 pts · ≈ ₹13,600</td><td class="n">345.9 pts · ≈ ₹22,500</td></tr>
-        <tr><td class="lbl">Credit ÷ largest possible loss</td><td class="n hlc">0.92</td><td class="n">0.74</td></tr>
-        <tr><td class="lbl">Six-year profit ÷ largest loss</td><td class="n hlc">5.2×</td><td class="n">4.7×</td></tr>
+        <tr><td class="lbl">Rich months, net P&amp;L</td><td class="n hlc">₹64,000</td><td class="n">₹95,809</td></tr>
+        <tr><td class="lbl">Rich months, winners / losers</td><td class="n hlc">15 / 3</td><td class="n">16 / 2</td></tr>
+        <tr><td class="lbl">Average win / average loss</td><td class="n hlc">₹4,442 / −₹879</td><td class="n">₹6,160 / −₹1,372</td></tr>
+        <tr><td class="lbl">Average credit</td><td class="n hlc">190.9 pts</td><td class="n">253.6 pts</td></tr>
+        <tr><td class="lbl">Largest possible loss per condor</td><td class="n hlc">209.1 pts · ≈ ₹13,600</td><td class="n">346.4 pts · ≈ ₹22,500</td></tr>
+        <tr><td class="lbl">Credit ÷ largest possible loss</td><td class="n hlc">0.91</td><td class="n">0.73</td></tr>
+        <tr><td class="lbl">Six-year profit ÷ largest loss</td><td class="n hlc">5.5×</td><td class="n">5.0×</td></tr>
         <tr><td class="lbl">Largest loss as % of ₹3L / ₹4L / ₹5L</td><td class="n hlc">4.5% / 3.4% / 2.7%</td><td class="n">7.5% / 5.6% / 4.5%</td></tr>
         <tr><td class="lbl">Account needed for 3% / 2%</td><td class="n hlc">≈ ₹4.5L / ₹6.8L</td><td class="n">≈ ₹7.5L / ₹11.2L</td></tr>
       </tbody>
@@ -359,7 +358,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   <div class="sec-head">
     <span class="eyebrow">Results · 2021–26</span>
     <h2 id="h-results">Six rule sets side by side</h2>
-    <p>Variants 3 to 6 use the same ±2% move limit and the same credit test. They differ only in the hedge width. Variant 3 is the one being forward tested. Columns 1–3 include the 29-Oct corrections; columns 4–6 are from before them (about ₹4–6k low).</p>
+    <p>Variants 3 to 6 use the same ±2% move limit and the same credit test. They differ only in the hedge width. Variant 3 is the one being forward tested. All columns include the 29-Oct corrections.</p>
   </div>
   <div class="tbl">
     <table>
@@ -368,15 +367,15 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
         <tr><td class="lbl">Credit ≥ 45%</td><td class="n">300</td><td class="n">300</td><td class="n hlc">400</td><td class="n">500</td><td class="n">500</td><td class="n">600</td></tr>
         <tr><td class="lbl">Credit 40–45%</td><td class="n">300</td><td class="n">300</td><td class="n hlc">300</td><td class="n">500</td><td class="n">300</td><td class="n">300</td></tr>
         <tr><td class="lbl">Credit below 40%</td><td class="n">300</td><td class="n">300</td><td class="n hlc">skip</td><td class="n">skip</td><td class="n">skip</td><td class="n">skip</td></tr>
-        <tr><td class="lbl">Trades</td><td class="n">66</td><td class="n">45</td><td class="n hlc">37</td><td class="n">36</td><td class="n">36</td><td class="n">36</td></tr>
-        <tr><td class="lbl">Net P&amp;L</td><td class="n">₹50,851</td><td class="n">₹69,855</td><td class="n hlc"><b>₹90,667</b></td><td class="n">₹110,219</td><td class="n">₹100,287</td><td class="n">₹114,939</td></tr>
+        <tr><td class="lbl">Trades</td><td class="n">66</td><td class="n">45</td><td class="n hlc">37</td><td class="n">37</td><td class="n">37</td><td class="n">37</td></tr>
+        <tr><td class="lbl">Net P&amp;L</td><td class="n">₹50,851</td><td class="n">₹69,855</td><td class="n hlc"><b>₹90,667</b></td><td class="n">₹1,16,055</td><td class="n">₹1,06,462</td><td class="n">₹1,22,477</td></tr>
         <tr><td class="lbl">Max drawdown</td><td class="n neg">−₹11,860</td><td class="n neg">−₹7,527</td><td class="n neg hlc"><b>−₹5,523</b></td><td class="n neg">−₹9,515</td><td class="n neg">−₹5,523</td><td class="n neg">−₹5,523</td></tr>
         <tr><td class="lbl">Worst trade</td><td class="n neg">−₹8,529</td><td class="n neg">−₹7,243</td><td class="n neg hlc">−₹5,523</td><td class="n neg">−₹9,515</td><td class="n neg">−₹5,523</td><td class="n neg">−₹5,523</td></tr>
-        <tr><td class="lbl">Winners / losers</td><td class="n">42 / 24</td><td class="n">33 / 12</td><td class="n hlc">29 / 8</td><td class="n">29 / 7</td><td class="n">29 / 7</td><td class="n">29 / 7</td></tr>
+        <tr><td class="lbl">Winners / losers</td><td class="n">42 / 24</td><td class="n">33 / 12</td><td class="n hlc">29 / 8</td><td class="n">30 / 7</td><td class="n">30 / 7</td><td class="n">30 / 7</td></tr>
         <tr><td class="lbl">Win rate</td><td class="n">64%</td><td class="n">73%</td><td class="n hlc">78%</td><td class="n">81%</td><td class="n">81%</td><td class="n">81%</td></tr>
-        <tr><td class="lbl">Profit factor</td><td class="n">1.71</td><td class="n">3.32</td><td class="n hlc">5.94</td><td class="n">4.68</td><td class="n">6.47</td><td class="n">7.23</td></tr>
+        <tr><td class="lbl">Profit factor</td><td class="n">1.71</td><td class="n">3.32</td><td class="n hlc">5.94</td><td class="n">4.88</td><td class="n">6.81</td><td class="n">7.63</td></tr>
         <tr><td class="lbl">Losing years</td><td class="n">1</td><td class="n">1</td><td class="n hlc">0</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
-        <tr><td class="lbl">With 0.5-pt slippage per leg</td><td class="n">₹36,371</td><td class="n">₹59,995</td><td class="n hlc">₹82,307</td><td class="n">₹102,159</td><td class="n">₹92,227</td><td class="n">₹106,879</td></tr>
+        <tr><td class="lbl">With 0.5-pt slippage per leg</td><td class="n">₹36,371</td><td class="n">₹59,995</td><td class="n hlc">₹82,307</td><td class="n">₹1,07,695</td><td class="n">₹98,102</td><td class="n">₹1,14,117</td></tr>
         <tr><td class="lbl">Largest possible loss,<br>rich-credit trade (lot 65)</td><td class="n">≈ ₹10,000</td><td class="n">≈ ₹10,000</td><td class="n hlc">≈ ₹13,600</td><td class="n">≈ ₹18,800</td><td class="n">≈ ₹17,900</td><td class="n">≈ ₹22,500</td></tr>
       </tbody>
     </table>
@@ -388,8 +387,9 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
         <tr><td class="lbl">1 · No filter</td><td class="n">₹8,700 (12)</td><td class="n neg">−₹3,592 (11)</td><td class="n">₹4,587 (12)</td><td class="n">₹3,146 (12)</td><td class="n">₹31,955 (12)</td><td class="n">₹6,055 (7)</td></tr>
         <tr><td class="lbl">2 · Earlier rule</td><td class="n">₹15,866 (7)</td><td class="n neg">−₹3,307 (5)</td><td class="n">₹5,447 (9)</td><td class="n">₹7,126 (10)</td><td class="n">₹33,746 (9)</td><td class="n">₹10,977 (5)</td></tr>
         <tr class="hl"><td class="lbl">3 · 400-pt when rich</td><td class="n">₹13,620 (5)</td><td class="n">₹676 (4)</td><td class="n">₹11,201 (7)</td><td class="n">₹9,135 (7)</td><td class="n">₹39,122 (9)</td><td class="n">₹16,914 (5)</td></tr>
-        <tr><td class="lbl">5 · 500-pt when rich (before fixes)</td><td class="n">₹12,571 (5)</td><td class="n">₹854 (4)</td><td class="n">₹12,474 (7)</td><td class="n">₹9,345 (6)</td><td class="n">₹44,008 (9)</td><td class="n">₹21,035 (5)</td></tr>
-        <tr><td class="lbl">6 · 600-pt when rich (before fixes)</td><td class="n">₹15,404 (5)</td><td class="n">₹1,607 (4)</td><td class="n">₹13,444 (7)</td><td class="n">₹10,310 (6)</td><td class="n">₹48,931 (9)</td><td class="n">₹25,242 (5)</td></tr>
+        <tr><td class="lbl">4 · 500-pt on all</td><td class="n">₹16,549 (5)</td><td class="n">₹77 (4)</td><td class="n">₹14,109 (7)</td><td class="n">₹12,364 (7)</td><td class="n">₹55,005 (9)</td><td class="n">₹17,951 (5)</td></tr>
+        <tr><td class="lbl">5 · 500-pt when rich</td><td class="n">₹17,517 (5)</td><td class="n">₹854 (4)</td><td class="n">₹12,474 (7)</td><td class="n">₹10,574 (7)</td><td class="n">₹44,008 (9)</td><td class="n">₹21,035 (5)</td></tr>
+        <tr><td class="lbl">6 · 600-pt when rich</td><td class="n">₹21,402 (5)</td><td class="n">₹1,607 (4)</td><td class="n">₹13,444 (7)</td><td class="n">₹11,851 (7)</td><td class="n">₹48,931 (9)</td><td class="n">₹25,242 (5)</td></tr>
       </tbody>
     </table>
   </div>

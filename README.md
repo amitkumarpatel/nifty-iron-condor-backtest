@@ -1544,6 +1544,15 @@ engine (ic/engine.py) checks the entry day too. Fixed (entry <= day <= time exit
 rested on the same prints). Put spreads 2019–20: 200-pt 16 tr ₹5,965 / DD −₹5,281 (was 17 tr ₹9,702); 300-pt 16 tr ₹7,278 / −₹7,028. So the 2019–20 /
 2019–26 rulebook totals quoted above (e.g. 2019–20 ₹16,742, 2019–26 ₹114,585) include ≈ +₹3.7k from 2004 that should be removed. Studies run with the
 old simulator (points 7 and 8) did not check entry days – re-run them before relying on small differences.
+VARIANTS 3–6 RE-RUN WITH THE 29-OCT CORRECTIONS (29-Oct-2026, user request; output/variants_400_500_600_corrected.xlsx; 2021–26, ±2%, 400-pt credit test; n /
+net / max DD / worst / W-L / PF / 0.5-pt slip). Lot 75 for Feb–Jun 2021 (trades 3, 4 are rich months) and trade 45 now rich – its far call hedge was stale at
+every width (400-pt 26450 CE 114.65 → 92.75; 500-pt 26550 CE 157.40 from one 09:29 trade, above 26500 → 73.80 = midway 26500/26600, stale 16–19 Sep; 600-pt
+26650 CE 44.05 zero volume, below 26700 → 58.33, stale 16–17 Sep); credits 180.45 / 214.1 / 245.5, nets ₹942 / ₹1,229 / ₹1,541 (the engine's raw 500-pt run
+books an impossible −₹4,363 stop). 18 rich + 19 at 300-pt = 37 condors. (3) 400 when rich 37 / ₹90,667 / −₹5,523 / −₹5,523 / 29-8 / 5.94 / ₹82,307; (4) 500 on all
+37 / ₹116,055 / −₹9,515 / −₹9,515 / 30-7 / 4.88 / ₹107,695; (5) 500 when rich 37 / ₹106,462 / −₹5,523 / 6.81 / ₹98,102; (6) 600 when rich 37 / ₹122,477 / −₹5,523 /
+7.63 / ₹114,117 (before: ₹85,729 / ₹110,219 / ₹100,287 / ₹114,939). Rich months 400 vs 600: ₹64,000 vs ₹95,809, W/L 15/3 vs 16/2, avg win ₹4,442 vs ₹6,160, avg
+loss −₹879 vs −₹1,372, worst −₹1,558 vs −₹2,045, credit 190.9 vs 253.6, max loss 209.1 vs 346.4 pts (≈ ₹13.6k vs ₹22.5k at lot 65), credit ÷ max loss 0.91 vs
+0.73, rich profit ÷ avg max loss 5.5× vs 5.0×. Same picture as before; summary page updated. Version B estimate (600 + 300-pt PCS) ≈ ₹1.41L.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
