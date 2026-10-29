@@ -1,7 +1,7 @@
 """Simulator for 2-4 leg option structures (put credit spread etc.) on cached Breeze candles.
 
 Same timing, price rule and costs as the condor engine: entry at ENTRY_TIME, one check a day at CHECK_TIME
-(stop-loss first, then target), time exit on the last trading day on/before expiry - EXIT_DTE.
+(stop-loss first, then target; the entry day is checked too), time exit on the last trading day on/before expiry - EXIT_DTE.
 Used for the forward-test put credit spread studies (README section 7); backtest.py does not use it.
 """
 import pandas as pd
@@ -30,7 +30,7 @@ def run(entry, expiry, legs, qty, tp_pts=None, sl_pts=None, exit_if=None):
     cal = load_calendar(entry, expiry)
     tx = time_exit_day(expiry, cal)
     exit_day, reason, val = tx, "TIME", None
-    for d in [x for x in cal if entry < x <= tx]:
+    for d in [x for x in cal if entry <= x <= tx]:   # entry day included (15:16 check), as in ic/engine.py
         now = {}
         for p, key in keys:
             px = E.price_at(key, d, C.CHECK_TIME)[0]

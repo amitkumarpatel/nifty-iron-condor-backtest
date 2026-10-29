@@ -918,6 +918,13 @@ main report 300-pt ±2.5% 45 tr ₹66,052 → ₹69,855 / DD −₹7,527 / PF 3.
 200-pt 24 tr ₹13,212, 300-pt ₹18,842 (incl. trade 41 on fallback strikes). Trade by trade at 75: 1 PCS ₹1,109 → ₹1,711; 2 PCS ₹664 → ₹1,043; 3 IC 400
 ₹5,146 → ₹7,814; 4 IC 400 ₹2,469 → ₹3,798; 5 PCS ₹843 → ₹1,312. ALL 2021–26 totals quoted in the entries above this one used lot 50 for those five
 months – add roughly ₹3–5.5k (depending on which of 1–5 a rule trades) when comparing. 2019–20 unchanged. Old reports kept in output/pre_lotfix/.
+ENTRY-DAY CHECK FIX IN ic/spread_sim.py (29-Oct-2026, user check): the put-spread simulator started its daily 15:16 checks the day AFTER entry; the
+engine (ic/engine.py) checks the entry day too. Fixed (entry <= day <= time exit). Re-run of output/pcs_trade_details.xlsx: no 2021–26 trade changes; in
+2019–20 only 2004 (Apr-2020, COVID) changes – and its put prices are unusable (7800 PE 9 trades / 7700 PE 3 trades on 13-Apr-2020, 7700 priced above 7800,
+7800 196 → 280 intraday with NIFTY flat; only 8000/7500 traded normally). 2004 is now NOT TESTABLE and out of the totals (its earlier +₹3,737 at 200-pt
+rested on the same prints). Put spreads 2019–20: 200-pt 16 tr ₹5,965 / DD −₹5,281 (was 17 tr ₹9,702); 300-pt 16 tr ₹7,278 / −₹7,028. So the 2019–20 /
+2019–26 rulebook totals quoted above (e.g. 2019–20 ₹16,742, 2019–26 ₹114,585) include ≈ +₹3.7k from 2004 that should be removed. Studies run with the
+old simulator (points 7 and 8) did not check entry days – re-run them before relying on small differences.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
 backtest_strangle.py) reusing ic/engine.py with a 2-leg leg builder; note unlimited risk and much higher margin than the IC.
 
