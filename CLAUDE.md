@@ -906,6 +906,9 @@ spread (+₹351). Realistic 26450 CE = 92.75 (midway 26400 CE 102.00 / 26500 CE 
 updated (Changes sheet): COMBINED IC + PCS 200 2021–26 61 tr ₹97,843 → ₹98,434 (37 IC + 24 PCS), IC + PCS 300 ₹102,075 → ₹102,510, DD unchanged −₹5,523.
 Other quoted rulebook totals (₹97,843, 2019–26 ₹114,585 etc.) are BEFORE this fix (+₹591). The engine's bad-print rule only catches a hedge priced >= its
 own sold leg; a hedge priced above a nearer strike or with zero volume is not caught (proposed check, not built).
+TRADE 38 300-PT PCS CORRECTION (29-Oct-2026; Mar-2024 expiry, alternative column only): 20650 PE showed 114.50 at 11:16 (stale, zero volume/OI, above
+20750 PE 104.00) → credit 29.60 < the 200-pt spread's 40.10. Realistic 91.15 (midway 20700 / 20600 PE) → credit 52.95, target 19-Feb, net ₹1,216 (was ₹787).
+COMBINED IC + PCS 300 2021–26 → ₹102,939; official IC + PCS 200 unchanged ₹98,434.
 Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
 (StockMock's quantity); only the 2019–2020 set uses 75.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.

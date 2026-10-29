@@ -1525,6 +1525,9 @@ spread (+₹351). Realistic 26450 CE = 92.75 (midway 26400 CE 102.00 / 26500 CE 
 updated (Changes sheet): COMBINED IC + PCS 200 2021–26 61 tr ₹97,843 → ₹98,434 (37 IC + 24 PCS), IC + PCS 300 ₹102,075 → ₹102,510, DD unchanged −₹5,523.
 Other quoted rulebook totals (₹97,843, 2019–26 ₹114,585 etc.) are BEFORE this fix (+₹591). The engine's bad-print rule only catches a hedge priced >= its
 own sold leg; a hedge priced above a nearer strike or with zero volume is not caught (proposed check, not built).
+TRADE 38 300-PT PCS CORRECTION (29-Oct-2026; Mar-2024 expiry, alternative column only): 20650 PE showed 114.50 at 11:16 (stale, zero volume/OI, above
+20750 PE 104.00) → credit 29.60 < the 200-pt spread's 40.10. Realistic 91.15 (midway 20700 / 20600 PE) → credit 52.95, target 19-Feb, net ₹1,216 (was ₹787).
+COMBINED IC + PCS 300 2021–26 → ₹102,939; official IC + PCS 200 unchanged ₹98,434.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
