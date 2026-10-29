@@ -102,7 +102,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
 <div class="wrap">
 
 <header>
-  <span class="eyebrow">Backtest summary · 28 Oct 2026</span>
+  <span class="eyebrow">Backtest summary · 29 Oct 2026 · corrected figures</span>
   <h1>NIFTY Iron Condor Playbook</h1>
   <p class="lede">The rule set chosen for the forward test of a monthly NIFTY iron condor, and the backtest behind it: 66 monthly trades from January 2021 to August 2026, replayed on 1-minute option prices from ICICI Breeze and checked against StockMock.</p>
   <div class="meta">
@@ -115,10 +115,10 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   <div class="sec-head">
     <span class="eyebrow">The short version</span>
     <h2 id="h-verdict">Trade only calm months, and widen the hedge to 400 points when the premium is rich</h2>
-    <p>The forward-test rule made ₹85,729 on 36 trades in the backtest, against ₹66,052 on 45 trades for the earlier rule, with a smaller drawdown. With a 20-delta put credit spread in the months the condor skips, the whole rulebook made ₹97,843 on 61 trades with the same −₹5,523 drawdown. A 600-point version earned more (₹114,939), but its worst case per trade breaks the limit of 2–3% of capital, so it is set aside for a review after 6–12 months. The thresholds were chosen on this same data, so treat the figures as an upper bound.</p>
+    <p>The forward-test rule made ₹90,667 on 37 trades in the backtest, against ₹69,855 on 45 trades for the earlier rule, with a smaller drawdown. With a 20-delta put credit spread in the months the condor skips, the whole rulebook made ₹1,03,880 on 61 trades with the same −₹5,523 drawdown. A 600-point version earned more (≈ ₹1.15L before today's corrections), but its worst case per trade breaks the limit of 2–3% of capital, so it is set aside for a review after 6–12 months. The thresholds were chosen on this same data, so treat the figures as an upper bound.</p>
   </div>
   <div class="verdict">
-    <div><span class="k">Net P&amp;L, forward-test rule</span><span class="v good">₹85,729</span><span class="s">36 trades · earlier rule ₹66,052 on 45</span></div>
+    <div><span class="k">Net P&amp;L, forward-test rule</span><span class="v good">₹90,667</span><span class="s">37 trades · earlier rule ₹69,855 on 45</span></div>
     <div><span class="k">Max drawdown</span><span class="v">−₹5,523</span><span class="s">earlier rule −₹7,527 · no filter −₹11,860</span></div>
     <div><span class="k">Largest possible loss, one trade</span><span class="v">≈ ₹13,600</span><span class="s">400-pt condor at lot 65 · 2.7% of ₹5L</span></div>
   </div>
@@ -129,7 +129,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
       <span class="f"><i></i>Forward-test rule (400-pt when rich, else 300-pt)</span>
     </div>
     <div class="chart-scroll">
-<svg viewBox="0 0 760 300" role="img" aria-labelledby="eqTitle eqDesc" class="chart"><title id="eqTitle">Cumulative net P&amp;L</title><desc id="eqDesc">Cumulative net profit after costs by exit date for three rule sets, January 2021 to September 2026. No filter ends at 47.3 thousand rupees, the earlier rule at 66.1 thousand, the forward-test rule at 85.7 thousand.</desc>
+<svg viewBox="0 0 760 300" role="img" aria-labelledby="eqTitle eqDesc" class="chart"><title id="eqTitle">Cumulative net P&amp;L</title><desc id="eqDesc">Cumulative net profit after costs by exit date for three rule sets, January 2021 to September 2026. No filter ends at 50.9 thousand rupees, the earlier rule at 69.9 thousand, the forward-test rule at 90.7 thousand.</desc>
 <line class="zero" x1="64" x2="642" y1="243.3" y2="243.3"/><text class="ylab" x="56" y="247.3" text-anchor="end">₹0k</text>
 <line class="grid" x1="64" x2="642" y1="197.8" y2="197.8"/><text class="ylab" x="56" y="201.8" text-anchor="end">₹20k</text>
 <line class="grid" x1="64" x2="642" y1="152.4" y2="152.4"/><text class="ylab" x="56" y="156.4" text-anchor="end">₹40k</text>
@@ -142,16 +142,36 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
 <line class="tick" x1="353.0" x2="353.0" y1="266" y2="271"/><text class="xlab" x="401.0" y="286" text-anchor="middle">2024</text>
 <line class="tick" x1="449.6" x2="449.6" y1="266" y2="271"/><text class="xlab" x="497.4" y="286" text-anchor="middle">2025</text>
 <line class="tick" x1="545.9" x2="545.9" y1="266" y2="271"/><text class="xlab" x="593.7" y="286" text-anchor="middle">2026</text>
-<path class="line orig" d="M66.0,243.3 H73.2 V241.9 H80.6 V238.7 H89.9 V230.1 H97.3 V225.9 H104.6 V229.3 H113.9 V220.5 H121.3 V222.6 H130.2 V234.9 H137.9 V239.1 H144.8 V232.8 H154.5 V234.3 H161.9 V231.6 H169.3 V227.4 H178.5 V224.2 H185.9 V231.8 H193.3 V242.3 H202.6 V237.6 H210.0 V233.5 H217.3 V245.7 H226.6 V240.2 H234.0 V239.1 H241.4 V247.4 H250.6 V239.7 H265.4 V232.0 H273.6 V224.1 H281.7 V216.2 H289.4 V218.4 H298.6 V212.5 H306.0 V220.9 H315.3 V215.6 H322.6 V216.1 H330.0 V210.7 H339.3 V207.7 H345.9 V224.1 H354.1 V229.3 H363.3 V225.7 H370.4 V225.8 H377.3 V217.0 H387.3 V214.9 H394.7 V217.8 H402.1 V220.7 H411.3 V217.3 H418.7 V216.3 H428.0 V214.4 H435.3 V218.0 H442.7 V216.7 H452.0 V222.2 H459.4 V211.0 H466.8 V216.4 H474.1 V207.6 H483.4 V217.1 H490.8 V211.6 H500.0 V196.8 H507.4 V201.8 H516.1 V189.0 H523.8 V178.1 H531.4 V171.1 H540.4 V159.0 H547.3 V149.5 H555.4 V138.6 H564.4 V158.0 H579.4 V149.8 H588.4 V138.7 H596.1 V128.8 H603.5 V123.2 H612.7 V135.8 H620.1"/>
-<path class="line best" d="M66.0,243.3 H80.6 V240.0 H89.9 V231.4 H97.3 V227.3 H113.9 V218.5 H121.3 V220.6 H144.8 V214.4 H154.5 V215.9 H178.5 V212.7 H185.9 V220.3 H210.0 V216.2 H234.0 V215.1 H241.4 V223.4 H265.4 V215.6 H273.6 V207.7 H281.7 V199.8 H298.6 V193.9 H306.0 V202.4 H315.3 V197.1 H322.6 V197.5 H339.3 V194.5 H345.9 V211.0 H363.3 V207.3 H370.4 V207.5 H377.3 V198.7 H387.3 V196.6 H394.7 V199.5 H402.1 V202.4 H411.3 V199.0 H418.7 V198.0 H428.0 V196.1 H442.7 V194.8 H459.4 V183.6 H474.1 V174.7 H490.8 V169.3 H500.0 V154.5 H507.4 V159.4 H516.1 V146.6 H531.4 V139.6 H540.4 V127.6 H547.3 V118.1 H555.4 V107.2 H588.4 V96.0 H596.1 V86.2 H603.5 V80.6 H612.7 V93.2 H620.1"/>
-<path class="line filter" d="M66.0,243.3 H89.9 V231.6 H97.3 V226.0 H121.3 V228.2 H144.8 V220.0 H154.5 V221.4 H178.5 V217.1 H210.0 V213.0 H234.0 V211.6 H241.4 V219.9 H265.4 V209.8 H273.6 V201.9 H281.7 V194.0 H306.0 V202.5 H315.3 V197.2 H322.6 V197.4 H339.3 V194.4 H363.3 V190.8 H377.8 V177.4 H387.3 V175.3 H402.1 V178.8 H418.7 V177.1 H442.7 V175.8 H459.4 V160.0 H474.1 V151.1 H490.8 V142.8 H500.0 V123.3 H507.4 V128.2 H516.1 V115.4 H531.4 V108.4 H540.4 V96.4 H547.3 V86.9 H555.4 V75.9 H588.7 V57.5 H596.1 V43.9 H603.5 V35.9 H612.7 V48.4 H620.1"/>
-<circle class="dot orig" cx="620.1" cy="135.8" r="3.5"/><text class="endlab orig" x="628.1" y="139.8">₹47.3k</text>
-<circle class="dot best" cx="620.1" cy="93.2" r="3.5"/><text class="endlab best" x="628.1" y="97.2">₹66.1k</text>
-<circle class="dot filter" cx="620.1" cy="48.4" r="3.5"/><text class="endlab filter" x="628.1" y="52.4">₹85.7k</text>
+<path class="line orig" d="M66.0,243.3 H73.2 V241.0 H80.6 V236.0 H89.8 V222.8 H97.2 V216.4 H104.6 V221.2 H113.8 V212.4 H121.2 V214.6 H130.2 V226.8 H137.8 V231.0 H144.7 V224.8 H154.4 V226.2 H161.8 V223.5 H169.2 V219.4 H178.4 V216.2 H185.8 V223.8 H193.2 V234.3 H202.4 V229.6 H209.8 V225.5 H217.2 V237.6 H226.4 V232.2 H233.8 V231.1 H241.2 V239.4 H250.4 V231.7 H265.2 V223.9 H273.3 V216.0 H281.5 V208.1 H289.2 V210.3 H298.4 V204.4 H305.8 V212.9 H315.0 V207.6 H322.4 V208.0 H329.8 V202.6 H339.0 V199.6 H345.6 V216.1 H353.8 V221.3 H363.0 V217.6 H370.1 V217.8 H377.0 V208.9 H387.0 V206.9 H394.4 V209.8 H401.7 V212.6 H411.0 V209.3 H418.4 V208.3 H427.6 V206.3 H435.0 V209.9 H442.3 V208.6 H451.6 V214.1 H459.0 V202.9 H466.3 V208.4 H473.7 V199.5 H482.9 V209.0 H490.3 V203.6 H499.6 V188.8 H506.9 V193.7 H515.6 V180.9 H523.3 V170.0 H530.9 V163.0 H539.9 V151.0 H546.8 V141.5 H554.9 V130.6 H563.9 V149.9 H578.9 V141.7 H587.9 V130.6 H595.5 V120.8 H602.9 V115.2 H612.1 V127.7 H620.1"/>
+<path class="line best" d="M66.0,243.3 H80.6 V238.2 H89.8 V225.1 H97.2 V218.7 H113.8 V209.9 H121.2 V212.0 H144.7 V205.8 H154.4 V207.2 H178.4 V204.1 H185.8 V211.7 H209.8 V207.5 H233.8 V206.5 H241.2 V214.8 H265.2 V207.0 H273.3 V199.1 H281.5 V191.2 H298.4 V185.3 H305.8 V193.8 H315.0 V188.5 H322.4 V188.9 H339.0 V185.9 H345.6 V202.4 H363.0 V198.7 H370.1 V198.9 H377.0 V190.0 H387.0 V188.0 H394.4 V190.9 H401.7 V193.8 H411.0 V190.4 H418.4 V189.4 H427.6 V187.5 H442.3 V186.2 H459.0 V175.0 H473.7 V166.1 H490.3 V160.7 H499.6 V145.9 H506.9 V150.8 H515.6 V138.0 H530.9 V131.0 H539.9 V119.0 H546.8 V109.5 H554.9 V98.6 H587.9 V87.4 H595.5 V77.6 H602.9 V72.0 H612.1 V84.6 H620.1"/>
+<path class="line filter" d="M66.0,243.3 H89.8 V225.5 H97.2 V216.9 H121.2 V219.2 H144.7 V210.9 H154.4 V212.3 H178.4 V208.1 H209.8 V204.0 H233.8 V202.5 H241.2 V210.8 H265.2 V200.8 H273.3 V192.9 H281.5 V184.9 H305.8 V193.4 H315.0 V188.1 H322.4 V188.3 H339.0 V185.4 H363.0 V181.7 H377.5 V168.3 H387.0 V166.3 H401.7 V169.8 H418.4 V168.0 H427.6 V165.9 H442.3 V164.6 H459.0 V148.8 H473.7 V139.9 H490.3 V131.7 H499.6 V112.1 H506.9 V117.0 H515.6 V104.2 H530.9 V97.2 H539.9 V85.2 H546.8 V75.7 H554.9 V64.8 H588.1 V46.3 H595.5 V32.7 H602.9 V24.7 H612.1 V37.3 H620.1"/>
+<circle class="dot orig" cx="620.1" cy="127.7" r="3.5"/><text class="endlab orig" x="628.1" y="131.7">₹50.9k</text>
+<circle class="dot best" cx="620.1" cy="84.6" r="3.5"/><text class="endlab best" x="628.1" y="88.6">₹69.9k</text>
+<circle class="dot filter" cx="620.1" cy="37.3" r="3.5"/><text class="endlab filter" x="628.1" y="41.3">₹90.7k</text>
 </svg>
     </div>
-    <figcaption>Cumulative net P&amp;L after costs, stepped at each trade's exit date. Lot size per expiry (50 → 25 → 75 → 65).</figcaption>
+    <figcaption>Cumulative net P&amp;L after costs, stepped at each trade's exit date. Lot size per expiry (75 → 50 from the Jul-2021 expiry → 25 → 75 → 65).</figcaption>
   </figure>
+</section>
+
+<section aria-labelledby="h-fix">
+  <div class="sec-head">
+    <span class="eyebrow">Corrections · 29 Oct 2026</span>
+    <h2 id="h-fix">Four data fixes since the last version</h2>
+    <p>A month-by-month check of the legs found three price or size errors and one simulator gap. All figures on this page now include them. Every fix raised profit or left it unchanged, and no drawdown got worse.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Fix</th><th>What was wrong</th><th>Effect, 2021–26</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">Lot size, Feb–Jun 2021 expiries</td><td>The backtest used 50, StockMock's quantity. NSE kept NIFTY at 75 until the June-2021 expiry and cut it to 50 from July 2021 (circular FAOP47854). Five trades, all winners, were a third too small</td><td class="n">+₹3.8k to +₹5.4k on every rule</td></tr>
+        <tr><td class="lbl">Sep-2024 entry (Oct-2024 expiry)</td><td>The 400-point call hedge showed an old quote (114.65, zero volume), priced above the nearer strike. With a realistic 92.75 the credit is 180.45 points, 45.1%, so the month is a <b>400-point condor</b>, not a put spread</td><td class="n">+₹591 (₹351 → ₹942)</td></tr>
+        <tr><td class="lbl">Mar-2024 expiry, 300-pt put spread</td><td>The 300-point hedge showed an old quote (zero volume), so the wider spread collected less than the 200-point one. Corrected to the price between its neighbours</td><td class="n">+₹429 on the 300-pt shadow</td></tr>
+        <tr><td class="lbl">Entry-day check, put spreads</td><td>The put-spread simulator skipped the 15:16 check on the entry day; the condor engine always had it. No 2021–26 trade changes. In 2019–20, April 2020 changes, and its put prices turn out to be a few odd COVID-day trades, so it is now marked untestable</td><td class="n">2019–20 −₹3.7k (Apr-2020 removed)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Not yet re-run after these fixes: the 500 and 600-point variants (4–6), the 400 vs 600 risk table and the walk-forward grid. Their comparisons do not change, but their rupee totals are a few thousand low. An automatic check for old quotes on hedge strikes (zero volume, or priced above a nearer strike) is not built yet; the two found so far were caught by hand.</p>
 </section>
 
 <section aria-labelledby="h-combined">
@@ -186,20 +206,20 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
     <table>
       <thead><tr><th>2021–26, net</th><th class="n">Condor</th><th class="n">Put spread 200</th><th class="n hlc">Total, traded</th><th class="n">Put spread 300</th><th class="n">Total, 300 shadow</th></tr></thead>
       <tbody>
-        <tr><td class="lbl">2021</td><td class="n">₹9,624</td><td class="n">₹2,639</td><td class="n hlc">₹12,263</td><td class="n">₹3,527</td><td class="n">₹13,151</td></tr>
+        <tr><td class="lbl">2021</td><td class="n">₹13,620</td><td class="n">₹4,089</td><td class="n hlc">₹17,709</td><td class="n">₹5,550</td><td class="n">₹19,171</td></tr>
         <tr><td class="lbl">2022</td><td class="n">₹676</td><td class="n">₹4,530</td><td class="n hlc">₹5,206</td><td class="n">₹6,492</td><td class="n">₹7,168</td></tr>
         <tr><td class="lbl">2023</td><td class="n">₹11,201</td><td class="n">₹1,018</td><td class="n hlc">₹12,219</td><td class="n">₹1,456</td><td class="n">₹12,657</td></tr>
-        <tr><td class="lbl">2024</td><td class="n">₹8,192</td><td class="n">₹851</td><td class="n hlc">₹9,043</td><td class="n">₹555</td><td class="n">₹8,747</td></tr>
+        <tr><td class="lbl">2024</td><td class="n">₹9,135</td><td class="n">₹500</td><td class="n hlc">₹9,635</td><td class="n">₹1,028</td><td class="n">₹10,163</td></tr>
         <tr><td class="lbl">2025</td><td class="n">₹39,122</td><td class="n">₹2,209</td><td class="n hlc">₹41,331</td><td class="n">₹2,954</td><td class="n">₹42,076</td></tr>
         <tr><td class="lbl">2026 (to Aug)</td><td class="n">₹16,914</td><td class="n">₹867</td><td class="n hlc">₹17,781</td><td class="n">₹1,362</td><td class="n">₹18,276</td></tr>
-        <tr><td class="lbl"><b>Total</b></td><td class="n"><b>36 · ₹85,729</b></td><td class="n"><b>25 · ₹12,114</b></td><td class="n hlc"><b>61 · ₹97,843</b></td><td class="n">24 · ₹16,346</td><td class="n">60 · ₹102,075</td></tr>
+        <tr><td class="lbl"><b>Total</b></td><td class="n"><b>37 · ₹90,667</b></td><td class="n"><b>24 · ₹13,212</b></td><td class="n hlc"><b>61 · ₹1,03,880</b></td><td class="n">24 · ₹18,842</td><td class="n">61 · ₹1,09,510</td></tr>
       </tbody>
     </table>
   </div>
   <ul class="risks">
-    <li><b>82% winners (50 / 11), max drawdown −₹5,523</b> (the Aug-26 condor), every year positive. About ₹1,440 a month: 0.3–0.5% a month on ₹3–5L, before slippage (≈ ₹86k with 0.5 point per leg).</li>
-    <li><b>Same 61 months for both versions.</b> The 300-pt backtest shows 60 only because May-2024 had no 300-pt hedge price. Skipped by step 4: Sep-21, Apr-22, Dec-24, Feb-25, Feb-26.</li>
-    <li><b>Version B with the 600-pt condor is an estimate</b> (≈ ₹1.31L), not a combined backtest. Both widths are reviewed together after 6–12 months.</li>
+    <li><b>82% winners (50 / 11), max drawdown −₹5,523</b> (the Aug-26 condor), every year positive. About ₹1,530 a month: 0.3–0.5% a month on ₹3–5L, before slippage (≈ ₹93k with 0.5 point per leg, ≈ ₹82k with 1 point).</li>
+    <li><b>Same 61 months for both versions</b> (May-2024's 300-pt put spread now runs on fallback strikes). Skipped by step 4: Sep-21, Apr-22, Dec-24, Feb-25, Feb-26.</li>
+    <li><b>Version B with the 600-pt condor is an estimate</b> (≈ ₹1.31L before today's corrections, which would add a few thousand), not a combined backtest. Both widths are reviewed together after 6–12 months.</li>
     <li><b>Shadow logs:</b> the 300-pt put spread, the earlier rule (300-pt condor within ±2.5%), and the condor's 15:16 P&amp;L on every 1% gap-up day.</li>
   </ul>
 </section>
@@ -268,6 +288,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   <div class="sec-head">
     <span class="eyebrow">Risk and reward</span>
     <h2 id="h-rr">600 points makes more profit; 400 points is chosen for its lower risk</h2>
+    <p class="note">Figures in this section are from before the 29-Oct corrections (the 400-point side is now ₹90,667 on 37 trades); the comparison between the two widths is unchanged.</p>
     <p>The two versions trade the same 36 months and differ only in the 17 rich-credit months. The 600-point hedge gives the better profit, ₹114,939 against ₹85,729. The 400-point hedge is still the one being traded, because the 600-point condor can lose about ₹22,500 a lot on a single bad month, more than the 2–3% of capital limit allows on a ₹3–5L account, and per rupee at risk it is no better.</p>
   </div>
   <div class="tbl">
@@ -315,22 +336,22 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
     <table>
       <thead><tr><th>2021–26, 1 lot, net</th><th class="n hlc">20Δ / 200-pt (chosen: lower risk)</th><th class="n">20Δ / 300-pt (more profit, shadow log)</th></tr></thead>
       <tbody>
-        <tr><td class="lbl">Put spread trades, net P&amp;L</td><td class="n hlc"><b>25 · ₹12,114</b></td><td class="n">24 · ₹16,346</td></tr>
-        <tr><td class="lbl">Winners / losers</td><td class="n hlc">22 / 3</td><td class="n">21 / 3</td></tr>
+        <tr><td class="lbl">Put spread trades, net P&amp;L</td><td class="n hlc"><b>24 · ₹13,212</b></td><td class="n">24 · ₹18,842</td></tr>
+        <tr><td class="lbl">Winners / losers</td><td class="n hlc">21 / 3</td><td class="n">21 / 3</td></tr>
         <tr><td class="lbl">Max drawdown / worst trade</td><td class="n neg hlc">−₹1,891 / −₹1,891</td><td class="n neg">−₹2,573 / −₹2,573</td></tr>
-        <tr><td class="lbl">Average credit</td><td class="n hlc">30 pts · ≈ ₹2,000</td><td class="n">41 pts · ≈ ₹2,700</td></tr>
+        <tr><td class="lbl">Average credit</td><td class="n hlc">30 pts · ≈ ₹2,000</td><td class="n">42 pts · ≈ ₹2,700</td></tr>
         <tr><td class="lbl">Largest possible loss per lot (65)</td><td class="n hlc">≈ ₹11,000</td><td class="n">≈ ₹16,800</td></tr>
         <tr><td class="lbl">Largest loss as % of ₹3L / ₹5L</td><td class="n hlc">3.7% / 2.2%</td><td class="n">5.6% / 3.4%</td></tr>
-        <tr><td class="lbl">Profit ÷ average largest loss</td><td class="n hlc">1.10×</td><td class="n">0.97×</td></tr>
-        <tr><td class="lbl">Condor rule + put spread</td><td class="n hlc"><b>61 trades · ₹97,843 · DD −₹5,523</b></td><td class="n">60 trades · ₹102,075 · DD −₹5,523</td></tr>
+        <tr><td class="lbl">Profit ÷ average largest loss</td><td class="n hlc">1.20×</td><td class="n">1.12×</td></tr>
+        <tr><td class="lbl">Condor rule + put spread</td><td class="n hlc"><b>61 trades · ₹1,03,880 · DD −₹5,523</b></td><td class="n">61 trades · ₹1,09,510 · DD −₹5,523</td></tr>
       </tbody>
     </table>
   </div>
   <ul class="risks">
-    <li><b>Adds about ₹12k with no deeper drawdown</b>: the combined drawdown is still August 2026's condor (−₹5,523), and every year stays positive.</li>
-    <li><b>Small trades.</b> About ₹485 profit per trade, so fills and slippage matter; with 0.5 point per leg the 200-point result falls to about ₹8.9k.</li>
+    <li><b>Adds about ₹13k with no deeper drawdown</b>: the combined drawdown is still August 2026's condor (−₹5,523), and every year stays positive.</li>
+    <li><b>Small trades.</b> About ₹550 profit per trade, so fills and slippage matter; with 0.5 point per leg the 200-point result falls to about ₹10.7k.</li>
     <li><b>The 5-day filter was chosen on these same 30 months</b>, and only 3 put spreads lost, so the stop is barely tested.</li>
-    <li><b>2019–20 out of sample:</b> 15 put spreads +₹2,795, 12 winners, drawdown −₹5,280 (lot 75); with that period's 4 condors +₹9,835. The losers were the 3–6% falls of Jul-19, Sep-19 and Sep-20. The March 2020 crash month had no price and could not be tested.</li>
+    <li><b>2019–20 out of sample:</b> 16 put spreads +₹5,965, 13 winners, drawdown −₹5,281 (lot 75); with that period's 4 condors 20 trades +₹12,963. The losers were the 3–6% falls of Jul-19, Sep-19 and Sep-20. March 2020 (no price) and April 2020 (unusable prices) could not be tested.</li>
   </ul>
 </section>
 
@@ -338,7 +359,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   <div class="sec-head">
     <span class="eyebrow">Results · 2021–26</span>
     <h2 id="h-results">Six rule sets side by side</h2>
-    <p>Variants 3 to 6 use the same ±2% move limit and the same credit test, so they trade the same 36 months. They differ only in the hedge width. Variant 3 is the one being forward tested.</p>
+    <p>Variants 3 to 6 use the same ±2% move limit and the same credit test. They differ only in the hedge width. Variant 3 is the one being forward tested. Columns 1–3 include the 29-Oct corrections; columns 4–6 are from before them (about ₹4–6k low).</p>
   </div>
   <div class="tbl">
     <table>
@@ -347,15 +368,15 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
         <tr><td class="lbl">Credit ≥ 45%</td><td class="n">300</td><td class="n">300</td><td class="n hlc">400</td><td class="n">500</td><td class="n">500</td><td class="n">600</td></tr>
         <tr><td class="lbl">Credit 40–45%</td><td class="n">300</td><td class="n">300</td><td class="n hlc">300</td><td class="n">500</td><td class="n">300</td><td class="n">300</td></tr>
         <tr><td class="lbl">Credit below 40%</td><td class="n">300</td><td class="n">300</td><td class="n hlc">skip</td><td class="n">skip</td><td class="n">skip</td><td class="n">skip</td></tr>
-        <tr><td class="lbl">Trades</td><td class="n">66</td><td class="n">45</td><td class="n hlc">36</td><td class="n">36</td><td class="n">36</td><td class="n">36</td></tr>
-        <tr><td class="lbl">Net P&amp;L</td><td class="n">₹47,298</td><td class="n">₹66,052</td><td class="n hlc"><b>₹85,729</b></td><td class="n">₹110,219</td><td class="n">₹100,287</td><td class="n">₹114,939</td></tr>
+        <tr><td class="lbl">Trades</td><td class="n">66</td><td class="n">45</td><td class="n hlc">37</td><td class="n">36</td><td class="n">36</td><td class="n">36</td></tr>
+        <tr><td class="lbl">Net P&amp;L</td><td class="n">₹50,851</td><td class="n">₹69,855</td><td class="n hlc"><b>₹90,667</b></td><td class="n">₹110,219</td><td class="n">₹100,287</td><td class="n">₹114,939</td></tr>
         <tr><td class="lbl">Max drawdown</td><td class="n neg">−₹11,860</td><td class="n neg">−₹7,527</td><td class="n neg hlc"><b>−₹5,523</b></td><td class="n neg">−₹9,515</td><td class="n neg">−₹5,523</td><td class="n neg">−₹5,523</td></tr>
         <tr><td class="lbl">Worst trade</td><td class="n neg">−₹8,529</td><td class="n neg">−₹7,243</td><td class="n neg hlc">−₹5,523</td><td class="n neg">−₹9,515</td><td class="n neg">−₹5,523</td><td class="n neg">−₹5,523</td></tr>
-        <tr><td class="lbl">Winners / losers</td><td class="n">42 / 24</td><td class="n">33 / 12</td><td class="n hlc">28 / 8</td><td class="n">29 / 7</td><td class="n">29 / 7</td><td class="n">29 / 7</td></tr>
+        <tr><td class="lbl">Winners / losers</td><td class="n">42 / 24</td><td class="n">33 / 12</td><td class="n hlc">29 / 8</td><td class="n">29 / 7</td><td class="n">29 / 7</td><td class="n">29 / 7</td></tr>
         <tr><td class="lbl">Win rate</td><td class="n">64%</td><td class="n">73%</td><td class="n hlc">78%</td><td class="n">81%</td><td class="n">81%</td><td class="n">81%</td></tr>
-        <tr><td class="lbl">Profit factor</td><td class="n">1.67</td><td class="n">3.20</td><td class="n hlc">5.67</td><td class="n">4.68</td><td class="n">6.47</td><td class="n">7.23</td></tr>
+        <tr><td class="lbl">Profit factor</td><td class="n">1.71</td><td class="n">3.32</td><td class="n hlc">5.94</td><td class="n">4.68</td><td class="n">6.47</td><td class="n">7.23</td></tr>
         <tr><td class="lbl">Losing years</td><td class="n">1</td><td class="n">1</td><td class="n hlc">0</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
-        <tr><td class="lbl">With 0.5-pt slippage per leg</td><td class="n">₹33,318</td><td class="n">₹56,492</td><td class="n hlc">₹77,669</td><td class="n">₹102,159</td><td class="n">₹92,227</td><td class="n">₹106,879</td></tr>
+        <tr><td class="lbl">With 0.5-pt slippage per leg</td><td class="n">₹36,371</td><td class="n">₹59,995</td><td class="n hlc">₹82,307</td><td class="n">₹102,159</td><td class="n">₹92,227</td><td class="n">₹106,879</td></tr>
         <tr><td class="lbl">Largest possible loss,<br>rich-credit trade (lot 65)</td><td class="n">≈ ₹10,000</td><td class="n">≈ ₹10,000</td><td class="n hlc">≈ ₹13,600</td><td class="n">≈ ₹18,800</td><td class="n">≈ ₹17,900</td><td class="n">≈ ₹22,500</td></tr>
       </tbody>
     </table>
@@ -364,11 +385,11 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
     <table>
       <thead><tr><th>Net P&amp;L by entry year (trades)</th><th class="n">2021</th><th class="n">2022</th><th class="n">2023</th><th class="n">2024</th><th class="n">2025</th><th class="n">2026 (to Aug)</th></tr></thead>
       <tbody>
-        <tr><td class="lbl">1 · No filter</td><td class="n">₹5,147 (12)</td><td class="n neg">−₹3,592 (11)</td><td class="n">₹4,587 (12)</td><td class="n">₹3,146 (12)</td><td class="n">₹31,955 (12)</td><td class="n">₹6,055 (7)</td></tr>
-        <tr><td class="lbl">2 · Earlier rule</td><td class="n">₹12,063 (7)</td><td class="n neg">−₹3,307 (5)</td><td class="n">₹5,447 (9)</td><td class="n">₹7,126 (10)</td><td class="n">₹33,746 (9)</td><td class="n">₹10,977 (5)</td></tr>
-        <tr class="hl"><td class="lbl">3 · 400-pt when rich</td><td class="n">₹9,624 (5)</td><td class="n">₹676 (4)</td><td class="n">₹11,201 (7)</td><td class="n">₹8,192 (6)</td><td class="n">₹39,122 (9)</td><td class="n">₹16,914 (5)</td></tr>
-        <tr><td class="lbl">5 · 500-pt when rich</td><td class="n">₹12,571 (5)</td><td class="n">₹854 (4)</td><td class="n">₹12,474 (7)</td><td class="n">₹9,345 (6)</td><td class="n">₹44,008 (9)</td><td class="n">₹21,035 (5)</td></tr>
-        <tr><td class="lbl">6 · 600-pt when rich</td><td class="n">₹15,404 (5)</td><td class="n">₹1,607 (4)</td><td class="n">₹13,444 (7)</td><td class="n">₹10,310 (6)</td><td class="n">₹48,931 (9)</td><td class="n">₹25,242 (5)</td></tr>
+        <tr><td class="lbl">1 · No filter</td><td class="n">₹8,700 (12)</td><td class="n neg">−₹3,592 (11)</td><td class="n">₹4,587 (12)</td><td class="n">₹3,146 (12)</td><td class="n">₹31,955 (12)</td><td class="n">₹6,055 (7)</td></tr>
+        <tr><td class="lbl">2 · Earlier rule</td><td class="n">₹15,866 (7)</td><td class="n neg">−₹3,307 (5)</td><td class="n">₹5,447 (9)</td><td class="n">₹7,126 (10)</td><td class="n">₹33,746 (9)</td><td class="n">₹10,977 (5)</td></tr>
+        <tr class="hl"><td class="lbl">3 · 400-pt when rich</td><td class="n">₹13,620 (5)</td><td class="n">₹676 (4)</td><td class="n">₹11,201 (7)</td><td class="n">₹9,135 (7)</td><td class="n">₹39,122 (9)</td><td class="n">₹16,914 (5)</td></tr>
+        <tr><td class="lbl">5 · 500-pt when rich (before fixes)</td><td class="n">₹12,571 (5)</td><td class="n">₹854 (4)</td><td class="n">₹12,474 (7)</td><td class="n">₹9,345 (6)</td><td class="n">₹44,008 (9)</td><td class="n">₹21,035 (5)</td></tr>
+        <tr><td class="lbl">6 · 600-pt when rich (before fixes)</td><td class="n">₹15,404 (5)</td><td class="n">₹1,607 (4)</td><td class="n">₹13,444 (7)</td><td class="n">₹10,310 (6)</td><td class="n">₹48,931 (9)</td><td class="n">₹25,242 (5)</td></tr>
       </tbody>
     </table>
   </div>
@@ -385,9 +406,10 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
       <tbody>
         <tr><td class="lbl">December 2022</td><td>No option data in Breeze. It would have been a 300-point trade; StockMock shows a loss of ₹1,925 before costs</td><td>Counting it, 2022 becomes a small losing year and the drawdown is about −₹5,800</td></tr>
         <tr><td class="lbl">November 2023</td><td>The month's stop-loss trade is skipped by a 10-day move of +2.01%, which is 0.01 above the limit</td><td>At 2.00% it is a 300-point trade losing ₹7,243; drawdown about −₹7,400</td></tr>
-        <tr><td class="lbl">June 2023</td><td>Passes the 160-point credit floor by 0.2 of a point</td><td>It is the second-largest loss, −₹3,731</td></tr>
-        <tr><td class="lbl">September 2024</td><td>Fails the floor at 158.6 points; one hedge price looks like a bad print</td><td>A ₹859 winner is skipped</td></tr>
+        <tr><td class="lbl">June 2023 entry</td><td>Passes the 160-point credit floor by 0.2 of a point. All four legs traded normally, so the reading is real</td><td>It is the second-largest loss, −₹3,731; 0.2 point less and it would have been a +₹677 put spread</td></tr>
+        <tr><td class="lbl">September 2024 entry</td><td>The data showed 158.6 points (below the floor) because of an old quote on the 400-point call hedge. Corrected: 180.45 points, 0.45 above the 45% line</td><td>Now a 400-point condor, +₹942. One point more on that hedge would make it a 300-point condor (+₹854)</td></tr>
         <tr><td class="lbl">August 2026</td><td>The worst trade passes every test: move −0.07%, credit 43.6%</td><td>−₹5,523. It is the drawdown of the rule</td></tr>
+        <tr><td class="lbl">February 2024 entry</td><td>Rich credit (47.9%) but the 10-day move read +2.013%, 0.013 over the limit</td><td>Traded as a put spread, +₹910; the 400-point condor would have made only +₹113</td></tr>
         <tr><td class="lbl">Data source</td><td>The 10-day move uses NSE's official close. Breeze's last-traded close differs by a few points</td><td>With Breeze closes, November 2023 read +1.99% and would have been traded</td></tr>
       </tbody>
     </table>
@@ -421,21 +443,22 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   </div>
   <ul class="checks">
     <li><span class="mark ok" aria-label="done">✓</span><p><b>Prices confirmed against three manual StockMock runs</b> (200, 300 and 400-point hedges). On the 400-point run, all 65 common trades exited for the same reason, and 56 of the 59 with identical strikes matched within 5 points.</p></li>
+    <li><span class="mark ok" aria-label="done">✓</span><p><b>Every put spread listed leg by leg</b> (entry and exit prices, volume, credit, exit reason, every 15:16 check, including the entry day) in pcs_trade_details.xlsx.</p></li>
     <li><span class="mark ok" aria-label="done">✓</span><p><b>10-day move taken from NSE's official closes</b>, the same source the forward test reads each month.</p></li>
-    <li><span class="mark ok" aria-label="done">✓</span><p><b>Lot sizes by expiry</b> confirmed with NSE circulars: 50, then 25 for June 2024 to January 2025, then 75, then 65.</p></li>
-    <li><span class="mark ok" aria-label="done">✓</span><p><b>Bad prices rejected</b>: an entry price more than 15 minutes late, or a hedge priced at or above its sold leg, is not used.</p></li>
+    <li><span class="mark ok" aria-label="done">✓</span><p><b>Lot sizes by expiry</b> confirmed with NSE circulars: 75 until the June-2021 expiry (corrected 29 Oct), 50, then 25 for June 2024 to January 2025, then 75, then 65.</p></li>
+    <li><span class="mark ok" aria-label="done">✓</span><p><b>Bad prices rejected</b>: an entry price more than 15 minutes late, or a hedge priced at or above its sold leg, is not used. Two old quotes on far hedges (Sep-2024, Mar-2024) were found by hand and corrected; an automatic check for them is still to be built.</p></li>
     <li><span class="mark wait" aria-label="pending">…</span><p><b>Still open:</b> real bid-ask spreads and margin on the hedges, which only the forward test can show.</p></li>
   </ul>
 </section>
 
 <section aria-labelledby="h-robust">
   <div class="sec-head">
-    <span class="eyebrow">Robustness checks · 28 Oct 2026</span>
+    <span class="eyebrow">Robustness checks · 28 Oct 2026 · totals corrected 29 Oct</span>
     <h2 id="h-robust">The result comes from the structure of the rules, not from lucky thresholds</h2>
-    <p>Six checks on the whole rulebook (condor + 20-delta / 200-point put spread), including the out-of-sample years 2019–20 that the rules were never fitted on. None of them changed a rule.</p>
+    <p>Six checks on the whole rulebook (condor + 20-delta / 200-point put spread), including the out-of-sample years 2019–20 that the rules were never fitted on. None of them changed a rule. The walk-forward, delta and target rows were measured before the 29-Oct corrections; their conclusions do not depend on them.</p>
   </div>
   <div class="verdict">
-    <div><span class="k">Whole rulebook, 2019–26</span><span class="v good">₹1,14,585</span><span class="s">82 trades · no losing year · 2019–20 alone +₹16,742</span></div>
+    <div><span class="k">Whole rulebook, 2019–26</span><span class="v good">₹1,16,843</span><span class="s">81 trades · no losing year · 2019–20 alone +₹12,963</span></div>
     <div><span class="k">Max drawdown, backtest</span><span class="v">−₹5,523</span><span class="s">plan for ≈ −₹12–13k a lot (trade-order reshuffle)</span></div>
     <div><span class="k">Threshold versions that made money</span><span class="v good">900 / 900</span><span class="s">in every period: 2021–23, 2024–26, 2019–20</span></div>
   </div>
@@ -447,15 +470,15 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
         <tr><td class="lbl">One threshold at a time</td><td>Every step changes 2021–26 by about ±₹3–5k, except a 10-day limit of 2.25–2.5%, which lets in the Nov-2023 stop-loss (DD −₹5.5k → −₹9.1k)</td><td>±2% is the one line not to widen</td></tr>
         <tr><td class="lbl">Sold-put delta 15 / 20 / 25</td><td>2019–26: 15Δ ₹6.3k · <b>20Δ ₹21.8k</b> · 25Δ ₹20.4k. 25Δ/300 is best in 2021–26 (₹29.3k) but loses in 2019–20 (DD −₹18.6k)</td><td>20Δ is the only delta solid in both periods</td></tr>
         <tr><td class="lbl">Put-spread target and exit day</td><td>Target 40% ≈ 50% (₹21.7k vs ₹21.8k, 2019–26); 60%+ doubles the 2021–26 drawdown; exit at 21 or 25 DTE earns less than 18</td><td>Keep 50% and 18 DTE</td></tr>
-        <tr><td class="lbl">Slippage per leg</td><td>0.5 pt: 2021–26 ₹87.4k · 1 pt: ₹76.9k, still no losing year. Break-even: condor ≈ 5 pts/leg, put spread ≈ 2.2 pts/leg</td><td>Use limit orders near mid for the put spread</td></tr>
+        <tr><td class="lbl">Slippage per leg</td><td>0.5 pt: 2021–26 ₹93.0k · 1 pt: ₹82.1k (DD −₹6.0k), still no losing year. Break-even: condor ≈ 5 pts/leg, put spread ≈ 2.2 pts/leg</td><td>Use limit orders near mid for the put spread</td></tr>
         <tr><td class="lbl">Put spread instead of the condor in calm months</td><td>₹4.0k on the 36 condor months of 2021–26 (DD −₹9.2k) vs ₹85.7k for the condors</td><td>The condor is the right trade in calm months</td></tr>
-        <tr><td class="lbl">Missing strikes (fallback rule)</td><td>Adds May-19 (+₹3,171), Apr-20 (+₹3,737) and May-24 at 300-pt (+₹551); all other results unchanged. Mar-2020 crash: no prices, untestable</td><td>Fallback rule works for the put spread too</td></tr>
+        <tr><td class="lbl">Missing strikes (fallback rule)</td><td>Adds May-19 (+₹3,171) and May-24 at 300-pt (+₹551); all other results unchanged. Mar-2020 crash: no prices; Apr-2020: only a few odd trades on the put strikes – both untestable</td><td>Fallback rule works for the put spread too</td></tr>
       </tbody>
     </table>
   </div>
   <ul class="risks">
     <li><b>Robust is not the same as safe.</b> No rich-credit condor and only 6 put spreads in eight years lost much, so a really bad month has not been seen. The March-2020 crash could not be tested for the put spread.</li>
-    <li><b>Out-of-sample means 2019–20 only</b>, 21 trades. The forward test is the real test.</li>
+    <li><b>Out-of-sample means 2019–20 only</b>, 20 trades. The forward test is the real test.</li>
     <li><b>Decided after these checks (user):</b> no credit filter on the put spread. 9 of the 10 thin-credit months were 2019–20, where the fixed 400-point width, not cheap premium, made the ratio low.</li>
   </ul>
 </section>
@@ -468,10 +491,10 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   <ul class="risks">
     <li><b>A bad rich-credit month has not been seen yet.</b> A 400-point condor can lose about ₹13,600 a lot; no rich-credit month in the backtest lost more than about ₹1,600.</li>
     <li><b>Thresholds fitted on this data.</b> Four numbers (2%, 45%, 40%, 60% target) were chosen after seeing 2021–26, and several results hang on one trade.</li>
-    <li><b>Few trades.</b> About six a year, 36 in total. Close to half the profit came from 2025.</li>
+    <li><b>Few trades.</b> About six condors a year, 37 in total. Close to half the condor profit (43%) came from 2025.</li>
     <li><b>A harder period exists.</b> In 2019–20 the earlier rule had a drawdown of about ₹19,000 a lot.</li>
-    <li><b>Slippage and margin.</b> Each condor has 8 order legs; 1 point per leg takes about ₹16,000 off the six-year total. Check margin in the broker's calculator.</li>
-    <li><b>Modest returns on capital.</b> About ₹15,000 a year in the backtest is 3–5% a year on ₹3–5L. More lots or a wider hedge scale profit, drawdown and the worst case together.</li>
+    <li><b>Slippage and margin.</b> Each condor has 8 order legs and each put spread 4; 1 point per leg takes about ₹22,000 off the six-year rulebook total. Check margin in the broker's calculator.</li>
+    <li><b>Modest returns on capital.</b> About ₹18,000 a year for the whole rulebook in the backtest is 3.5–6% a year on ₹3–5L. More lots or a wider hedge scale profit, drawdown and the worst case together.</li>
   </ul>
 </section>
 
