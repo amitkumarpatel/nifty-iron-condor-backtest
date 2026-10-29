@@ -31,8 +31,9 @@ INDEXES = {
         expiry_weekdays=[("2025-08", 3), ("2099-12", 1)],          # Thursday, Tuesday from Sep-2025
         # 50 -> 25 for contracts from 26-Apr-2024 (NSE); 25 -> 75 for contracts introduced from 20-Nov-2024,
         # existing Dec-2024 and Jan-2025 monthlies kept 25 until expiry; 75 -> 65 from the Jan-2026 expiry.
-        # Expiries up to Jan-2021 (generated 2019-2020 trade set): 75, NIFTY's lot size at the time.
-        lot_sizes=[("2021-01-28", 75), ("2024-05-30", 50), ("2025-01-30", 25), ("2025-12-30", 75), ("2099-12-31", 65)],
+        # 75 for expiries up to Jun-2021: NSE circular FAOP47854 (31-Mar-2021) cut 75 -> 50 only from the Jul-2021
+        # expiry contracts (fixed 29-Oct-2026; StockMock's quantity of 50 for Feb-Jun 2021 expiries was too small).
+        lot_sizes=[("2021-06-24", 75),("2024-05-30", 50), ("2025-01-30", 25), ("2025-12-30", 75), ("2099-12-31", 65)],
     ),
     # BANKNIFTY added 11-Oct-2026. hedge_width 500 and the 18-DTE exit = the user's StockMock run ("Banknifty IC
     # backtesting_StockMock.xlsx", 67 trades). expiry_weekdays reproduce all 67 expiries of that report. lot_sizes

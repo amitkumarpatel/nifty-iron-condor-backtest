@@ -52,7 +52,7 @@ You only need a new session token (`python login_url.py`) for commands that call
 | Stop-loss | Loss ≥ **100%** of initial credit → exit all 4 legs |
 | Time exit | Last trading day on/before **expiry − 18 calendar days** (holiday/weekend/Muhurat session → previous trading day). Changed from 15 DTE on 27-Sep-2026 – see §7 |
 | Optional: gap-up exit | **Off by default.** If on (`GAP_UP_EXIT_PCT` / `IC_GAP_UP_EXIT=1.0`): on a day NIFTY opens ≥ 1% above the previous close, exit all 4 legs at that day's 15:16 check (never on the entry day). Tested 2-Oct-2026 – see §7 |
-| Sizing | **1 lot** at each expiry's NIFTY lot size (50 → 25 → 75 → 65, `LOT_SIZES`) |
+| Sizing | **1 lot** at each expiry's NIFTY lot size (75 until the Jun-2021 expiry → 50 → 25 → 75 → 65, `LOT_SIZES`) |
 | Not allowed | Adjustments, re-entry, quantity change, other entry filters |
 
 Order of checks each day: stop-loss → target → time exit.
@@ -534,7 +534,7 @@ python backtest.py --trade-set 2019_2020 --strike-set d30_2019_2020
   `download.py --trade-set w7 --strike-set d30_w7 --hedge 400 --exit-dte 25` and `backtest.py ... --exit-dte 25 --tp 40`.
 - `fetch_index_nse.py` only adds days that are missing (use `--replace` to overwrite) and also extends the
   trading calendar. `download.py --index` now merges too, so it no longer drops earlier history.
-- Lot size for expiries up to Jan-2021 is 75 (`LOT_SIZES`).
+- Lot size for expiries up to Jun-2021 is 75 (`LOT_SIZES`; NSE circular FAOP47854).
 
 ### 5.3e Another index: BANKNIFTY (added 11-Oct-2026)
 
@@ -1528,6 +1528,15 @@ own sold leg; a hedge priced above a nearer strike or with zero volume is not ca
 TRADE 38 300-PT PCS CORRECTION (29-Oct-2026; Mar-2024 expiry, alternative column only): 20650 PE showed 114.50 at 11:16 (stale, zero volume/OI, above
 20750 PE 104.00) → credit 29.60 < the 200-pt spread's 40.10. Realistic 91.15 (midway 20700 / 20600 PE) → credit 52.95, target 19-Feb, net ₹1,216 (was ₹787).
 COMBINED IC + PCS 300 2021–26 → ₹102,939; official IC + PCS 200 unchanged ₹98,434.
+LOT SIZE FIX (29-Oct-2026, user check, NSE circular NSE/FAOP/47854 of 31-Mar-2021): NIFTY's lot was 75 for every contract expiring up to the
+Jun-2021 expiry; 50 only from the Jul-2021 expiry. config.LOT_SIZES had 50 from the Feb-2021 expiry (StockMock's quantity) → trades 1–5 (Feb–Jun 2021
+expiries) were a third too small. Fixed in ic/config.py (75 up to 2021-06-24). All five were winners, so 2021–26 profits rise, drawdowns unchanged:
+main report 300-pt ±2.5% 45 tr ₹66,052 → ₹69,855 / DD −₹7,527 / PF 3.32; 400-pt ±2.5% ₹83,114 → ₹87,879 / −₹9,814; no filter 300-pt ₹47,298 → ₹50,851 /
+−₹11,860; 400-pt ₹61,439 → ₹66,440 / −₹14,946. Forward rule (output/combined_ic_plus_put20_spread.xlsx, also incl. the trade 38/45 price fixes): IC only
+37 tr ₹90,667; COMBINED IC + PCS 200 61 tr ₹103,880 / DD −₹5,523 / PF 5.54; IC + PCS 300 ₹108,959. Put spreads (output/pcs_trade_details.xlsx): 2021–26
+200-pt 24 tr ₹13,212, 300-pt ₹18,842 (incl. trade 41 on fallback strikes). Trade by trade at 75: 1 PCS ₹1,109 → ₹1,711; 2 PCS ₹664 → ₹1,043; 3 IC 400
+₹5,146 → ₹7,814; 4 IC 400 ₹2,469 → ₹3,798; 5 PCS ₹843 → ₹1,312. ALL 2021–26 totals quoted in the entries above this one used lot 50 for those five
+months – add roughly ₹3–5.5k (depending on which of 1–5 a rule trades) when comparing. 2019–20 unchanged. Old reports kept in output/pre_lotfix/.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give

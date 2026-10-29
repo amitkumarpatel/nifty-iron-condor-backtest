@@ -19,7 +19,7 @@ Full user documentation: README.md. All settings: `ic/config.py`.
 - Exit all 4 legs: SL if P&L <= -100% credit, else TP if P&L >= 50% credit, else time exit on
   the last trading day on/before expiry − 18 calendar days (was 15; changed 27-Sep-2026 at the
   user's request). StockMock reference used 15 DTE (`REF_EXIT_DTE`).
-- 1 lot at each expiry's lot size (`config.LOT_SIZES`: 50 → 25 for Jun-2024..Jan-2025 expiries → 75 →
+- 1 lot at each expiry's lot size (`config.LOT_SIZES`: 75 up to the Jun-2021 expiry (fixed 29-Oct-2026) → 50 → 25 for Jun-2024..Jan-2025 expiries → 75 →
   65; 25 confirmed from NSE circulars 28-Sep-2026); no adjustment, re-entry
 - Entry filter (adopted 28-Sep-2026 at the user's request): skip the month if |NIFTY 10-day move| >
   2.5% at the close before entry (`SKIP_IF_10D_MOVE_PCT`, `IC_TREND_FILTER=off` to disable). No other filters.
@@ -909,8 +909,15 @@ own sold leg; a hedge priced above a nearer strike or with zero volume is not ca
 TRADE 38 300-PT PCS CORRECTION (29-Oct-2026; Mar-2024 expiry, alternative column only): 20650 PE showed 114.50 at 11:16 (stale, zero volume/OI, above
 20750 PE 104.00) → credit 29.60 < the 200-pt spread's 40.10. Realistic 91.15 (midway 20700 / 20600 PE) → credit 52.95, target 19-Feb, net ₹1,216 (was ₹787).
 COMBINED IC + PCS 300 2021–26 → ₹102,939; official IC + PCS 200 unchanged ₹98,434.
-Open question for the user: NIFTY lot was 75 until the Jun-2021 expiry, but LOT_SIZES uses 50 for Feb–Jun 2021 expiries
-(StockMock's quantity); only the 2019–2020 set uses 75.
+LOT SIZE FIX (29-Oct-2026, user check, NSE circular NSE/FAOP/47854 of 31-Mar-2021): NIFTY's lot was 75 for every contract expiring up to the
+Jun-2021 expiry; 50 only from the Jul-2021 expiry. config.LOT_SIZES had 50 from the Feb-2021 expiry (StockMock's quantity) → trades 1–5 (Feb–Jun 2021
+expiries) were a third too small. Fixed in ic/config.py (75 up to 2021-06-24). All five were winners, so 2021–26 profits rise, drawdowns unchanged:
+main report 300-pt ±2.5% 45 tr ₹66,052 → ₹69,855 / DD −₹7,527 / PF 3.32; 400-pt ±2.5% ₹83,114 → ₹87,879 / −₹9,814; no filter 300-pt ₹47,298 → ₹50,851 /
+−₹11,860; 400-pt ₹61,439 → ₹66,440 / −₹14,946. Forward rule (output/combined_ic_plus_put20_spread.xlsx, also incl. the trade 38/45 price fixes): IC only
+37 tr ₹90,667; COMBINED IC + PCS 200 61 tr ₹103,880 / DD −₹5,523 / PF 5.54; IC + PCS 300 ₹108,959. Put spreads (output/pcs_trade_details.xlsx): 2021–26
+200-pt 24 tr ₹13,212, 300-pt ₹18,842 (incl. trade 41 on fallback strikes). Trade by trade at 75: 1 PCS ₹1,109 → ₹1,711; 2 PCS ₹664 → ₹1,043; 3 IC 400
+₹5,146 → ₹7,814; 4 IC 400 ₹2,469 → ₹3,798; 5 PCS ₹843 → ₹1,312. ALL 2021–26 totals quoted in the entries above this one used lot 50 for those five
+months – add roughly ₹3–5.5k (depending on which of 1–5 a rule trades) when comparing. 2019–20 unchanged. Old reports kept in output/pre_lotfix/.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
 backtest_strangle.py) reusing ic/engine.py with a 2-leg leg builder; note unlimited risk and much higher margin than the IC.
 
