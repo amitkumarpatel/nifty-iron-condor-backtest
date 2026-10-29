@@ -1518,6 +1518,13 @@ the 18-DTE rule avoids) – more targets, but the losers run to max loss (worst 
 (no data), so part of the gain may simply be 'exit later', not 'second entry'. VERDICT: big extra profit (+₹44k) for a ≈ ₹15k drawdown, ₹11k single
 losses and two positions for two weeks – NOT adopted (fails the 2–3%-max-loss rule of thumb at ₹3–5L). Candidate to shadow-log: the 400-pt condor at the
 second entry held to 7 DTE.
+TRADE 45 DATA CORRECTION (29-Oct-2026, user check; entry 16-Sep-2024, Oct-2024 expiry): the 26450 CE (400-pt call hedge) shows 114.65 at 11:16 – a stale
+quote with zero volume on 16 and 17 Sep, priced above the nearer 26400 CE (102.00). With it the 400-pt credit is 158.55 = 39.6% → below the floor → put
+spread (+₹351). Realistic 26450 CE = 92.75 (midway 26400 CE 102.00 / 26500 CE 83.50, both heavily traded) → credit 180.45 = 45.1% → 400-pt IC, TP 60%: worst
+−48% on 27-Sep, time exit 11-Oct +46.45 pts, net ₹942 (300-pt IC would be ₹854; 0.45 pt above the 45% line). output/combined_ic_plus_put20_spread.xlsx
+updated (Changes sheet): COMBINED IC + PCS 200 2021–26 61 tr ₹97,843 → ₹98,434 (37 IC + 24 PCS), IC + PCS 300 ₹102,075 → ₹102,510, DD unchanged −₹5,523.
+Other quoted rulebook totals (₹97,843, 2019–26 ₹114,585 etc.) are BEFORE this fix (+₹591). The engine's bad-print rule only catches a hedge priced >= its
+own sold leg; a hedge priced above a nearer strike or with zero volume is not caught (proposed check, not built).
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
