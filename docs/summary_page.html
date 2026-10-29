@@ -104,7 +104,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
 <header>
   <span class="eyebrow">Backtest summary · 29 Oct 2026 · corrected figures</span>
   <h1>NIFTY Iron Condor Playbook</h1>
-  <p class="lede">The rule set chosen for the forward test of a monthly NIFTY iron condor, and the backtest behind it: 66 monthly trades from January 2021 to August 2026, replayed on 1-minute option prices from ICICI Breeze and checked against StockMock.</p>
+  <p class="lede">The rule set chosen for the forward test of a monthly NIFTY iron condor, and the backtest behind it: 68 monthly cycles from January 2021 to August 2026 (61 traded, 5 skipped by the rules, 2 without usable data), replayed on 1-minute option prices from ICICI Breeze and checked against StockMock.</p>
   <div class="meta">
     <span>1 lot per trade</span><span>P&amp;L after costs (≈₹250 per condor)</span><span>No slippage</span><span>One condor open at a time</span>
   </div>
@@ -178,7 +178,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   <div class="sec-head">
     <span class="eyebrow">The whole rulebook · condor + put spread</span>
     <h2 id="h-combined">Every month: a condor, a put spread, or nothing</h2>
-    <p>Three readings decide the month: the 10-day and 5-day moves the evening before entry, and the credit of the 400-point condor at 11:16. Both versions below trade the same 61 of 66 months in 2021–26. Only the hedge widths, and so the risk per trade, differ.</p>
+    <p>Three readings decide the month: the 10-day and 5-day moves the evening before entry, and the credit of the 400-point condor at 11:16. Both versions below trade the same 61 of the 68 monthly cycles in 2021–26. Only the hedge widths, and so the risk per trade, differ.</p>
   </div>
   <div class="tbl">
     <table>
@@ -218,7 +218,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   </div>
   <ul class="risks">
     <li><b>82% winners (50 / 11), max drawdown −₹5,523</b> (the Aug-26 condor), every year positive. About ₹1,530 a month: 0.3–0.5% a month on ₹3–5L, before slippage (≈ ₹93k with 0.5 point per leg, ≈ ₹82k with 1 point).</li>
-    <li><b>Same 61 months for both versions</b> (May-2024's 300-pt put spread now runs on fallback strikes). Skipped by step 4: Sep-21, Apr-22, Dec-24, Feb-25, Feb-26.</li>
+    <li><b>68 cycles = 61 traded + 7 not traded.</b> 37 condors and 24 put spreads, the same 61 for both versions (May-2024's 300-pt put spread runs on fallback strikes). Skipped by step 4 (5): entries Sep-21, Apr-22, Dec-24, Feb-25, Feb-26. No usable Breeze data (2): Dec-22 entry (would have been a 300-pt condor; StockMock ≈ −₹1,925) and Mar-26 entry (a put spread; indicative ≈ +₹2.2k on a week-late entry).</li>
     <li><b>Version B with the 600-pt condor is an estimate</b> (≈ ₹1.31L before today's corrections, which would add a few thousand), not a combined backtest. Both widths are reviewed together after 6–12 months.</li>
     <li><b>Shadow logs:</b> the 300-pt put spread, the earlier rule (300-pt condor within ±2.5%), and the condor's 15:16 P&amp;L on every 1% gap-up day.</li>
   </ul>
