@@ -8,7 +8,7 @@ class S:   # shared simulator with the condor's exit DTE (C.EXIT_DTE, read at ca
 from strategies.iron_condor.analysis import pcs_lib as L
 C.EXIT_DTE=18
 REF=L.REF
-CL=pd.read_csv("data/nifty_daily.csv",parse_dates=["date"]).set_index("date").close.sort_index()
+CL=pd.read_csv("data/shared/nifty_daily.csv",parse_dates=["date"]).set_index("date").close.sort_index()
 D30=pd.read_csv("data/iron_condor/strike_sets/strikes_d30_2019_2020.csv")
 P20={}
 for n in ("d20_skip","d20_rest","d20_2019_2020","d20_icm","d20_icm_2019_2020"):

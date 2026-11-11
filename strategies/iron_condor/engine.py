@@ -210,7 +210,7 @@ def main():
     cal = load_calendar(trades.entry_date.min().date(), trades.expiry.max().date())
     rows, mtm_all, dq_all, problems, skipped = [], [], [], [], []
     # NIFTY move over TREND_LOOKBACK_DAYS at the close before entry: drives the filter and is shown
-    # on every trade (also with the filter off, if data/nifty_daily.csv exists)
+    # on every trade (also with the filter off, if data/shared/nifty_daily.csv exists)
     have_index = Path(C.INDEX_DAILY_CSV).exists()
     moves = trend_moves(trades.entry_date) if (C.SKIP_IF_10D_MOVE_PCT is not None or have_index) else None
     move_col = f"{C.INDEX.lower()}_{C.TREND_LOOKBACK_DAYS}d_move_pct"

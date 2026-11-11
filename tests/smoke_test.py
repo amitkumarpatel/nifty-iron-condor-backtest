@@ -51,7 +51,7 @@ def main():
     out2 = run([sys.executable, S + "download.py", "--trades", "1", "9", "23", "62", "67"], env)
     assert "0 API calls needed" in out2, "restart should skip cached data"
     out4 = run([sys.executable, S + "download.py", "--index"], env)
-    assert (tmp / "data" / "nifty_daily.csv").exists(), out4
+    assert (tmp / "data" / "shared" / "nifty_daily.csv").exists(), out4
     out3 = run([sys.executable, S + "backtest.py", "--trades", "1", "9", "23", "62", "67"], env)
     report = out / "IC_backtest_report.xlsx"
     assert report.exists(), "report not written"
@@ -101,9 +101,9 @@ def main():
     envb = dict(env, IC_REF_DIR=str(ref))
     bn = ["--symbol", "banknifty", "--trades", "9", "62"]
     run([sys.executable, S + "download.py", *bn, "--index"], envb)
-    assert (tmp / "data" / "banknifty_daily.csv").exists(), "BANKNIFTY daily file not written"
+    assert (tmp / "data" / "shared" / "banknifty_daily.csv").exists(), "BANKNIFTY daily file not written"
     run([sys.executable, S + "download.py", *bn, "--hedge", "300"], envb)
-    assert any(d.name.startswith("BANKNIFTY_") for d in (tmp / "data" / "cache").iterdir()), "no BANKNIFTY cache folders"
+    assert any(d.name.startswith("BANKNIFTY_") for d in (tmp / "data" / "shared" / "cache").iterdir()), "no BANKNIFTY cache folders"
     outb = run([sys.executable, S + "backtest.py", *bn, "--hedge", "300"], envb)
     assert (out / "BANKNIFTY_IC_backtest_sm_h300.xlsx").exists(), outb
     wb = openpyxl.load_workbook(out / "BANKNIFTY_IC_backtest_sm_h300.xlsx")

@@ -26,7 +26,7 @@ from strategies.iron_condor.common import contract_key, load_calendar, time_exit
 C.EXIT_DTE = 18
 REF = pd.concat([pd.read_csv("data/iron_condor/reference/ic_reference_trades.csv"),
                  pd.read_csv("data/iron_condor/reference/ic_trades_2019_2020.csv")]).set_index("trade_id")
-CLOSE = pd.read_csv("data/nifty_daily.csv", parse_dates=["date"]).set_index("date").close.sort_index()
+CLOSE = pd.read_csv("data/shared/nifty_daily.csv", parse_dates=["date"]).set_index("date").close.sort_index()
 D30 = pd.read_csv("data/iron_condor/strike_sets/strikes_d30_2019_2020.csv")
 P20 = {}
 for n in ("d20_skip", "d20_rest", "d20_2019_2020", "d20_icm", "d20_icm_2019_2020"):

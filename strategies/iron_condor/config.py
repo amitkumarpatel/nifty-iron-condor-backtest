@@ -66,18 +66,18 @@ HEDGE_WIDTH_PE = int(os.environ.get("IC_HEDGE_WIDTH_PE", HEDGE_WIDTH))   # per-s
 REF_HEDGE_WIDTH = _IDX["ref_hedge_width"]   # hedge width used in the StockMock reference run (NIFTY 200; reconciliation labels)
 # Entry filter (adopted 28-Sep-2026): skip the month if NIFTY moved more than this % (up or down) over the
 # last TREND_LOOKBACK_DAYS trading days, measured at the close before entry. None = no filter.
-# Needs data/nifty_daily.csv (python download.py --index).
+# Needs data/shared/nifty_daily.csv (python download.py --index).
 SKIP_IF_10D_MOVE_PCT = (None if os.environ.get("IC_TREND_FILTER", "").lower() == "off"
                         else float(os.environ.get("IC_TREND_FILTER") or 2.5))   # IC_TREND_FILTER=off to disable
 TREND_LOOKBACK_DAYS  = 10
 # Optional gap-up exit (tested 2-Oct-2026, OFF by default): on a day NIFTY opens at least this % above the
-# previous close (data/nifty_daily.csv), exit all legs at that day's CHECK_TIME (15:16). Not on the entry day.
+# previous close (data/shared/nifty_daily.csv), exit all legs at that day's CHECK_TIME (15:16). Not on the entry day.
 # None = off. Per run: IC_GAP_UP_EXIT=1.0 (or off).
 GAP_UP_EXIT_PCT = (None if os.environ.get("IC_GAP_UP_EXIT", "off").lower() == "off"
                    else float(os.environ["IC_GAP_UP_EXIT"]))
 # Optional call-side breach exit (tested 3-Oct-2026, OFF by default): exit all legs at CHECK_TIME on a day NIFTY
 # closes at or above sold CE strike + this many points (300 = the hedge strike with 300-pt hedges; 0 = sold strike).
-# Uses the daily close in data/nifty_daily.csv (live: NIFTY at 15:16). "hedge" = the bought CE strike.
+# Uses the daily close in data/shared/nifty_daily.csv (live: NIFTY at 15:16). "hedge" = the bought CE strike.
 _ce = os.environ.get("IC_CE_BREACH_EXIT", "off").lower()
 CE_BREACH_EXIT_PTS = None if _ce == "off" else ("hedge" if _ce == "hedge" else float(_ce))
 

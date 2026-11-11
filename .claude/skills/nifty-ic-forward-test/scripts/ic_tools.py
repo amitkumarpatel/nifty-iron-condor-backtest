@@ -17,7 +17,7 @@ All strategy numbers come from strategies/iron_condor/config.py (which re-export
 source of truth. Nothing here calls Breeze or Kite and nothing places orders.
 
 NIFTY daily closes come from NSE's public daily index file (one small CSV per trading day,
-https://archives.nseindia.com/content/indices/ind_close_all_DDMMYYYY.csv); data/nifty_daily.csv
+https://archives.nseindia.com/content/indices/ind_close_all_DDMMYYYY.csv); data/shared/nifty_daily.csv
 is only a fallback when NSE cannot be reached. `holidays` and `strikes` read NSE's website too
 (holiday list and option chain); both are read-only.
 """
@@ -100,7 +100,7 @@ def pick(row, *names):
     return None
 
 
-def load_closes_csv(path="data/nifty_daily.csv"):
+def load_closes_csv(path="data/shared/nifty_daily.csv"):
     if not os.path.exists(path):
         sys.exit(f"{path} not found.")
     out = []
@@ -166,9 +166,9 @@ def get_closes(before, count, source="auto", closes_file=None):
             return closes, "NSE daily index files"
         if source == "nse":
             sys.exit(f"Could not get {count} NIFTY closes from NSE ({err}).")
-        print(f"WARNING: NSE not reachable ({err}); falling back to data/nifty_daily.csv "
+        print(f"WARNING: NSE not reachable ({err}); falling back to data/shared/nifty_daily.csv "
               "(refresh it with `python shared/scripts/fetch_index_nse.py`).")
-    return [c for c in load_closes_csv() if c[0] < before][-count:], "data/nifty_daily.csv"
+    return [c for c in load_closes_csv() if c[0] < before][-count:], "data/shared/nifty_daily.csv"
 
 
 def holidays(cfg, extra):

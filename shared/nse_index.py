@@ -1,6 +1,6 @@
 """
 NIFTY 50 and India VIX daily OHLC from NSE's public daily index files (one small CSV per trading day,
-no login). Merged into data/nifty_daily.csv, data/india_vix_daily.csv and the trading calendar - for
+no login). Merged into data/shared/nifty_daily.csv, data/shared/india_vix_daily.csv and the trading calendar - for
 history before the Breeze index download, or to fill days Breeze leaves out.
 
 Run:  python shared/scripts/fetch_index_nse.py --from 2018-11-01 --to 2020-08-14

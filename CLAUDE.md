@@ -102,7 +102,7 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
 - Trade 9 (Sep-2021) has thin data – judge it using Data_Quality.
 - NIFTY daily close for the 10-day filter = NSE's OFFICIAL close (last-30-minute average), from NSE's daily index file
   (archives.nseindia.com/content/indices/ind_close_all_DDMMYYYY.csv, "Nifty 50" / "Closing Index Value") – backtest file
-  data/nifty_daily.csv via `fetch_index_nse.py`, forward test via ic_tools.py (same file, read live). Switched from Breeze daily
+  data/shared/nifty_daily.csv via `fetch_index_nse.py`, forward test via ic_tools.py (same file, read live). Switched from Breeze daily
   candles (last traded value) on 11-Oct-2026 after the user's cross-check; `download.py --index` only fills missing days.
 - Option-price data source: ICICI Breeze (free, exact strike+expiry, 1-min). Probe run confirmed coverage
   2022–2026 fully, 2021 mostly; prices within a few tenths of StockMock; net credit within ~1.5 pts.
@@ -115,12 +115,12 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
   `strategies/iron_condor/`: `config.py`, `common.py`, `downloader.py`, `engine.py`, `export.py`, `fallback.py`, `probe.py`, `strikes.py`, `cli.py`,
   `tradeset.py`; scripts `backtest.py`, `download.py`, `select_strikes.py`, `export_prices.py`, `make_trades.py`, `probe.py`; analysis = the former
   git-ignored output/scripts (`pcs_trade_detail.py`, `rulebook_sim.py` (was p7), `second_entry_sim.py` (was p8), `pcs_lib.py`, download scripts).
-  `strategies/batman/` = skeleton (rules being finalised). Data per strategy in `data/<name>/` (cache, daily index files and calendar
-  shared); reports in `output/<name>/`. Moved with git mv; NIFTY reports checked IDENTICAL before/after (main, 400-pt TP60 no filter,
+  `strategies/batman/` = skeleton (rules being finalised). Data per strategy in `data/<name>/`; market data all strategies use in
+  `data/shared/` (cache, daily index files, calendar; moved there 11-Nov-2026 at the user's request); reports in `output/<name>/`. Moved with git mv; NIFTY reports checked IDENTICAL before/after (main, 400-pt TP60 no filter,
   2019–20, BANKNIFTY, leg prices, put-spread workbook) and smoke test passes. Run every script from the repo root.
 - Reference data (committed): `data/iron_condor/reference/ic_reference_trades.csv`, `ic_reference_legs.csv`,
   `stockmock_export.xlsx`; validation workbook in `docs/`
-- Generated (git-ignored): `data/cache/` (1-min candles, shared), `data/nifty_trading_days.csv`, `output/` (`output/iron_condor/`, `output/batman/`)
+- Generated (git-ignored): `data/shared/cache/` (1-min candles, shared), `data/shared/nifty_trading_days.csv`, `output/` (`output/iron_condor/`, `output/batman/`)
 
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
@@ -128,7 +128,7 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
 - NIFTY must stay byte-identical: checked 11-Oct-2026 (main report, 2019–20 set, 400-pt no-filter, leg prices, make_trades output
   all identical before/after). Re-run that comparison after any further change to shared code.
 - BANKNIFTY files: `data/iron_condor/reference/banknifty_ic_reference_trades.csv` / `_legs.csv`, `banknifty_ic_trades_<set>.csv`,
-  `data/iron_condor/strike_sets/banknifty/`, cache `BANKNIFTY_<expiry>_<strike>`, `data/banknifty_daily.csv` (NSE official closes, "Nifty Bank"),
+  `data/iron_condor/strike_sets/banknifty/`, cache `BANKNIFTY_<expiry>_<strike>`, `data/shared/banknifty_daily.csv` (NSE official closes, "Nifty Bank"),
   reports `output/iron_condor/BANKNIFTY_IC_backtest_*.xlsx`. Calendar, Muhurat days, costs shared.
 - StockMock BANKNIFTY report validated 11-Oct-2026 (data/iron_condor/reference/Banknifty IC backtesting_StockMock.xlsx → the two
   banknifty_ic_reference_*.csv): 67 trades (same months as NIFTY), 30Δ, 500-pt hedges, TP 50%, 18-DTE exit; gross ₹25,894, worst
@@ -136,7 +136,7 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
   trading day early (24, 41, 42 → MANUAL). Hedges 600 on trades 58 (CE) and 61 (both). Entry differs from NIFTY only for trade 42
   (18-Jun-2024). Lots: StockMock 25 for Jul/Aug-2023 expiries (30, 31) vs NSE 15 (circular FAOP56233) – engine uses 15
   (StockMock total at engine lots ₹24,690). Config set from it: hedge_width 500, ref_exit_dte 18; expiry weekdays confirmed.
-- data/banknifty_daily.csv fetched 11-Oct-2026 (NSE official, 1-Oct-2018..9-Oct-2026, 1,987 days = same dates as nifty_daily.csv).
+- data/shared/banknifty_daily.csv fetched 11-Oct-2026 (NSE official, 1-Oct-2018..9-Oct-2026, 1,987 days = same dates as nifty_daily.csv).
   fetch_index_nse.py skips weekends, so the 7 special weekend sessions were added by hand with ic.nse_index.fetch_day – repeat for
   any new index. make_trades --symbol banknifty reproduces all 67 entry and expiry dates of the report.
 - PREVIEW ONLY (StockMock P&L at engine lots, BANKNIFTY's own 10-day move; not an engine result): no filter 67 tr ₹24,690 / DD −₹10,836;
@@ -341,7 +341,7 @@ Exit-DTE ladder WITH the ±2.5% filter (5-Oct-2026, 300-pt, 45 trades; net / max
 The popular "exit at 21 DTE" costs ₹13.2k for no drawdown gain: for Thursday expiries 18 DTE already means Friday = 20 DTE, and
 21 DTE is one day earlier (Thursday); for Tuesday expiries it is 3 trading days earlier. Fewer targets reached (11 → 4). Keep 18.
 "45 DTE entry" = what the backtest did with Thursday expiries (Monday = 45 DTE); 43 DTE is the same Monday for Tuesday expiries.
-Calendar bug fixed 5-Oct-2026: download.py --trades rebuilt data/nifty_trading_days.csv from the first selected trade, dropping
+Calendar bug fixed 5-Oct-2026: download.py --trades rebuilt data/shared/nifty_trading_days.csv from the first selected trade, dropping
 earlier days (then treated as holidays). build_calendar now merges with the existing file. Breeze daily data has gaps: calendar
 lacked 18-Dec-2025, nifty_daily.csv lacked 1-Feb-2023 and 21-Jul-2025 (patched from NSE; trade 26 reading −0.27% → +1.36%, no
 decision changed). Trade 60's 18-Dec-2025 candles downloaded 5-Oct-2026: main report unchanged
@@ -586,7 +586,7 @@ only if rich / skip) plus the earlier rule's; `strikes` prices the 400-pt and 30
 credit and the 10-day move (or --move), shows target 60%/50%; `check` uses a 60% target when the journal row is a 400-pt condor.
 Journal template gained rule_decision, hedge_width, credit_400_pts, credit_300_pts, earlier_rule_decision. The engine itself has
 no FWD option – backtest numbers for the adopted set come from combining the 300/400-pt no-filter runs.
-DATA-SOURCE FINDING 11-Oct-2026 (user cross-check): data/nifty_daily.csv from Breeze (download.py --index, 1-day candles) is NOT NSE's
+DATA-SOURCE FINDING 11-Oct-2026 (user cross-check): data/shared/nifty_daily.csv from Breeze (download.py --index, 1-day candles) is NOT NSE's
 official close – Breeze's daily close is the last traded index value, NSE's official close is the last-30-minute average.
 On the 134 dates behind the 67 filter readings: average gap 5.7 pts, max 40 pts (e.g. 10-Nov-2023 19,443.45 vs 19,425.35; 13-Nov-2023
 19,440.15 vs 19,443.55). 10-day move differs by 0.04 pts on average, max 0.24. Decisions that flip with NSE official closes:
@@ -595,7 +595,7 @@ On the 134 dates behind the 67 filter readings: average gap 5.7 pts, max 40 pts 
 −₹5,523 (only trade 38 drops, +₹126). "±2% for both widths, credit 40–45% at 300-pt" variant: Breeze 37 tr ₹72,869 / −₹9,752; NSE
 36 tr ₹82,313 / −₹5,523 – because trade 35 (stop-loss) reads 2.01% and is skipped. So that variant's verdict hangs on 0.02 pts of
 one reading; do not treat ±2% vs ±1.5% for the 300-pt leg as settled. The forward-test skill already uses NSE official closes
-(live readings follow NSE, not Breeze). 2019–Aug-2020 rows in nifty_daily.csv are already NSE. DONE 11-Oct-2026: data/nifty_daily.csv and india_vix_daily.csv
+(live readings follow NSE, not Breeze). 2019–Aug-2020 rows in nifty_daily.csv are already NSE. DONE 11-Oct-2026: data/shared/nifty_daily.csv and india_vix_daily.csv
 now hold NSE official values for Aug-2020..9-Oct-2026 incl. the weekend special sessions (fetch_index_nse.py --replace; Breeze
 backup only in the session scratchpad). Breeze vs NSE by year: avg gap 2020 9.7 / 2021 11.5 / 2022 12.3 / 2023 8.0 / 2024 4.9 pts
 (max 245), 2025–26 identical. download.py --index now only fills days the file lacks (never overwrites). Re-run with NSE closes:
@@ -984,7 +984,7 @@ Action items:
    Keep it separate from the backtest code (e.g. a live/ package) and keep secrets in .env.
    Started 4-Oct-2026: skill `.claude/skills/nifty-ic-forward-test/` (SKILL.md + scripts/ic_tools.py: rules, filter, plan,
    check, export-ref; journal/ CSVs). `filter` reads NIFTY closes from NSE's daily index files
-   (archives.nseindia.com/content/indices/ind_close_all_DDMMYYYY.csv; no login), falls back to data/nifty_daily.csv with a
+   (archives.nseindia.com/content/indices/ind_close_all_DDMMYYYY.csv; no login), falls back to data/shared/nifty_daily.csv with a
    warning; `--closes-file` for Kite-connector data. Kite MCP: read-only tools only.
    Added 4-Oct-2026: `holidays [--write]` (NSE F&O holiday list -> `NSE_HOLIDAYS` block in shared/config.py, forward-test calendar
    only; refresh each January) and `strikes --expiry` (NSE option chain -> ~30Δ sold strikes, 300-pt hedges with the fallback

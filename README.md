@@ -242,7 +242,8 @@ Sep-2026. Details and tables for each point are in §7.
 
 Reorganised 11-Nov-2026 so that more strategies can live in one repository: code every strategy needs is in
 `shared/`, each strategy has its own folder under `strategies/` (rules, engine, entry scripts, analysis), and its
-own data and report folders. The 1-minute candle cache is shared, so nothing is downloaded twice.
+own data and report folders: `data/<strategy>/` and `output/<strategy>/`. Market data every strategy uses (the 1-minute
+candle cache, index daily closes, the trading calendar) is in `data/shared/`, so a contract is never downloaded twice.
 
 ```
 nifty-iron-condor-backtest/
@@ -267,13 +268,14 @@ nifty-iron-condor-backtest/
 │   │   └── analysis/               # research scripts: put-spread detail, rulebook simulator, second entry, downloads
 │   └── batman/                     # next strategy – skeleton, rules being finalised (strategies/batman/README.md)
 ├── data/
-│   ├── cache/                      # NOT committed: 1-minute candles, one CSV per contract per day (all strategies)
-│   ├── nifty_daily.csv, india_vix_daily.csv, banknifty_daily.csv, nifty_trading_days.csv   # NOT committed
+│   ├── shared/                     # NOT committed: market data every strategy uses
+│   │   ├── cache/                  #   1-minute option and spot candles, one CSV per contract per day
+│   │   └── nifty_daily.csv, india_vix_daily.csv, banknifty_daily.csv, nifty_trading_days.csv
 │   ├── iron_condor/
 │   │   ├── reference/              # committed: StockMock exports, trade/leg lists (ic_reference_*, ic_trades_<set>)
 │   │   └── strike_sets/            # strikes chosen by select_strikes.py
 │   └── batman/reference/
-├── output/                         # NOT committed: output/iron_condor/, output/batman/
+├── output/                         # NOT committed: one folder per strategy – output/iron_condor/, output/batman/
 ├── docs/                           # summary_page.html (the published summary page), stockmock_validation.xlsx
 ├── .claude/skills/nifty-ic-forward-test/   # the condor forward-test skill (ic_tools.py)
 └── tests/                          # smoke_test.py + fake_breeze (offline, no API)
@@ -360,16 +362,16 @@ Run every command from the project folder with the virtual environment active
 | `python tests/smoke_test.py` | Offline end-to-end test with a fake Breeze client (run after any code change) | No | console, temp folder |
 | `python shared/scripts/login_url.py` | Prints today's Breeze login URL | No | console |
 | `python strategies/iron_condor/scripts/probe.py [--trades 9 67] [--all]` | Checks that Breeze has the data and prices match StockMock | Yes (~64 calls) | `output/iron_condor/probe/` |
-| `python strategies/iron_condor/scripts/download.py --index` | NIFTY and India VIX daily prices from Breeze – only fills days the files lack; the official closes come from `fetch_index_nse.py` (§5.3a) | Yes (a few calls) | `data/nifty_daily.csv`, `data/india_vix_daily.csv` |
-| `python strategies/iron_condor/scripts/download.py [--trades ...]` | 1-minute candles for every leg, plus fallback strikes; restart-safe | Yes (~3,500 calls first time) | `data/cache/` |
+| `python strategies/iron_condor/scripts/download.py --index` | NIFTY and India VIX daily prices from Breeze – only fills days the files lack; the official closes come from `fetch_index_nse.py` (§5.3a) | Yes (a few calls) | `data/shared/nifty_daily.csv`, `data/shared/india_vix_daily.csv` |
+| `python strategies/iron_condor/scripts/download.py [--trades ...]` | 1-minute candles for every leg, plus fallback strikes; restart-safe | Yes (~3,500 calls first time) | `data/shared/cache/` |
 | `python strategies/iron_condor/scripts/backtest.py` | Replays all trades with the current rules | No | `output/iron_condor/IC_backtest_report.xlsx` |
 | `python strategies/iron_condor/scripts/backtest.py --trades 1 9 23 --out output/iron_condor/x.xlsx` | Selected trades / separate report file | No | the `--out` file |
 | `python strategies/iron_condor/scripts/export_prices.py [--trades ...] [--out file]` | Daily price of every leg of every trade, entry to exit (11:16 entry, 15:16 checks, day OHLC), incl. filter-skipped months | No | `output/iron_condor/IC_leg_prices.xlsx` |
-| `python shared/scripts/fetch_index_nse.py --from 2026-09-01 --to 2026-10-09 [--replace]` | **Source of the NIFTY close used by the filter:** NSE's official daily closes for NIFTY and India VIX, merged into the daily files and the calendar (`--replace` overwrites days already there) | No (NSE website) | `data/nifty_daily.csv`, `data/india_vix_daily.csv` |
+| `python shared/scripts/fetch_index_nse.py --from 2026-09-01 --to 2026-10-09 [--replace]` | **Source of the NIFTY close used by the filter:** NSE's official daily closes for NIFTY and India VIX, merged into the daily files and the calendar (`--replace` overwrites days already there) | No (NSE website) | `data/shared/nifty_daily.csv`, `data/shared/india_vix_daily.csv` |
 | `python strategies/iron_condor/scripts/make_trades.py --from 2019-01 --to 2020-12 --name 2019_2020` | Generate monthly trades for years without StockMock data (§5.3d) | No | `data/iron_condor/reference/ic_trades_<name>.csv`, `ic_legs_<name>.csv` |
 | `python strategies/iron_condor/scripts/select_strikes.py --ce-delta 0.25 --name ce25` | Experiment: choose sold strikes by delta | Yes | `data/iron_condor/strike_sets/` |
 | `python strategies/iron_condor/scripts/select_strikes.py --ce-delta 0.10 --pe-delta 0.10 --around 3 --step 100 --name d10` | Same, searching around a Black-Scholes estimate of the strike (few calls; for deltas far from 30) | Yes | `data/iron_condor/strike_sets/` |
-| `python strategies/iron_condor/scripts/download.py --strike-set d10 --hedge 500 [--dry-run]` | Candles for a variant: sold strikes from a strike set, hedges N points out. `--dry-run` only counts the calls (no login) | Yes (no with `--dry-run`) | `data/cache/` |
+| `python strategies/iron_condor/scripts/download.py --strike-set d10 --hedge 500 [--dry-run]` | Candles for a variant: sold strikes from a strike set, hedges N points out. `--dry-run` only counts the calls (no login) | Yes (no with `--dry-run`) | `data/shared/cache/` |
 | `python strategies/iron_condor/scripts/backtest.py --strike-set d10 --hedge 500 [--filter off]` | Backtest a variant; report gets its own name | No | `output/iron_condor/IC_backtest_d10_h500[_nofilter].xlsx` |
 
 ### 5.0a Settings you can change per run (environment variables)
@@ -442,7 +444,7 @@ official values, the same source the forward-test skill reads, so backtest and l
 
 | Number | Used for | Source | When it is available |
 |---|---|---|---|
-| NIFTY daily close (official) | 10-day move in the backtest (`data/nifty_daily.csv`) | NSE daily index file `archives.nseindia.com/content/indices/ind_close_all_DDMMYYYY.csv`, row "Nifty 50", column "Closing Index Value" – `fetch_index_nse.py` | Evening of each trading day |
+| NIFTY daily close (official) | 10-day move in the backtest (`data/shared/nifty_daily.csv`) | NSE daily index file `archives.nseindia.com/content/indices/ind_close_all_DDMMYYYY.csv`, row "Nifty 50", column "Closing Index Value" – `fetch_index_nse.py` | Evening of each trading day |
 | NIFTY daily close (official) | 10-day move in the forward test (`ic_tools.py filter`, `strikes`), previous close for the gap-up log (`check`) | The same NSE file, read live for the last 11 sessions | Evening of each trading day |
 | NIFTY daily open | Gap-up reading in the backtest | Same NSE file, "Open Index Value" | Same |
 | India VIX daily | Studies only (not in the rules) | Same NSE file, row "India VIX" | Same |
@@ -454,13 +456,13 @@ official values, the same source the forward-test skill reads, so backtest and l
   It is **not** the last traded value, which is what Breeze's daily candle gives.
 - The 10-day move for an entry day uses the official close of the previous trading day and the official close 10
   trading days before that. Special sessions (Diwali Muhurat, a Budget-day Saturday/Sunday) count as trading days.
-- If NSE's site cannot be reached, the forward-test `filter` falls back to `data/nifty_daily.csv` and prints a warning.
+- If NSE's site cannot be reached, the forward-test `filter` falls back to `data/shared/nifty_daily.csv` and prints a warning.
 
 The older Breeze command, kept for the days NSE's site cannot be reached:
 ```bash
 python strategies/iron_condor/scripts/download.py --index
 ```
-A handful of API calls. Adds any days missing from `data/nifty_daily.csv` and `data/india_vix_daily.csv`
+A handful of API calls. Adds any days missing from `data/shared/nifty_daily.csv` and `data/shared/india_vix_daily.csv`
 (`config.INDEX_DAILY`); it never overwrites a day that is already there. To extend the files before
 backtesting new months, use `fetch_index_nse.py` so the new days carry the official close.
 
@@ -560,8 +562,8 @@ before and after the change and are identical.
 | Reference trades | `data/iron_condor/reference/ic_reference_trades.csv`, `ic_reference_legs.csv` | `data/iron_condor/reference/banknifty_ic_reference_trades.csv`, `banknifty_ic_reference_legs.csv` |
 | Generated trade sets | `ic_trades_<name>.csv` | `banknifty_ic_trades_<name>.csv` |
 | Strike sets | `data/iron_condor/strike_sets/strikes_<name>.csv` | `data/iron_condor/strike_sets/banknifty/strikes_<name>.csv` |
-| Candle cache | `data/cache/NIFTY_<expiry>_<strike>` | `data/cache/BANKNIFTY_<expiry>_<strike>` |
-| Daily closes for the 10-day filter | `data/nifty_daily.csv` | `data/banknifty_daily.csv` (BANKNIFTY's own move) |
+| Candle cache | `data/shared/cache/NIFTY_<expiry>_<strike>` | `data/shared/cache/BANKNIFTY_<expiry>_<strike>` |
+| Daily closes for the 10-day filter | `data/shared/nifty_daily.csv` | `data/shared/banknifty_daily.csv` (BANKNIFTY's own move) |
 | Reports | `output/iron_condor/IC_backtest_report.xlsx` | `output/iron_condor/BANKNIFTY_IC_backtest_report.xlsx` (variants: `BANKNIFTY_IC_backtest_<set>_h<width>…`) |
 
 **What is shared:** entry 11:16, one check at 15:16, stop 100% / target 50% of credit, 18-DTE time exit, the ±2.5%
@@ -678,11 +680,11 @@ Edit `strategies/iron_condor/config.py`, then re-run with a separate output file
 | Target, e.g. 40% | `TP_FRACTION = 0.40` | No |
 | Stop-loss, e.g. 150% | `SL_FRACTION = 1.50` | No |
 | Entry/check time | `ENTRY_TIME`, `CHECK_TIME` | No (full days are cached) |
-| Trend filter off / other threshold | `IC_TREND_FILTER=off` or `IC_TREND_FILTER=3` before the command (or `SKIP_IF_10D_MOVE_PCT`) | No – needs `data/nifty_daily.csv` (`python strategies/iron_condor/scripts/download.py --index`) |
+| Trend filter off / other threshold | `IC_TREND_FILTER=off` or `IC_TREND_FILTER=3` before the command (or `SKIP_IF_10D_MOVE_PCT`) | No – needs `data/shared/nifty_daily.csv` (`python strategies/iron_condor/scripts/download.py --index`) |
 | Exit earlier, e.g. 21 DTE | `EXIT_DTE = 21` | No |
 | Old rule, 15 DTE (StockMock's rule) | `EXIT_DTE = 15` | No – existing trades are cached up to their StockMock exit (~15 DTE) |
 | Fallback strikes off | `IC_FALLBACK=off` before the command | No |
-| Gap-up exit on | `IC_GAP_UP_EXIT=1.0` before the command (or `GAP_UP_EXIT_PCT = 1.0`) | No – needs `data/nifty_daily.csv` |
+| Gap-up exit on | `IC_GAP_UP_EXIT=1.0` before the command (or `GAP_UP_EXIT_PCT = 1.0`) | No – needs `data/shared/nifty_daily.csv` |
 | Hold longer, e.g. 7 DTE | `EXIT_DTE = 7` | **Yes** – run `python strategies/iron_condor/scripts/download.py` (fetches only the extra days) |
 | Hedge width (default 300) | `HEDGE_WIDTH`, or `IC_HEDGE_WIDTH=200` before the command | 200 and 300 are already cached. Any other width: **yes** – `IC_HEDGE_WIDTH=<w> python strategies/iron_condor/scripts/download.py` (~1,300 calls), then `IC_HEDGE_WIDTH=<w> python strategies/iron_condor/scripts/backtest.py --out output/iron_condor/hedge<w>.xlsx`. Hedges other than 200 have no StockMock price, so the REF entry fallback does not apply to them |
 
@@ -779,7 +781,7 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
 |---|---|---|
 | "What are the current rules?" | Prints the forward-test rule set (§1b) and the live values from `strategies/iron_condor/config.py` | `rules` |
 | "Plan the November cycle" | Gives one entry date (the Monday six weeks before expiry) and the time-exit date, using the NSE holiday list in config; prints a note when the expiry is not a Tuesday and a warning when a year has no holiday list | `plan --expiry` |
-| "Should I enter this month?" | Reads the last 11 NIFTY closes from NSE's website and reports the 10-day move with the forward-test verdict (trade / trade only if credit is rich / skip) and the earlier ±2.5% rule's verdict; uses `data/nifty_daily.csv` only if NSE is unreachable | `filter --entry-date` |
+| "Should I enter this month?" | Reads the last 11 NIFTY closes from NSE's website and reports the 10-day move with the forward-test verdict (trade / trade only if credit is rich / skip) and the earlier ±2.5% rule's verdict; uses `data/shared/nifty_daily.csv` only if NSE is unreachable | `filter --entry-date` |
 | "Refresh the NSE holidays" | Shows NSE's F&O holiday list and what would change; with your agreement, writes it into `NSE_HOLIDAYS` in `shared/config.py` | `holidays [--write]` |
 | "Which strikes for this expiry?" | Reads NSE's option chain, finds the strikes nearest 30 delta, prices the 400-point and 300-point condors (with the fallback rule), decides the width from the 400-point credit and the 10-day move, and prints bid/ask, credit, target, stop and maximum loss | `strikes --expiry` |
 | "Log today's check" | Takes the four 15:16 leg prices and reports HOLD, TARGET, STOPLOSS, TIME or GAP_UP, with a 60% target for a 400-point condor and 50% for a 300-point one; fetches the previous close from NSE if it is not given; logs to `journal/forward_daily.csv` | `check --log` |
@@ -1248,7 +1250,7 @@ the monthly routine of §5.10 as a paper-trading workflow. The same commands can
   Floors 38–41% all similar; 42% cuts 2021–26 to ₹70,664. TP 60% on the 400-pt trades only: ₹82,331 −₹5,523 (+₹3.4k); on both ₹79,532.
   EASY FORM (same trades as C + floor), credit in points of the 400-pt condor: move <= 1.5%: >= 180 pts → 400-pt; 160–180 → 300-pt;
   < 160 → skip. Move 1.5–2%: >= 180 pts → 400-pt, else skip. Move > 2%: skip. Not adopted/built yet – user to confirm.
-  DATA-SOURCE FINDING 11-Oct-2026 (user cross-check): data/nifty_daily.csv from Breeze (download.py --index, 1-day candles) is NOT NSE's
+  DATA-SOURCE FINDING 11-Oct-2026 (user cross-check): data/shared/nifty_daily.csv from Breeze (download.py --index, 1-day candles) is NOT NSE's
   official close – Breeze's daily close is the last traded index value, NSE's official close is the last-30-minute average.
   On the 134 dates behind the 67 filter readings: average gap 5.7 pts, max 40 pts (e.g. 10-Nov-2023 19,443.45 vs 19,425.35; 13-Nov-2023
   19,440.15 vs 19,443.55). 10-day move differs by 0.04 pts on average, max 0.24. Decisions that flip with NSE official closes:
@@ -1629,7 +1631,7 @@ loss −₹879 vs −₹1,372, worst −₹1,558 vs −₹2,045, credit 190.9 vs
 | `Stopped at the daily call limit` | Run again tomorrow with a new session token; progress is saved |
 | Many `No Data Found` | Check one file in `output/iron_condor/probe/raw/` (expiry/strike format) |
 | `No downloaded data found` | Run `python strategies/iron_condor/scripts/download.py` before `backtest.py` |
-| `data/nifty_daily.csv not found` | Run `python shared/scripts/fetch_index_nse.py --from 2020-08-17 --to <today>` (or `IC_TREND_FILTER=off`) |
+| `data/shared/nifty_daily.csv not found` | Run `python shared/scripts/fetch_index_nse.py --from 2020-08-17 --to <today>` (or `IC_TREND_FILTER=off`) |
 | Trades not run: `NOT_DOWNLOADED (run download.py)` | Some days or fallback strikes aren't downloaded yet – run `python strategies/iron_condor/scripts/download.py` |
 | `Strike set '...' not found` | Run `select_strikes.py` for that name first, or unset `IC_STRIKE_SET` |
 | `Operation not permitted` reading a file in Downloads | macOS privacy protection – copy the file into the project folder |
@@ -1641,7 +1643,7 @@ loss −₹879 vs −₹1,372, worst −₹1,558 vs −₹2,045, credit 190.9 vs
 ```bash
 git init
 git add .
-git status        # confirm .env, .venv/, data/cache/ and output/iron_condor/ are NOT listed
+git status        # confirm .env, .venv/, data/shared/cache/ and output/iron_condor/ are NOT listed
 git commit -m "Iron condor backtest automation: probe, downloader, engine"
 git branch -M main
 git remote add origin <your-repo-url>

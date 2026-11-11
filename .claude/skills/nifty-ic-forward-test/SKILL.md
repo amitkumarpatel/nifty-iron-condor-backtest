@@ -346,7 +346,7 @@ Where the closes come from:
 
 - **Default: NSE's website.** The script reads NSE's public daily index file (one small CSV per trading day, `ind_close_all_DDMMYYYY.csv`) for the last 11 sessions and takes the "Closing Index Value" of the "Nifty 50" row. That is NSE's official close (the last-30-minute average), the same figure the backtest file now holds; it is not the last traded value a broker's daily candle may show. No login and no Breeze token are needed. The file for a day appears in the evening, so run the check after about 18:30, or on the entry morning.
 - **Cross-check or alternative: Kite connector.** If a Zerodha Kite MCP is connected, `get_historical_data` (NIFTY 50, daily) is a read-only second source. Save its `date,close` rows to a CSV and pass `--closes-file <path>`. A broker's daily close can differ from NSE's official close by several points; if the two disagree near a limit, the NSE figure decides.
-- **Fallback: `data/nifty_daily.csv`.** Used only when NSE cannot be reached, and the script prints a WARNING. The file holds NSE official closes up to the last `python shared/scripts/fetch_index_nse.py` run; check its last date before trusting the result. `--source nse` or `--source csv` forces one source.
+- **Fallback: `data/shared/nifty_daily.csv`.** Used only when NSE cannot be reached, and the script prints a WARNING. The file holds NSE official closes up to the last `python shared/scripts/fetch_index_nse.py` run; check its last date before trusting the result. `--source nse` or `--source csv` forces one source.
 
 Always pass `--entry-date` so that only closes before the entry day are used, the same as the backtest. Report the two closes and dates the script printed. If it warns that the latest close is stale, do not judge the result.
 
@@ -429,6 +429,6 @@ Keep answers short and numeric. For a check, give: action, P&L in points and as 
 - The rule's thresholds were chosen on backtest data and it trades about five times a year. Do not present its backtest results as what to expect.
 - NSE's index file URL (`NSE_INDEX_URL` in the script) can change or be blocked. If the script falls back to the local CSV more than once, tell the user so the source can be fixed.
 - Today's NIFTY open for the gap-up log is not in NSE's file until the evening. Take it from a read-only Kite quote or ask the user.
-- `plan` treats weekdays as trading days except the holidays in config (`NSE_HOLIDAYS`, `EXTRA_HOLIDAYS`, `MUHURAT_DAYS`), because `data/nifty_trading_days.csv` only covers past dates. A holiday announced after the last `holidays --write` is missed until it is refreshed.
+- `plan` treats weekdays as trading days except the holidays in config (`NSE_HOLIDAYS`, `EXTRA_HOLIDAYS`, `MUHURAT_DAYS`), because `data/shared/nifty_trading_days.csv` only covers past dates. A holiday announced after the last `holidays --write` is missed until it is refreshed.
 - NSE's holiday and option-chain addresses are unofficial website endpoints and can change or be blocked. If `holidays` or `strikes` fails, say so and fall back to NSE's holiday page or broker quotes; do not guess.
 - Forward-test sample sizes are tiny. One month proves nothing, so do not draw conclusions about the strategy from a single cycle.

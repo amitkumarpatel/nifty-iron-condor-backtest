@@ -58,15 +58,19 @@ BREEZE_CODE = _IDX["breeze_code"]
 # File names: NIFTY keeps the original names; another index gets its name in front (banknifty_..., BANKNIFTY_...).
 FILE_PREFIX = "" if INDEX == "NIFTY" else INDEX.lower() + "_"
 
-# ---- folders shared by all strategies (IC_DATA_DIR / IC_OUTPUT_DIR override them; used by the smoke test) ----
-# Each strategy keeps its own reference files under data/<strategy>/ and writes reports to output/<strategy>/.
+# ---- folders (IC_DATA_DIR / IC_OUTPUT_DIR override the roots; used by the smoke test) ----
+# data/shared/      market data every strategy uses: 1-minute option candles, index daily closes, trading calendar
+# data/<strategy>/  that strategy's own files (reference trades, strike sets);  output/<strategy>/  its reports.
+# The candle cache is shared on purpose: an option contract's prices are the same whichever strategy uses them,
+# so a contract already downloaded for one strategy is never downloaded again for another.
 DATA_DIR     = Path(os.environ.get("IC_DATA_DIR", ROOT / "data"))
+SHARED_DATA_DIR = DATA_DIR / "shared"
 OUTPUT_ROOT  = Path(os.environ.get("IC_OUTPUT_DIR", ROOT / "output"))
-CACHE_DIR    = DATA_DIR / "cache"                    # 1-minute candles, one CSV per contract per day (all strategies)
-CALENDAR_CSV = DATA_DIR / "nifty_trading_days.csv"   # NSE trading days (from NIFTY daily candles; all indices)
-INDEX_DAILY  = {"NIFTY": DATA_DIR / "nifty_daily.csv",       # daily OHLC for trend/VIX filters
-                "INDVIX": DATA_DIR / "india_vix_daily.csv",   # (shared/scripts/fetch_index_nse.py / download --index)
-                "BANKNIFTY": DATA_DIR / "banknifty_daily.csv"}
+CACHE_DIR    = SHARED_DATA_DIR / "cache"                    # 1-minute candles, one CSV per contract per day
+CALENDAR_CSV = SHARED_DATA_DIR / "nifty_trading_days.csv"   # NSE trading days (from NIFTY daily candles; all indices)
+INDEX_DAILY  = {"NIFTY": SHARED_DATA_DIR / "nifty_daily.csv",       # daily OHLC, NSE official closes
+                "INDVIX": SHARED_DATA_DIR / "india_vix_daily.csv",   # (shared/scripts/fetch_index_nse.py / download --index)
+                "BANKNIFTY": SHARED_DATA_DIR / "banknifty_daily.csv"}
 INDEX_DAILY_CSV = INDEX_DAILY[INDEX]                 # the traded index: trend filter, gap-up and breach exits
 DAILY_BREEZE_CODES = {"NIFTY": "NIFTY", "INDVIX": "INDVIX", "BANKNIFTY": INDEXES["BANKNIFTY"]["breeze_code"]}
 

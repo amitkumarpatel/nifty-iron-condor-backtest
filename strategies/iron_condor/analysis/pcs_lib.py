@@ -35,7 +35,7 @@ def pcs(tid, K, w, tp=0.5, sl=1.0):
     return None
 
 def moves(tid):
-    cl = pd.read_csv("data/nifty_daily.csv", parse_dates=["date"]).set_index("date").close.sort_index()
+    cl = pd.read_csv("data/shared/nifty_daily.csv", parse_dates=["date"]).set_index("date").close.sort_index()
     p = cl[cl.index < pd.Timestamp(REF.entry_date[tid])]
     return (p.iloc[-1] / p.iloc[-11] - 1) * 100, (p.iloc[-1] / p.iloc[-6] - 1) * 100
 
