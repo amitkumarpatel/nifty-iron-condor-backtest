@@ -9,7 +9,7 @@ from datetime import date, datetime, timedelta
 
 import pandas as pd
 
-from ic import config as C
+from strategies.iron_condor import config as C
 
 _legs = pd.read_csv(C.LEGS_CSV)
 REF = {(r.expiry, int(r.strike), r.opt_type): (date.fromisoformat(r.entry_dt[:10]), r.entry_px,

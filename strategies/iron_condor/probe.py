@@ -17,9 +17,9 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 
-from ic import config as C
-from ic.breeze_client import connect
-from ic.common import iso
+from strategies.iron_condor import config as C
+from shared.breeze_client import connect
+from strategies.iron_condor.common import iso
 
 LEGS_CSV = C.LEGS_CSV
 DEFAULT_SAMPLE = [1, 9, 20, 35, 48, 56, 62, 67]   # oldest, holidays, SL, year-cross, Tue expiry, latest

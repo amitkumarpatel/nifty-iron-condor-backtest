@@ -12,12 +12,12 @@ the way the user handles missing strikes in StockMock:
 """
 import pandas as pd
 
-from ic import config as C
-from ic.common import contract_key
+from strategies.iron_condor import config as C
+from strategies.iron_condor.common import contract_key
 
 
 def usable_price(key, day):
-    from ic.engine import price_at
+    from shared.pricing import price_at
     px, q, m = price_at(key, day, C.ENTRY_TIME)
     if px is None or (q == "AFTER" and -m > C.MAX_AFTER_MIN_AT_ENTRY):
         return None

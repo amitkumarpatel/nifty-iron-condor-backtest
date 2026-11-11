@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Forward-test helpers for the NIFTY monthly iron condor.
 
-Run from the repo root (the folder that contains ic/config.py):
+Run from the repo root (the folder that contains strategies/ and shared/):
 
     python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py rules
     python .../ic_tools.py filter [--entry-date YYYY-MM-DD] [--source auto|nse|csv] [--closes-file F]
@@ -13,7 +13,7 @@ Run from the repo root (the folder that contains ic/config.py):
                                  (put credit spread: journal row with sell_ce/buy_ce empty; leave out --sce/--bce)
     python .../ic_tools.py export-ref --trade-id N
 
-All strategy numbers come from ic/config.py, so the README/config stay the single
+All strategy numbers come from strategies/iron_condor/config.py (which re-exports shared/config.py), so the README/config stay the single
 source of truth. Nothing here calls Breeze or Kite and nothing places orders.
 
 NIFTY daily closes come from NSE's public daily index file (one small CSV per trading day,
@@ -64,12 +64,12 @@ WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 def load_config():
     sys.path.insert(0, os.getcwd())
     try:
-        from ic import config
+        from strategies.iron_condor import config
     except Exception as e:  # noqa: BLE001
-        sys.exit(f"Cannot import ic.config ({e}). Run this from the repo root.")
+        sys.exit(f"Cannot import strategies.iron_condor.config ({e}). Run this from the repo root.")
     missing = [n for n in REQUIRED + FWD if not hasattr(config, n)]
     if missing:
-        sys.exit(f"ic/config.py has no {missing}. Constant names changed? Update REQUIRED in ic_tools.py.")
+        sys.exit(f"strategies/iron_condor/config.py has no {missing}. Constant names changed? Update REQUIRED in ic_tools.py.")
     return config
 
 
@@ -167,7 +167,7 @@ def get_closes(before, count, source="auto", closes_file=None):
         if source == "nse":
             sys.exit(f"Could not get {count} NIFTY closes from NSE ({err}).")
         print(f"WARNING: NSE not reachable ({err}); falling back to data/nifty_daily.csv "
-              "(refresh it with `python download.py --index`).")
+              "(refresh it with `python shared/scripts/fetch_index_nse.py`).")
     return [c for c in load_closes_csv() if c[0] < before][-count:], "data/nifty_daily.csv"
 
 
@@ -198,7 +198,7 @@ def wide_label(cfg):
 
 
 def fwd_text(cfg):
-    """The forward-test rule set (ic/config.py FWD_*), as plain lines."""
+    """The forward-test rule set (strategies/iron_condor/config.py FWD_*), as plain lines."""
     w, n = int(cfg.FWD_SIGNAL_WIDTH), int(cfg.HEDGE_WIDTH)
     rich, floor = cfg.FWD_WIDE_MIN_CREDIT_PCT * w / 100, cfg.FWD_MIN_CREDIT_PCT * w / 100
     return [
@@ -269,7 +269,7 @@ def tp_fraction(cfg, width):
 
 
 def cmd_rules(cfg, a):
-    print("Forward-test rule set (ic/config.py FWD_*):")
+    print("Forward-test rule set (strategies/iron_condor/config.py FWD_*):")
     for line in fwd_text(cfg):
         print("  " + line)
     print("\nConfig values:")
@@ -283,7 +283,7 @@ def cmd_rules(cfg, a):
 
 
 def cmd_filter(cfg, a):
-    # Same definition as the backtest (ic/common.py trend_moves): last close before the entry day
+    # Same definition as the backtest (strategies/iron_condor/common.py trend_moves): last close before the entry day
     # vs the close TREND_LOOKBACK_DAYS trading days earlier.
     n = int(cfg.TREND_LOOKBACK_DAYS)
     before = d(a.entry_date) if a.entry_date else dt.date.today() + dt.timedelta(days=1)
@@ -325,7 +325,7 @@ def entry_date(cfg, exp, hol):
         nominal = exp + dt.timedelta(days=want - exp.weekday())
         note = (f"expiry is a {exp:%a}, not a {cfg.EXPIRY_WEEKDAY}. If it was only moved for a holiday, the entry "
                 f"below keeps the usual pattern. If NSE changed the expiry day, update ENTRY_DTE and "
-                f"EXPIRY_WEEKDAY in ic/config.py first.")
+                f"EXPIRY_WEEKDAY in shared/config.py first.")
     day = nominal - dt.timedelta(days=int(cfg.ENTRY_DTE))
     while not is_td(day, hol):
         day += dt.timedelta(days=1)
@@ -386,21 +386,21 @@ def cmd_holidays(cfg, a):
     star = [k for k in new if "*" in new[k]]
     if star:
         print(f"NOTE: {', '.join(map(str, star))} is marked * by NSE (Muhurat trading). Check that it is in "
-              "MUHURAT_DAYS in ic/config.py.")
+              "MUHURAT_DAYS in shared/config.py.")
     have = as_dates(getattr(cfg, "NSE_HOLIDAYS", []))
     add, gone = sorted(set(new) - have), sorted(k for k in have if k.year in years and k not in new)
     print(f"config NSE_HOLIDAYS: {len(have)} dates; new {len(add)}: {', '.join(map(str, add)) or '-'}; "
           f"no longer listed {len(gone)}: {', '.join(map(str, gone)) or '-'}")
     if not a.write:
         if add or gone:
-            print("Run again with --write to update ic/config.py.")
+            print("Run again with --write to update shared/config.py.")
         return
     # keep other years already in config, replace the years NSE just returned
-    path = os.path.join("ic", "config.py")
+    path = os.path.join("shared", "config.py")
     text = open(path).read()
     block = re.search(r"# NSE_HOLIDAYS_START\n.*?# NSE_HOLIDAYS_END", text, re.S)
     if not block:
-        sys.exit("Markers # NSE_HOLIDAYS_START / # NSE_HOLIDAYS_END not found in ic/config.py.")
+        sys.exit("Markers # NSE_HOLIDAYS_START / # NSE_HOLIDAYS_END not found in shared/config.py.")
     old_notes = dict(re.findall(r'"(\d{4}-\d{2}-\d{2})",\s*#\s*\w{3}\s+(.*)', block.group(0)))
     keep = {k: old_notes.get(str(k), "") for k in have if k.year not in years}
     allh = {**keep, **new}
@@ -408,7 +408,7 @@ def cmd_holidays(cfg, a):
     fetched = f"# fetched from NSE on {dt.date.today()} ({NSE_HOLIDAY_SEGMENT} segment, years {years})"
     text = text.replace(block.group(0), f"# NSE_HOLIDAYS_START\n{fetched}\nNSE_HOLIDAYS = [\n{lines}]\n# NSE_HOLIDAYS_END")
     open(path, "w").write(text)
-    print(f"ic/config.py updated: NSE_HOLIDAYS now has {len(allh)} dates. Review `git diff ic/config.py`, "
+    print(f"shared/config.py updated: NSE_HOLIDAYS now has {len(allh)} dates. Review `git diff shared/config.py`, "
           "run `python tests/smoke_test.py`, then commit.")
 
 
@@ -429,8 +429,8 @@ def leg_quote(q):
 
 
 def cmd_strikes(cfg, a):
-    from ic.common import lot_size
-    from ic.strikes import bs, implied_vol
+    from shared.calendar import lot_size
+    from strategies.iron_condor.strikes import bs, implied_vol
     exp = d(a.expiry)
     tag = f"{exp:%d-%b-%Y}"
     try:
@@ -710,13 +710,13 @@ def cmd_export_ref(cfg, a):
         sys.exit("Fill exit_date and the four exit_px_* columns for this trade first.")
     e, x = [float(t[k]) for k in ENTRY_PX], [float(t[k]) for k in EXIT_PX]
     pnl = (e[0] + e[2] - e[1] - e[3]) - (x[0] + x[2] - x[1] - x[3])
-    print("# append to data/reference/ic_reference_trades.csv")
+    print("# append to data/iron_condor/reference/ic_reference_trades.csv")
     print("trade_id,entry_date,entry_time,expiry,sell_ce,buy_ce,sell_pe,buy_pe,qty_stockmock,"
           "ref_exit_date,ref_exit_reason,ref_pnl_pts,ref_pnl_rs,ref_note")
     print(f"{t['trade_id']},{t['entry_date']},{t['entry_time']},{t['expiry']},{t['sell_ce']},{t['buy_ce']},"
           f"{t['sell_pe']},{t['buy_pe']},{t.get('lot_qty', '')},{t['exit_date']},{t.get('exit_reason', '')},"
           f"{pnl:.2f},,forward test paper fills")
-    print("\n# append to data/reference/ic_reference_legs.csv")
+    print("\n# append to data/iron_condor/reference/ic_reference_legs.csv")
     print("trade_id,side,opt_type,strike,expiry,entry_dt,exit_dt,entry_px,exit_px")
     for (side, typ, key), i in zip([("SELL", "CE", "sell_ce"), ("BUY", "CE", "buy_ce"),
                                     ("SELL", "PE", "sell_pe"), ("BUY", "PE", "buy_pe")], range(4)):
@@ -738,7 +738,7 @@ def main():
     x.add_argument("--expiry", required=True)
     x.add_argument("--holiday", action="append", default=[])
     x = s.add_parser("holidays")
-    x.add_argument("--write", action="store_true", help="update NSE_HOLIDAYS in ic/config.py")
+    x.add_argument("--write", action="store_true", help="update NSE_HOLIDAYS in shared/config.py")
     x = s.add_parser("strikes")
     x.add_argument("--expiry", required=True)
     x.add_argument("--delta", type=float, default=TARGET_DELTA)

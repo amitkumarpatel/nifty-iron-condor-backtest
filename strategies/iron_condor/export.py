@@ -11,10 +11,10 @@ import argparse
 
 import pandas as pd
 
-from ic import config as C
-from ic import engine as E
-from ic.common import load_calendar, load_inputs, trend_moves
-from ic.fallback import choose
+from strategies.iron_condor import config as C
+from strategies.iron_condor import engine as E
+from strategies.iron_condor.common import load_calendar, load_inputs, trend_moves
+from strategies.iron_condor.fallback import choose
 
 LEG_NAMES = {("SELL", "CE"): "sell_CE", ("BUY", "CE"): "buy_CE", ("SELL", "PE"): "sell_PE", ("BUY", "PE"): "buy_PE"}
 

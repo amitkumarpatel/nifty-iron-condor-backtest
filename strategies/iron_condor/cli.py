@@ -1,18 +1,18 @@
 """
 Per-run variant options for the entry scripts, so a test needs no environment variables:
 
-    --strike-set NAME   sold strikes from data/strike_sets/strikes_NAME.csv   (= IC_STRIKE_SET)
+    --strike-set NAME   sold strikes from data/iron_condor/strike_sets/strikes_NAME.csv (= IC_STRIKE_SET)
     --hedge N           bought legs N points beyond the sold legs            (= IC_HEDGE_WIDTH)
     --filter X          10-day trend filter limit in %, or `off`             (= IC_TREND_FILTER)
     --entry-shift D     enter D calendar days after the reference entry      (= IC_ENTRY_SHIFT)
-    --trade-set NAME    trades from data/reference/ic_trades_NAME.csv        (= IC_TRADE_SET; python make_trades.py)
+    --trade-set NAME    trades from data/iron_condor/reference/ic_trades_NAME.csv (= IC_TRADE_SET; make_trades.py)
     --symbol NAME       index to work on: nifty (default) or banknifty       (= IC_INDEX)
     --exit-dte N        time exit N calendar days before expiry (default 18) (= IC_EXIT_DTE)
     --tp X              profit target in % of credit, e.g. 40 (default 50)  (= IC_TP)
 
-They are turned into the environment variables ic/config.py already reads, so this must run before
-anything imports ic.config. backtest.py and export_prices.py also get a report name of their own for a
-variant (output/<prefix>_<set>_h<width>[_nofilter].xlsx) unless --out is given, so a test never overwrites
+They are turned into the environment variables strategies/iron_condor/config.py (and shared/config.py) read, so
+this must run before anything imports the config. backtest.py and export_prices.py also get a report name of their own for a
+variant (output/iron_condor/<prefix>_<set>_h<width>[_nofilter].xlsx) unless --out is given, so a test never overwrites
 the main report.
 """
 import os
@@ -45,7 +45,8 @@ def preset(out_prefix=None):
         f = used.get("--filter")
         if f:
             parts.append("nofilter" if f.lower() == "off" else f"filter{f}")
-        out_dir = os.environ.get("IC_OUTPUT_DIR") or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "output")
+        root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repository root
+        out_dir = os.path.join(os.environ.get("IC_OUTPUT_DIR") or os.path.join(root, "output"), "iron_condor")
         if used.get("--entry-shift"):
             parts.append(f"shift{used['--entry-shift']}")
         if used.get("--exit-dte"):

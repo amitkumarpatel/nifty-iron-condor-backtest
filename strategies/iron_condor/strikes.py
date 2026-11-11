@@ -19,8 +19,8 @@ from types import SimpleNamespace
 
 import pandas as pd
 
-from ic import config as C
-from ic.common import cache_file, contract_key, iso, load_inputs
+from strategies.iron_condor import config as C
+from strategies.iron_condor.common import cache_file, contract_key, iso, load_inputs
 
 
 MAX_EXTEND_ROUNDS = 4       # --around: how often the window is extended towards the target delta
@@ -93,13 +93,13 @@ def main():
     saved, C.STRIKE_SET = C.STRIKE_SET, ""          # candidates are built around StockMock's strikes
     trades, legs = load_inputs(a.trades)
     C.STRIKE_SET = saved
-    from ic.engine import price_at                  # after config is final
+    from shared.pricing import price_at                  # after config is final
 
     # per-trade targets {opt_type: delta}
     if a.trend_shift:
         if not a.with_delta:
             raise SystemExit("--trend-shift needs --with-delta")
-        from ic.common import trend_moves
+        from strategies.iron_condor.common import trend_moves
         lim = a.limit or C.SKIP_IF_10D_MOVE_PCT or 2.5
         mv = trend_moves(trades.entry_date)
         trades = trades[[abs(mv[d]) > lim for d in trades.entry_date]]
@@ -124,8 +124,8 @@ def main():
         nonlocal api
         if not spot_days and not opts:
             return
-        from ic.breeze_client import connect
-        from ic.downloader import Api, fetch_chunk
+        from shared.breeze_client import connect
+        from strategies.iron_condor.downloader import Api, fetch_chunk
         api = api or Api(connect())
         for day in sorted(spot_days):
             fetch_spot_day(api, day)

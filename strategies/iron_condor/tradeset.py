@@ -25,8 +25,8 @@ from datetime import date, timedelta
 
 import pandas as pd
 
-from ic import config as C
-from ic.strikes import bs
+from strategies.iron_condor import config as C
+from strategies.iron_condor.strikes import bs
 
 CE_VOL_FACTOR, PE_VOL_FACTOR = 0.85, 1.15   # skew: OTM calls trade below India VIX, OTM puts above
 START_DELTA = 0.30

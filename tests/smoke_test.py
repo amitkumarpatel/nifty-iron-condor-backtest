@@ -11,6 +11,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+S = "strategies/iron_condor/scripts/"          # iron condor entry scripts
 
 
 def run(cmd, env):
@@ -25,8 +26,8 @@ def run(cmd, env):
 def check_time_exit_skips_muhurat():
     from datetime import date
     sys.path.insert(0, str(ROOT))
-    from ic import config as C
-    from ic.common import load_calendar, time_exit_day
+    from strategies.iron_condor import config as C
+    from strategies.iron_condor.common import load_calendar, time_exit_day
     cal = load_calendar(date(2021, 10, 1), date(2021, 11, 30))
     assert date(2021, 11, 4) not in cal, "Muhurat day should not be a trading day"
     saved, C.EXIT_DTE = C.EXIT_DTE, 18
@@ -42,16 +43,17 @@ def main():
     tmp = Path(tempfile.mkdtemp(prefix="ic_smoke_"))
     env = dict(os.environ,
                PYTHONPATH=os.pathsep.join([str(ROOT / "tests" / "fake_breeze"), str(ROOT)]),
-               IC_DATA_DIR=str(tmp / "data"), IC_OUTPUT_DIR=str(tmp / "output"), IC_PAUSE_SEC="0",
+               IC_DATA_DIR=str(tmp / "data"), IC_OUTPUT_DIR=str(tmp / "out_root"), IC_PAUSE_SEC="0",
                BREEZE_API_KEY="test", BREEZE_API_SECRET="test", BREEZE_SESSION="test")
-    out1 = run([sys.executable, "download.py", "--trades", "1", "9", "23", "62", "67"], env)
+    out = tmp / "out_root" / "iron_condor"     # the condor reports land here
+    out1 = run([sys.executable, S + "download.py", "--trades", "1", "9", "23", "62", "67"], env)
     assert "All requested data downloaded" in out1, out1
-    out2 = run([sys.executable, "download.py", "--trades", "1", "9", "23", "62", "67"], env)
+    out2 = run([sys.executable, S + "download.py", "--trades", "1", "9", "23", "62", "67"], env)
     assert "0 API calls needed" in out2, "restart should skip cached data"
-    out4 = run([sys.executable, "download.py", "--index"], env)
+    out4 = run([sys.executable, S + "download.py", "--index"], env)
     assert (tmp / "data" / "nifty_daily.csv").exists(), out4
-    out3 = run([sys.executable, "backtest.py", "--trades", "1", "9", "23", "62", "67"], env)
-    report = tmp / "output" / "IC_backtest_report.xlsx"
+    out3 = run([sys.executable, S + "backtest.py", "--trades", "1", "9", "23", "62", "67"], env)
+    report = out / "IC_backtest_report.xlsx"
     assert report.exists(), "report not written"
     import openpyxl
     names = openpyxl.load_workbook(report).sheetnames
@@ -62,51 +64,51 @@ def main():
     notes = {r[hdr.index("trade_id")]: r[hdr.index("strike_note")] for r in tr.iter_rows(min_row=2, values_only=True)}
     if os.environ.get("IC_HEDGE_WIDTH", "300") == "300":   # the fake 13500PE hedge has no data
         assert notes.get(1) and "PE 13800/13500 ->" in notes[1], f"trade 1 should use fallback PE strikes: {notes}"
-    out7 = run([sys.executable, "export_prices.py", "--trades", "1", "9", "23", "62", "67",
-                "--out", str(tmp / "output" / "smoke_prices.xlsx")], env)
-    assert (tmp / "output" / "smoke_prices.xlsx").exists(), out7
-    out8 = run([sys.executable, "backtest.py", "--trades", "1", "9", "23", "62", "67",
-                "--out", str(tmp / "output" / "smoke_gapup.xlsx")], dict(env, IC_GAP_UP_EXIT="1.0", IC_CE_BREACH_EXIT="hedge"))
-    summary_text = [str(c.value) for row in openpyxl.load_workbook(tmp / "output" / "smoke_gapup.xlsx")["Summary"].iter_rows()
+    out7 = run([sys.executable, S + "export_prices.py", "--trades", "1", "9", "23", "62", "67",
+                "--out", str(out / "smoke_prices.xlsx")], env)
+    assert (out / "smoke_prices.xlsx").exists(), out7
+    out8 = run([sys.executable, S + "backtest.py", "--trades", "1", "9", "23", "62", "67",
+                "--out", str(out / "smoke_gapup.xlsx")], dict(env, IC_GAP_UP_EXIT="1.0", IC_CE_BREACH_EXIT="hedge"))
+    summary_text = [str(c.value) for row in openpyxl.load_workbook(out / "smoke_gapup.xlsx")["Summary"].iter_rows()
                     for c in row if c.value is not None]
     assert any("Gap-up exit: ON" in t for t in summary_text), "gap-up exit note missing from the report"
     assert any("Call-side breach exit: ON" in t for t in summary_text), "CE breach exit note missing from the report"
     env9 = dict(env, IC_ENTRY_SHIFT="2")
-    run([sys.executable, "download.py", "--trades", "9", "62"], env9)
-    out9 = run([sys.executable, "backtest.py", "--trades", "9", "62", "--out", str(tmp / "output" / "smoke_wed.xlsx")], env9)
-    assert "Entry shifted 2" in "".join(str(c.value) for r in openpyxl.load_workbook(tmp / "output" / "smoke_wed.xlsx")["Summary"].iter_rows() for c in r), out9
-    out5 = run([sys.executable, "select_strikes.py", "--ce-delta", "0.25", "--name", "smoke", "--trades", "9", "62"], env)
-    assert (tmp / "data" / "strike_sets" / "strikes_smoke.csv").exists(), out5
+    run([sys.executable, S + "download.py", "--trades", "9", "62"], env9)
+    out9 = run([sys.executable, S + "backtest.py", "--trades", "9", "62", "--out", str(out / "smoke_wed.xlsx")], env9)
+    assert "Entry shifted 2" in "".join(str(c.value) for r in openpyxl.load_workbook(out / "smoke_wed.xlsx")["Summary"].iter_rows() for c in r), out9
+    out5 = run([sys.executable, S + "select_strikes.py", "--ce-delta", "0.25", "--name", "smoke", "--trades", "9", "62"], env)
+    assert (tmp / "data" / "iron_condor" / "strike_sets" / "strikes_smoke.csv").exists(), out5
     env5 = dict(env, IC_STRIKE_SET="smoke")
-    run([sys.executable, "download.py", "--trades", "9", "62"], env5)
-    out6 = run([sys.executable, "backtest.py", "--trades", "9", "62", "--out", str(tmp / "output" / "smoke_ce25.xlsx")], env5)
-    assert (tmp / "output" / "smoke_ce25.xlsx").exists(), out6
+    run([sys.executable, S + "download.py", "--trades", "9", "62"], env5)
+    out6 = run([sys.executable, S + "backtest.py", "--trades", "9", "62", "--out", str(out / "smoke_ce25.xlsx")], env5)
+    assert (out / "smoke_ce25.xlsx").exists(), out6
     # variant options: estimate-centred strike search, --strike-set / --hedge / --filter, own report name
-    out7 = run([sys.executable, "select_strikes.py", "--ce-delta", "0.10", "--pe-delta", "0.10", "--around", "2",
+    out7 = run([sys.executable, S + "select_strikes.py", "--ce-delta", "0.10", "--pe-delta", "0.10", "--around", "2",
                 "--step", "100", "--name", "smoke10", "--trades", "62", "67"], env)
-    assert (tmp / "data" / "strike_sets" / "strikes_smoke10.csv").exists(), out7
+    assert (tmp / "data" / "iron_condor" / "strike_sets" / "strikes_smoke10.csv").exists(), out7
     var = ["--trades", "62", "67", "--strike-set", "smoke10", "--hedge", "500"]
-    assert "API calls needed" in run([sys.executable, "download.py", *var, "--dry-run"], env)
-    run([sys.executable, "download.py", *var], env)
-    out8 = run([sys.executable, "backtest.py", *var, "--filter", "off"], env)
-    assert (tmp / "output" / "IC_backtest_smoke10_h500_nofilter.xlsx").exists(), out8
+    assert "API calls needed" in run([sys.executable, S + "download.py", *var, "--dry-run"], env)
+    run([sys.executable, S + "download.py", *var], env)
+    out8 = run([sys.executable, S + "backtest.py", *var, "--filter", "off"], env)
+    assert (out / "IC_backtest_smoke10_h500_nofilter.xlsx").exists(), out8
     # second index: same engine with --symbol banknifty, its own reference files, cache folders and report names
     import shutil
     ref = tmp / "ref"
     ref.mkdir()
     for f in ("ic_reference_trades.csv", "ic_reference_legs.csv"):      # NIFTY rows stand in for a BANKNIFTY report
-        shutil.copy(ROOT / "data" / "reference" / f, ref / f"banknifty_{f}")
+        shutil.copy(ROOT / "data" / "iron_condor" / "reference" / f, ref / f"banknifty_{f}")
     envb = dict(env, IC_REF_DIR=str(ref))
     bn = ["--symbol", "banknifty", "--trades", "9", "62"]
-    run([sys.executable, "download.py", *bn, "--index"], envb)
+    run([sys.executable, S + "download.py", *bn, "--index"], envb)
     assert (tmp / "data" / "banknifty_daily.csv").exists(), "BANKNIFTY daily file not written"
-    run([sys.executable, "download.py", *bn, "--hedge", "300"], envb)
+    run([sys.executable, S + "download.py", *bn, "--hedge", "300"], envb)
     assert any(d.name.startswith("BANKNIFTY_") for d in (tmp / "data" / "cache").iterdir()), "no BANKNIFTY cache folders"
-    outb = run([sys.executable, "backtest.py", *bn, "--hedge", "300"], envb)
-    assert (tmp / "output" / "BANKNIFTY_IC_backtest_sm_h300.xlsx").exists(), outb
-    wb = openpyxl.load_workbook(tmp / "output" / "BANKNIFTY_IC_backtest_sm_h300.xlsx")
+    outb = run([sys.executable, S + "backtest.py", *bn, "--hedge", "300"], envb)
+    assert (out / "BANKNIFTY_IC_backtest_sm_h300.xlsx").exists(), outb
+    wb = openpyxl.load_workbook(out / "BANKNIFTY_IC_backtest_sm_h300.xlsx")
     assert any("BANKNIFTY lot size" in str(c.value) for r in wb["Summary"].iter_rows() for c in r), "report should name the index"
-    assert report.stat().st_mtime < (tmp / "output" / "BANKNIFTY_IC_backtest_sm_h300.xlsx").stat().st_mtime
+    assert report.stat().st_mtime < (out / "BANKNIFTY_IC_backtest_sm_h300.xlsx").stat().st_mtime
     assert openpyxl.load_workbook(report).sheetnames == names, "NIFTY report must be untouched by the BANKNIFTY run"
     print(out3)
     print(f"SMOKE TEST PASSED  (temp files in {tmp})")

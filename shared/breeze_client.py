@@ -1,9 +1,9 @@
-"""Breeze login helpers. Credentials come from .env (loaded by ic.config)."""
+"""Breeze login helpers. Credentials come from .env (loaded by shared.config)."""
 import getpass
 import os
 import urllib.parse
 
-from ic import config  # noqa: F401  (importing loads .env)
+from shared import config  # noqa: F401  (importing loads .env)
 
 
 def _get(name, prompt, secret=True):

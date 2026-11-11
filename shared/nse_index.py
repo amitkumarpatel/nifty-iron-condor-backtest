@@ -3,7 +3,7 @@ NIFTY 50 and India VIX daily OHLC from NSE's public daily index files (one small
 no login). Merged into data/nifty_daily.csv, data/india_vix_daily.csv and the trading calendar - for
 history before the Breeze index download, or to fill days Breeze leaves out.
 
-Run:  python fetch_index_nse.py --from 2018-11-01 --to 2020-08-14
+Run:  python shared/scripts/fetch_index_nse.py --from 2018-11-01 --to 2020-08-14
 """
 import argparse
 import csv
@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from ic import config as C
+from shared import config as C
 
 URL = "https://archives.nseindia.com/content/indices/ind_close_all_{:%d%m%Y}.csv"
 NAMES = {"india vix": "INDVIX", **{v["nse_name"]: k for k, v in C.INDEXES.items()}}   # name in NSE's file -> our code
