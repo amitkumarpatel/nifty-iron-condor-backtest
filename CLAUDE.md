@@ -7,7 +7,8 @@ real 1-minute option prices from the ICICI Direct Breeze API and reconciles ever
 Owner: beginner-to-intermediate systematic options trader, ₹3–5L capital, conservative,
 target ~1–1.5%/month, capital preservation first. Explain trading/code decisions plainly.
 
-Full user documentation: README.md. All settings: `ic/config.py`.
+Full user documentation: README.md. Settings: `shared/config.py` (index table, folders, calendar/holidays, lot sizes, entry/check
+times, price rules, Breeze limits, costs) and `strategies/<strategy>/config.py` (that strategy's rules; re-exports the shared values).
 
 ## Strategy rules (do not change without the user's explicit request)
 - Entry at 11:16 (close of the 1-min candle labelled 11:16); next-month expiry. Forward test: 43 DTE = the Monday six weeks
@@ -108,21 +109,28 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
 - Costs modelled approximately in `config.COSTS` (~₹250 per condor); report gross and net.
 
 ## Layout
-- Entry scripts in root: `login_url.py`, `probe.py`, `download.py`, `backtest.py`, `select_strikes.py`, `export_prices.py`, `make_trades.py`, `fetch_index_nse.py`
-- Code in `ic/` (index-aware via `config.INDEX`): `config.py`, `breeze_client.py`, `common.py`, `downloader.py`, `engine.py`, `export.py`, `fallback.py`, `probe.py`, `strikes.py`, `cli.py`, `tradeset.py`, `nse_index.py`
-- Reference data (committed): `data/reference/ic_reference_trades.csv`, `ic_reference_legs.csv`,
+- REORGANISED 11-Nov-2026 (user request; README §2): `shared/` = code every strategy uses (`config.py`, `breeze_client.py`, `breeze_data.py`,
+  `calendar.py`, `pricing.py`, `spread_sim.py`, `nse_index.py`; `shared/scripts/login_url.py`, `fetch_index_nse.py`). `strategies/<name>/` = one
+  folder per strategy with its own `config.py` (`from shared.config import *` + rules), engine, `scripts/` (entry points) and `analysis/`.
+  `strategies/iron_condor/`: `config.py`, `common.py`, `downloader.py`, `engine.py`, `export.py`, `fallback.py`, `probe.py`, `strikes.py`, `cli.py`,
+  `tradeset.py`; scripts `backtest.py`, `download.py`, `select_strikes.py`, `export_prices.py`, `make_trades.py`, `probe.py`; analysis = the former
+  git-ignored output/scripts (`pcs_trade_detail.py`, `rulebook_sim.py` (was p7), `second_entry_sim.py` (was p8), `pcs_lib.py`, download scripts).
+  `strategies/batman/` = skeleton (rules being finalised). Data per strategy in `data/<name>/` (cache, daily index files and calendar
+  shared); reports in `output/<name>/`. Moved with git mv; NIFTY reports checked IDENTICAL before/after (main, 400-pt TP60 no filter,
+  2019–20, BANKNIFTY, leg prices, put-spread workbook) and smoke test passes. Run every script from the repo root.
+- Reference data (committed): `data/iron_condor/reference/ic_reference_trades.csv`, `ic_reference_legs.csv`,
   `stockmock_export.xlsx`; validation workbook in `docs/`
-- Generated (git-ignored): `data/cache/` (1-min candles), `data/nifty_trading_days.csv`, `output/`
+- Generated (git-ignored): `data/cache/` (1-min candles, shared), `data/nifty_trading_days.csv`, `output/` (`output/iron_condor/`, `output/batman/`)
 
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
-- `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `ic/config.py`
+- `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
   (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.
 - NIFTY must stay byte-identical: checked 11-Oct-2026 (main report, 2019–20 set, 400-pt no-filter, leg prices, make_trades output
   all identical before/after). Re-run that comparison after any further change to shared code.
-- BANKNIFTY files: `data/reference/banknifty_ic_reference_trades.csv` / `_legs.csv`, `banknifty_ic_trades_<set>.csv`,
-  `data/strike_sets/banknifty/`, cache `BANKNIFTY_<expiry>_<strike>`, `data/banknifty_daily.csv` (NSE official closes, "Nifty Bank"),
-  reports `output/BANKNIFTY_IC_backtest_*.xlsx`. Calendar, Muhurat days, costs shared.
-- StockMock BANKNIFTY report validated 11-Oct-2026 (data/reference/Banknifty IC backtesting_StockMock.xlsx → the two
+- BANKNIFTY files: `data/iron_condor/reference/banknifty_ic_reference_trades.csv` / `_legs.csv`, `banknifty_ic_trades_<set>.csv`,
+  `data/iron_condor/strike_sets/banknifty/`, cache `BANKNIFTY_<expiry>_<strike>`, `data/banknifty_daily.csv` (NSE official closes, "Nifty Bank"),
+  reports `output/iron_condor/BANKNIFTY_IC_backtest_*.xlsx`. Calendar, Muhurat days, costs shared.
+- StockMock BANKNIFTY report validated 11-Oct-2026 (data/iron_condor/reference/Banknifty IC backtesting_StockMock.xlsx → the two
   banknifty_ic_reference_*.csv): 67 trades (same months as NIFTY), 30Δ, 500-pt hedges, TP 50%, 18-DTE exit; gross ₹25,894, worst
   −₹10,836 (trade 62, −154% of credit on the time-exit day), 41 W / 26 L. 58 time / 5 target (6, 29, 39, 49, 54). Three exits one
   trading day early (24, 41, 42 → MANUAL). Hedges 600 on trades 58 (CE) and 61 (both). Entry differs from NIFTY only for trade 42
@@ -147,7 +155,7 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
   −₹9,124. NIFTY runs have 0 days with value > width. PROPOSED (not built, user to decide): sanity rule "condor value above its
   hedge width = bad print → skip that daily check". 432 of 487 non-exact prices are 2021–22. Versus NIFTY 300-pt ±2.5% (₹66,052 /
   −₹7,527) BANKNIFTY earns about a fifth with a larger drawdown under the same rules.
-- BANKNIFTY 600-PT HEDGES (12-Oct-2026, output/BANKNIFTY_IC_backtest_sm_h600_nofilter.xlsx): NOT A USABLE TEST – the hedge strikes do not trade.
+- BANKNIFTY 600-PT HEDGES (12-Oct-2026, output/iron_condor/BANKNIFTY_IC_backtest_sm_h600_nofilter.xlsx): NOT A USABLE TEST – the hedge strikes do not trade.
   Far BANKNIFTY strikes six weeks out trade on round 500s; 75% of the sold strikes are on a round 500, so a 600-pt hedge lands on an odd
   hundred (e.g. 34600). Result: 23 of 67 trades had no hedge price at entry and did not run, 17 of the 44 that ran used fallback strikes,
   699 non-exact prices (244 stale > 15 min), and 14 of the 44 show an impossible credit (a wider hedge must collect more than the 500-pt
@@ -155,7 +163,7 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
   −₹8,791 / DD −₹23,334 no filter; ±2.5% 25 tr −₹3,317; the same 44 trades at 500-pt −₹8,159. Only 19 trades are clean (plausible credit, no
   fallback): 600-pt −₹21,355 vs 500-pt −₹19,246, 600 better on 8 – no sign that the wider hedge helps. Do NOT download 700-pt (same odd-strike
   problem). The testable wider hedge is 1,000 pts (lands on round 500s like the 500-pt run, which had 0 trades not run and 1 fallback).
-- BANKNIFTY 1,000-PT HEDGES (12-Oct-2026, output/BANKNIFTY_IC_backtest_sm_h1000_nofilter.xlsx; 30Δ, TP 50%, SL 100%, 18 DTE; n / gross / net / net DD /
+- BANKNIFTY 1,000-PT HEDGES (12-Oct-2026, output/iron_condor/BANKNIFTY_IC_backtest_sm_h1000_nofilter.xlsx; 30Δ, TP 50%, SL 100%, 18 DTE; n / gross / net / net DD /
   worst / PF): data usable – 62 of 67 ran (2, 4, 24, 57, 66 no hedge price), 9 on fallback strikes, 0 days with value > width, credit 1.76× the
   500-pt credit (2 odd: 40 at 1.13×, 64 at 2.28×). No filter 62 / ₹48,358 / ₹32,471 / −₹18,505 / −₹14,421 (trade 62) / 1.35; ±3% 42 / ₹23,237 net /
   −₹21,610; ±2.5% 34 / ₹44,008 / ₹35,593 / −₹13,944 / −₹7,025 / 1.93; ±2% 26 / ₹51,983 / ₹45,623 / −₹10,171 / −₹6,746 / 2.86; ±1.5% 19 / ₹52,204 net /
@@ -178,18 +186,18 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
 ```bash
 source .venv/bin/activate
 python tests/smoke_test.py      # offline end-to-end test (fake Breeze) – run after code changes
-python login_url.py             # daily Breeze login URL
-python probe.py [--trades ..]   # data availability check (API)
-python download.py              # fetch candles (API, restart-safe, ~3,100 calls)
-python fetch_index_nse.py --from YYYY-MM-DD --to YYYY-MM-DD [--replace]   # NIFTY + VIX OFFICIAL daily closes from NSE (no login)
-python download.py --index      # Breeze daily OHLC – only fills days the files lack (not the official close)
-python select_strikes.py --ce-delta 0.25 --name ce25   # delta-based sold strikes (API) -> IC_STRIKE_SET=ce25
-python backtest.py [--trades ..] [--out path]   # offline, writes output/IC_backtest_report.xlsx
-# variant options on download.py / backtest.py / export_prices.py (ic/cli.py -> IC_STRIKE_SET / IC_HEDGE_WIDTH / IC_TREND_FILTER):
-python select_strikes.py --ce-delta 0.10 --pe-delta 0.10 --around 3 --step 100 --name d10 [--dry-run]   # API, few calls
-python download.py --strike-set d10 --hedge 500 [--dry-run]     # --dry-run: count calls only, no login
-python backtest.py --strike-set d10 --hedge 500 --filter off    # -> output/IC_backtest_d10_h500_nofilter.xlsx
-python export_prices.py [--trades ..] [--out path] # offline, daily leg prices -> output/IC_leg_prices.xlsx
+python shared/scripts/login_url.py             # daily Breeze login URL
+python strategies/iron_condor/scripts/probe.py [--trades ..]   # data availability check (API)
+python strategies/iron_condor/scripts/download.py              # fetch candles (API, restart-safe, ~3,100 calls)
+python shared/scripts/fetch_index_nse.py --from YYYY-MM-DD --to YYYY-MM-DD [--replace]   # NIFTY + VIX OFFICIAL daily closes from NSE (no login)
+python strategies/iron_condor/scripts/download.py --index      # Breeze daily OHLC – only fills days the files lack (not the official close)
+python strategies/iron_condor/scripts/select_strikes.py --ce-delta 0.25 --name ce25   # delta-based sold strikes (API) -> IC_STRIKE_SET=ce25
+python strategies/iron_condor/scripts/backtest.py [--trades ..] [--out path]   # offline, writes output/iron_condor/IC_backtest_report.xlsx
+# variant options on download.py / backtest.py / export_prices.py (strategies/iron_condor/cli.py -> IC_STRIKE_SET / IC_HEDGE_WIDTH / IC_TREND_FILTER):
+python strategies/iron_condor/scripts/select_strikes.py --ce-delta 0.10 --pe-delta 0.10 --around 3 --step 100 --name d10 [--dry-run]   # API, few calls
+python strategies/iron_condor/scripts/download.py --strike-set d10 --hedge 500 [--dry-run]     # --dry-run: count calls only, no login
+python strategies/iron_condor/scripts/backtest.py --strike-set d10 --hedge 500 --filter off    # -> output/iron_condor/IC_backtest_d10_h500_nofilter.xlsx
+python strategies/iron_condor/scripts/export_prices.py [--trades ..] [--out path] # offline, daily leg prices -> output/iron_condor/IC_leg_prices.xlsx
 ```
 
 ## Rules for working in this repo
@@ -198,19 +206,20 @@ python export_prices.py [--trades ..] [--out path] # offline, daily leg prices -
   order-placement code unless the user explicitly asks, and even then ask before running it.
 - Breeze limits: 100 calls/min, 5,000/day. Don't run `download.py`/`probe.py` casually –
   ask the user first (it needs today's session token and uses quota).
-- Keep all tunable values in `ic/config.py`; keep the root scripts as thin entry points.
-- Run `python tests/smoke_test.py` after any change to `ic/`; update README.md when behaviour,
+- Keep all tunable values in `shared/config.py` (shared) or `strategies/<name>/config.py` (rules); keep the entry scripts thin.
+- A new strategy gets its own `strategies/<name>/` (config, engine, scripts, analysis), `data/<name>/` and `output/<name>/`; reuse `shared/`.
+- Run `python tests/smoke_test.py` after any change to `strategies/iron_condor/`; update README.md when behaviour,
   commands or settings change.
 - Small, reviewable commits with clear messages; don't rewrite git history.
 
 ## Current status / next steps
 Done: data downloaded (200 + 300-pt hedges, NIFTY/VIX daily), rule variations tested, final setup
 chosen (300-pt hedges, 18 DTE, SL 100%, TP 50%; net ₹38,322 on 60 trades, max DD −₹11,860), lot sizes
-corrected, 15-DTE StockMock manual run reconciled (output/reconcile_manual300_vs_engine.xlsx).
+corrected, 15-DTE StockMock manual run reconciled (output/iron_condor/reconcile_manual300_vs_engine.xlsx).
 Price sanity rules (28-Sep-2026): entry prices from trades >15 min after 11:16 rejected; a hedge priced
 >= its sold leg is a bad print (skip trade at entry / skip that daily check). This dropped trade 29.
 10-day trend filter ADOPTED and in the engine (28-Sep-2026): main report = 42 trades, net ₹64,859,
-max DD −₹7,243, win 74%, PF 3.46; 21 months skipped (Skipped sheet). Study: output/trend_filter_study.xlsx.
+max DD −₹7,243, win 74%, PF 3.46; 21 months skipped (Skipped sheet). Study: output/iron_condor/trend_filter_study.xlsx.
 Threshold re-test 1-Oct-2026 (current data, no-filter 66 trades ₹47.3k / DD −₹11.9k): ±1.5 ₹56.6k/−5.5k (27 tr),
 ±2.0 ₹59.0k/−9.9k, ±2.5 ₹66.1k/−7.5k, ±3 ₹58.3k/−8.5k, ±4 ₹47.9k/−14.7k, ±5 ₹47.5k/−13.9k. CAVEAT: 2021–23
 alone picks ±3% (not 2.5), and ±3% ≈ no gain on 2024–26 (₹41.5k vs ₹41.2k); ±2.5 wins 2024–26 because trades
@@ -222,12 +231,12 @@ India election results alone skip 7 trades (2 losers/5 winners, ≈ ₹0, DD wor
 filter; on top of ±2.5% +₹3.9k (all from trade 35) – judgement rule only. Union Budget months were all
 winners (6/6 BT, 7/7 SM; skipping costs ≈ ₹18k) – do NOT avoid budgets. US election 2024 = trade 46,
 already skipped by ±2.5%.
-Tested 28-Sep-2026, not adopted: 30Δ put + 25Δ call (IC_STRIKE_SET=ce25; data/strike_sets/strikes_ce25.csv).
+Tested 28-Sep-2026, not adopted: 30Δ put + 25Δ call (IC_STRIKE_SET=ce25; data/iron_condor/strike_sets/strikes_ce25.csv).
 Mixed: +₹5.0k on the 55 common trades (helps 2021/23/24 rallies, hurts 2025–26) but 5 months had
 no clean far-call price; full-set ₹36,593 vs ₹38,322 (with filter ₹56,250 vs ₹64,859).
 Tested 29-Sep-2026, not adopted: trade the filter months with strikes shifted with the trend
 (select_strikes.py --trend-shift; strike sets shiftA = 20Δ trend-side leg, shiftB = 20Δ trend side + 35Δ
-other side; output/trend_shift_test.xlsx). Those months stay losing (normal −₹26.5k, A −₹27.2k, B −₹24.5k);
+other side; output/iron_condor/trend_shift_test.xlsx). Those months stay losing (normal −₹26.5k, A −₹27.2k, B −₹24.5k);
 full strategy A ₹37.7k / DD −₹13.2k, B ₹40.4k / DD −₹12.8k vs skipping ₹64.9k / −₹7.2k. Cause: shifting
 cuts the credit, so reversals hit the 100%-of-credit stop sooner (trade 50: −₹2.4k → −₹9.8k/−₹10.4k).
 Gap-exit rule tested 1-Oct-2026, not adopted (exit all legs on a day NIFTY opens with |gap| >= G vs prior
@@ -239,8 +248,8 @@ Entry filter + gap exit (gap>=1.25% @15:16) combos: ±3% ₹64.7k/−7.7k (52 tr
 ₹62.8k/−7.7k; down<−2.5% or (up>+4% & VIX<15) ₹70.1k/−7.7k (60 tr) vs base ±2.5% ₹66.1k/−7.5k. Gap level is
 very sensitive (1.0/1.5% much worse for most); combos win 2021–23, base wins 2024–26; with 0.5–1 pt/leg
 slippage base is equal/best. Kept base ±2.5% (1 parameter vs 3–4).
-400-pt hedges tested 2-Oct-2026 (IC_HEDGE_WIDTH=400, downloaded; output/IC_backtest_hedge400.xlsx,
-output/hedge300_vs_400_trades.xlsx). With ±2.5% filter: 44 trades ₹83,114 / DD −₹9,814 / worst −₹9,814 /
+400-pt hedges tested 2-Oct-2026 (IC_HEDGE_WIDTH=400, downloaded; output/iron_condor/IC_backtest_hedge400.xlsx,
+output/iron_condor/hedge300_vs_400_trades.xlsx). With ±2.5% filter: 44 trades ₹83,114 / DD −₹9,814 / worst −₹9,814 /
 win 75% / PF 3.17 vs 300-pt ₹66,052 / −₹7,527 / −₹7,243 / 73% / 3.20. Credit 181 vs 146, max loss/condor
 219 vs 154 pts; better in 5 of 6 years (2022 worse). 0.5 pt slip: ₹73.8k vs ₹56.5k. Not adopted yet –
 user's decision (more margin and bigger worst case); default stays 300.
@@ -281,14 +290,14 @@ gap-up 1%: CE2.5/PE2.5 ₹68,023/−₹5,523 vs CE3/PE2.5 ₹68,159/−₹5,523 
 ₹57,045/−₹8,993 (worse). PE-side limit only touches 3 trades (17, 46, 52). Kept 2.5/2.5.
 Up-limit ladder (PE 2.5%): no gap exit 2.5% ₹66,052/−₹7,527, 3% ₹62,516/−₹8,529, 3.5% ₹56,678/−₹10,057; with gap-up 1%:
 ₹68,023 / ₹68,159 / ₹67,665, all −₹5,523 (PF 4.88 / 3.64 / 3.28). Looser up-limits only work WITH the gap-up exit.
-Skipped months split (4-Oct-2026, 300-pt, output/filter_skipped_trades_CE_PE.xlsx): after a rise > 2.5% – 18 trades, 8 profit /
+Skipped months split (4-Oct-2026, 300-pt, output/iron_condor/filter_skipped_trades_CE_PE.xlsx): after a rise > 2.5% – 18 trades, 8 profit /
 10 loss, −₹15,061: 6 lost on the call side as the rally continued (8, 19, 36, 9, 5, 28 = −₹17.3k), 4 on the put side on a
 reversal (62, 16, 48, 50 = −₹18.0k). After a fall > 2.5% – 3 trades (17 +₹2,056, 46 −₹1,570, 52 −₹4,180), −₹3,694. No SL exits.
-Skipped months – 10-day move on the next 10 trading days (4-Oct-2026, output/skipped_trades_next_10day_move.xlsx): the reading is
+Skipped months – 10-day move on the next 10 trading days (4-Oct-2026, output/iron_condor/skipped_trades_next_10day_move.xlsx): the reading is
 back inside ±2.5% after 1 day in 8 of 21, within 3 days in 13, within 8 days in all (median 2); average after a rise 3.75% →
 1.57% (day 5) → −0.33% (day 10). But it often leaves the band again (16, 48, 50 to the down side; 5, 19, 63 back up), and the 4
 reversal losers (62, 16, 48, 50) were all back inside within 1–2 days – "enter as soon as it is back inside" would re-take them.
-Hedge width with ±2.5% filter (3-Oct-2026, output/IC_backtest_hedge200.xlsx): 200-pt ₹41,596 / DD −₹5,127 / worst −₹4,695 /
+Hedge width with ±2.5% filter (3-Oct-2026, output/iron_condor/IC_backtest_hedge200.xlsx): 200-pt ₹41,596 / DD −₹5,127 / worst −₹4,695 /
 max loss ≈96 pts; 300-pt ₹66,052 / −₹7,527 / −₹7,243 / 154 pts; 400-pt ₹83,114 / −₹9,814 / −₹9,814 / 219 pts. Profit÷DD ≈ 8–9
 for all three; 0.5-pt slippage: 200 ₹31.8k, 300 ₹56.5k, 400 ₹73.8k.
 Strike-cross study (3-Oct-2026, 300-pt, 66 trades): CE hedge crossed → 7/7 losses; CE sold crossed → 15/20 losses; PE sold
@@ -303,9 +312,9 @@ trade 30). 400-pt: gap-up ₹88,148/−₹6,976; CE cross alone ₹81,190/−₹
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes; shared by the user as "anyone with the link";
 last republished 29-Oct-2026 with the corrected figures (lot fix, trades 38/41/45, entry-day check; 'Corrections' section; variants 4–6 and the 400 vs 600 table re-run 29-Oct; walk-forward grid still pre-fix); source kept in docs/summary_page.html –
 edit that file and publish it with the artifact url).
-18-DTE StockMock manual run (data/reference/Iron condor sell 30delta and buy 300 points hedge with
-18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/manual18_data_check.xlsx,
-output/reconcile_manual18_vs_backtest.xlsx): times, expiries, lot sizes, arithmetic all correct; trade 35
+18-DTE StockMock manual run (data/iron_condor/reference/Iron condor sell 30delta and buy 300 points hedge with
+18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/iron_condor/manual18_data_check.xlsx,
+output/iron_condor/reconcile_manual18_vs_backtest.xlsx): times, expiries, lot sizes, arithmetic all correct; trade 35
 was closed manually on 4-Dec (rule exit = SL 5-Dec, corrected using Breeze 5-Dec prices). 59 same-strike
 trades: 48 within 3 pts, 55 same exit; mismatches = borderline 50% targets (StockMock/Breeze within
 <1 pt of the line) and thin 300-pt hedge prices. StockMock 67 trades ≈ ₹42.7k net (approx costs),
@@ -316,7 +325,7 @@ near 30 delta (prefer 100 pts closer); hedge 300 pts, else next available (e.g. 
 
 Variant workflow built 5-Oct-2026 (README §5.3c): any sold delta (select_strikes.py --around = search around a Black-Scholes
 estimate, ~750 calls for 10Δ on all trades vs ~4,100) + any hedge width (--hedge). All three variant tests below are done.
-40Δ sold legs tested 5-Oct-2026, NOT adopted (strike set d40, all 66 trades; output/IC_backtest_d40_h300[_nofilter].xlsx,
+40Δ sold legs tested 5-Oct-2026, NOT adopted (strike set d40, all 66 trades; output/iron_condor/IC_backtest_d40_h300[_nofilter].xlsx,
 IC_backtest_d40_h200[_nofilter].xlsx). With the ±2.5% filter, same 45 trades (net / max DD / win / PF): 30Δ+300 ₹66,052 / −₹7,527 /
 73% / 3.20; 40Δ+300 ₹43,912 / −₹6,186 / 69% / 2.64; 40Δ+200 ₹23,838 / −₹5,585 / 64% / 2.16 (30Δ+200 ₹42,911 / −₹4,695). No filter:
 40Δ+300 ₹23,673 / −₹12,171; 40Δ+200 −₹1,699 / −₹19,423 (30Δ+300 ₹47,298 / −₹11,860). 0.5-pt slippage: 40Δ+300 ₹34.4k, 40Δ+200 ₹14.3k.
@@ -337,13 +346,13 @@ earlier days (then treated as holidays). build_calendar now merges with the exis
 lacked 18-Dec-2025, nifty_daily.csv lacked 1-Feb-2023 and 21-Jul-2025 (patched from NSE; trade 26 reading −0.27% → +1.36%, no
 decision changed). Trade 60's 18-Dec-2025 candles downloaded 5-Oct-2026: main report unchanged
 (45 trades / ₹66,052 / −₹7,527).
-10Δ + 500-pt hedges in the filter-skipped months (5-Oct-2026, strike set d10, output/IC_backtest_d10_h500_nofilter.xlsx), NOT
+10Δ + 500-pt hedges in the filter-skipped months (5-Oct-2026, strike set d10, output/iron_condor/IC_backtest_d10_h500_nofilter.xlsx), NOT
 adopted: only 11 of 21 months could be run – in the other 10 the call hedge 500 pts beyond the 10Δ call had no price at 11:16
 (strikes 300+ pts beyond a 10Δ call mostly do not trade 6 weeks out; puts are fine). The 11 that ran: 5 target / 6 stop-loss,
 net −₹15,235 vs −₹9,185 for the 30Δ/300-pt condor on the same months. Credit only ≈50 pts (30Δ ≈141), so the 100% stop sits
 close: stops at 1.0–1.7× credit (−₹1.5k to −₹4.9k) against ≈₹1–1.8k per win. Not an alternative for skipped months.
 2019–2020 OUT-OF-SAMPLE RUN (7-Oct-2026; trade set 2019_2020, strike set d30_2019_2020, lot 75; Breeze has the data;
-output/IC_backtest_2019_2020_d30_2019_2020_h300[_nofilter].xlsx). Same rules (30Δ, 300-pt, TP 50%, SL 100%, 18 DTE).
+output/iron_condor/IC_backtest_2019_2020_d30_2019_2020_h300[_nofilter].xlsx). Same rules (30Δ, 300-pt, TP 50%, SL 100%, 18 DTE).
 With the ±2.5% filter: 15 trades, net −₹7,579, max DD −₹18,795, worst −₹11,002, win 67%, PF 0.76 (2019 −₹1,242, 2020 −₹6,337);
 0 targets, 2 stop-losses: 2002 (entry 10-Feb-2020, COVID crash, −₹11,002) and 1907 (Jul-2019, NIFTY −6.3%, −₹9,478); 1903
 (Mar-2019 rally +4.5%, −₹6,770). No filter: 23 trades −₹34,106 / DD −₹40,887 (2003 crash month −₹18,732; 2004 not run – no
@@ -355,7 +364,7 @@ Caveats: 300 pts ≈ 2.5–3.5% of NIFTY then (1.2% now); thinner 2019–20 opti
 −₹9,478; ±2.5% filter −₹7,579 / −₹18,795 / −₹11,002; filter + gap-up −₹9,808 / −₹22,923 / −₹9,478. Gap-up alone helps (+₹13.7k) but
 ₹12.2k of that is the Mar-2020 crash month (2003: a 1.35% bounce on 18-Mar got it out early) – it worked as a crash exit, not as
 a call-side rule. On the 15 filtered trades it costs ₹2.2k (1909: 2.38% gap on the 20-Sep-2019 tax-cut rally, +₹304 → −₹5,248).
-2019–2020 with 400-pt hedges (7-Oct-2026, output/IC_backtest_2019_2020_d30_2019_2020_h400[_nofilter].xlsx; net / max DD / worst):
+2019–2020 with 400-pt hedges (7-Oct-2026, output/iron_condor/IC_backtest_2019_2020_d30_2019_2020_h400[_nofilter].xlsx; net / max DD / worst):
 filter 400-pt −₹4,531 / −₹20,046 / −₹12,430 (PF 0.88) vs 300-pt −₹7,579 / −₹18,795 / −₹11,002 (PF 0.76); no filter 400-pt −₹22,170 /
 −₹31,189 vs 300-pt −₹34,106 / −₹40,887 (the two no-filter runs differ in one month: 1905 / 2004). Same pattern as 2021–26: wider
 hedges = bigger wins (+₹10.6k on 10 winners) and bigger losses (−₹7.6k on 5 losers; 1907 −₹9.5k → −₹12.4k). Still a losing period.
@@ -390,11 +399,11 @@ WARNING – fitted after seeing all the data: the 1% limit is a knife edge. At 1
 COVID stop −₹11.0k) come in and 2019–20 falls to −₹1.5k / DD −₹12.7k; at 1.5% 2021–26 rises to ₹66.3k. Credit line 47.25–50%
 all similar. NOT adopted. Honest test = years never looked at (2017–18 if Breeze has them) or forward shadow-logging.
 VIX level, VIX − realised vol, 5-day and 20-day moves as the second filter: no consistent gain in both periods.
-Two-tier rule on 400-pt hedges, 2021–26 (7-Oct-2026, output/filter_comparison_2021_2026_hedge400.xlsx; net / max DD / PF): no filter
+Two-tier rule on 400-pt hedges, 2021–26 (7-Oct-2026, output/iron_condor/filter_comparison_2021_2026_hedge400.xlsx; net / max DD / PF): no filter
 65 tr ₹61,439 / −₹14,946 / 1.68; ±2.5% 10-day 44 tr ₹83,114 / −₹9,814 / 3.17; two-tier 33 tr ₹74,434 / −₹6,976 / 4.64 (credit line
 45% of the 400-pt width = the same richness as 48% of 300; using the 300-pt condor's 48% as the signal: 34 tr ₹76,228 / −₹6,976).
 48% of 400 is too strict (two-tier 25 tr ₹64,970; credit alone 12 tr). Same picture as 300-pt (₹66,052 / −₹7,527 → ₹58,661 /
-−₹5,523): ≈ ₹7–9k less profit, ≈ ₹2–3k less drawdown, 11 fewer trades, no stop-loss. 300-pt file: output/filter_comparison_2021_2026.xlsx.
+−₹5,523): ≈ ₹7–9k less profit, ≈ ₹2–3k less drawdown, 11 fewer trades, no stop-loss. 300-pt file: output/iron_condor/filter_comparison_2021_2026.xlsx.
 User leaned towards the two-tier rule on 7-Oct-2026, then discarded it on 8-Oct-2026 (see below).
 Trade 60's 18-Dec-2025 candles for the 200 and 400-pt hedges were downloaded 7-Oct-2026; 400-pt results unchanged (₹83,114).
 300 vs 400-pt under each single filter (8-Oct-2026; net / max DD / worst / PF). 2021–26: 300 ±2.5% 45 tr ₹66,052 / −₹7,527 / −₹7,243 /
@@ -454,8 +463,8 @@ Profit target on the finalised 300-pt ±2.5% (8-Oct-2026; 2021–26 net, DD −�
 (7); 60% ₹65,004 (4); 65–75% ₹65,472 (1–0). 60% does NOT help at 300-pt (−₹1,048): four trades gain ₹0.5–1.3k each, but trades 26
 and 60 miss the target and fall back (₹3,476 → ₹1,170; ₹4,183 → ₹1,902). 2019–20 unchanged at every level (no target was hit).
 The target barely matters (range ₹65.0–67.3k); keep 50% for 300-pt. (400-pt + credit>=42%: 60% gave +₹3.6k.)
-400-pt StockMock manual run VALIDATED 9-Oct-2026 (data/reference/IC sell 30delta and 400 points hedge with 50%TP, 100%SL and 18DTE
-exit_StockMock.xlsx; output/reconcile_manual400_vs_backtest.xlsx). File checks all clean: 68 trades × 4 legs, entries 11:16, exits
+400-pt StockMock manual run VALIDATED 9-Oct-2026 (data/iron_condor/reference/IC sell 30delta and 400 points hedge with 50%TP, 100%SL and 18DTE
+exit_StockMock.xlsx; output/iron_condor/reconcile_manual400_vs_backtest.xlsx). File checks all clean: 68 trades × 4 legs, entries 11:16, exits
 15:16, expiries = reference, lot sizes = config.LOT_SIZES, leg P&L adds up, every exit obeys the rules (51 time / 16 target / 1 stop,
 no early or late exit), hedges 400 pts except trade 29 CE 350 (18800/19150). StockMock 68 trades gross ₹79,003, MDD −₹12,235.
 Engine vs StockMock on the 65 common trades: same exit reason 65/65, same exit day 64/65 (trade 31: SM target 7-Aug at 50.1%,
@@ -473,7 +482,7 @@ filter ₹93,376 (SM) vs ₹93,568 (engine). Remaining strike differences: 13, 3
 400-pt credit>=45% by 10-day limit (9-Oct-2026, 2021–26; n / net / max DD / worst): no 10-day filter 33 / ₹52,542 / −₹14,509 / −₹6,954;
 ±2.5% 23 / ₹58,379 / −₹4,407; ±2% 18 / ₹55,772 / −₹1,558; ±1.5% 13 / ₹44,805 / −₹1,558; ±1% 8 / ₹33,335 / −₹990 (7 winners, 1 loser,
 ₹4,167 per trade; none in 2022 or 2024). Tightening from ±2.5% to ±1% drops 15 trades worth +₹25,044 (4 losers incl. trade 15
-−₹4,407, 11 winners) to save ₹3.4k of drawdown. 2019–20: 2 trades +₹3,821 at ±1% and at ±2.5%. Output: output/hedge400_credit45_trades.xlsx.
+−₹4,407, 11 winners) to save ₹3.4k of drawdown. 2019–20: 2 trades +₹3,821 at ±1% and at ±2.5%. Output: output/iron_condor/hedge400_credit45_trades.xlsx.
 400-pt grid: credit line 40–47% × 10-day limit ±1–3.5% (9-Oct-2026; 2021–26 n / net / max DD, then 2019–26 net / DD). Two stable zones,
 with a worse band between them (43–44%: ₹51–66k, DD −₹7.0k to −₹8.5k):
  ZONE A "more profit" – credit>=42% (41–43) with ±2–2.5%: 31–36 tr, ₹73–76k, DD −₹6,976 (floor = trade 67); 2019–26 ₹83–85k / −₹6,976.
@@ -520,7 +529,7 @@ Splits after a rise (data-mined, treat as hints): VIX not down >10% in 10 days �
 −2% about 5 times in 6". Credit-spread rule (TP/SL etc.) still to be confirmed by the user; not backtested yet.
 Credit spread in filter-skipped months TESTED 10-Oct-2026, NOT adopted (user idea: put spread after a 10-day rise > 2.5%, call spread
 after a fall; same 30Δ sold strike and 300-pt hedge as the IC, entry 11:16, daily 15:16 check, TP 50% of the spread's own credit,
-18-DTE exit; output/credit_spread_skipped_months.xlsx; n / net / max DD). USER RULE, SL 100%: 2021–26 21 tr −₹11,170 / −₹21,171;
+18-DTE exit; output/iron_condor/credit_spread_skipped_months.xlsx; n / net / max DD). USER RULE, SL 100%: 2021–26 21 tr −₹11,170 / −₹21,171;
 2019–20 8 tr +₹13,157; 2019–26 29 tr +₹1,987 / −₹21,171 (PF 1.05). SL 200%: 2021–26 −₹18,454 / −₹31,885; 2019–26 −₹4,060 / −₹31,885.
 By leg (SL 100%, 2019–26): PUT after a rise 24 tr +₹10,744 / −₹15,040 (17 targets, 6 stops; 2019–20 6 of 6 targets +₹15,783,
 2021–26 18 tr −₹5,039; by entry year 2021–23 +₹3.7k, 2024–26 −₹8.7k); CALL after a fall 5 tr −₹8,757 (wrong side, as the direction
@@ -596,7 +605,7 @@ net / DD): adopted, TP 60% on 400: 30 ₹81,346 −₹5,523; adopted TP 50%: 30 
 1.75%: 32 ₹84,909 −₹5,523; ±2% both: 36 ₹82,313 (TP 60%: ₹85,729) −₹5,523; ±2.25% both: 39 ₹77,133 −₹7,424; ±2.5% both: 43 ₹77,804
 −₹7,424. NOTE: all filter/threshold studies above this entry (dated up to 10-Oct-2026) used Breeze closes; anything decided at
 the ±1.5% or ±2% line by trades 14, 31, 35 or 38 should be re-read with that in mind. Working table: scratch sw_nse.pkl.
-FINAL FOUR-WAY COMPARISON on NSE official closes (11-Oct-2026; output/final_variant_comparison.xlsx; 1 lot, net; 400-pt trades with the
+FINAL FOUR-WAY COMPARISON on NSE official closes (11-Oct-2026; output/iron_condor/final_variant_comparison.xlsx; 1 lot, net; 400-pt trades with the
 60% target; n / net / max DD / worst / PF). 2021–26: no filter (300-pt) 66 / ₹47,298 / −₹11,860 / −₹8,529 / 1.67; ±2.5% (300-pt) 45 /
 ₹66,052 / −₹7,527 / −₹7,243 / 3.20; "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%) 36 (17+19) / ₹85,729 / −₹5,523 / −₹5,523 / 5.67;
 ADOPTED (400-pt ±2% & >=45%, 300-pt ±1.5% & >=40%) 30 (17+13) / ₹81,346 / −₹5,523 / −₹5,523 / 7.49. 2019–20: −₹34,106 / −₹40,887; −₹7,579 /
@@ -604,7 +613,7 @@ ADOPTED (400-pt ±2% & >=45%, 300-pt ±1.5% & >=40%) 30 (17+13) / ₹81,346 / �
 34 / ₹88,386 / −₹5,523 (PF 7.09). The two credit rules differ by 6 trades with a 1.5–2% move: 51 +₹3,900, 58 +₹3,077, 31 +₹2,328,
 40 +₹908, 22 −₹3,654, 55 −₹2,178 = +₹4,382. Trade 35 (2.01%) is out of both by 0.01.
 500-PT HEDGES ON THE 17 RICH-CREDIT MONTHS (11-Oct-2026, user idea; NIFTY, the months the §1b rule trades at 400-pt: |10d move| <= 2%
-and 400-pt credit >= 45%; stop 100%; 500-pt hedges downloaded for all 67 months; output/nifty_hedge500_vs_400_rich_credit_trades.xlsx;
+and 400-pt credit >= 45%; stop 100%; 500-pt hedges downloaded for all 67 months; output/iron_condor/nifty_hedge500_vs_400_rich_credit_trades.xlsx;
 net / max DD / worst / win / targets). 400-pt TP 50% ₹55,646 / −₹1,558 / −₹1,558 / 82% / 6; 400-pt TP 60% ₹59,061 / same / 3;
 500-pt TP 50% ₹70,204 / −₹1,815 / −₹1,815 / 88% / 7; 500-pt TP 60% ₹73,619 / same / 3. 500 beats 400 on 15 of 17 trades (+₹14.6k);
 credit 224.5 vs 191.5 pts, maximum loss per condor 275.5 vs 208.5 pts (+32%). Whole §1b rule with 500 instead of 400 on those
@@ -612,7 +621,7 @@ months: 36 tr ₹100,287 (TP 60%) / DD −₹5,523 vs ₹85,729 / −₹5,523 (t
 a fallback strike (53); over all 67 months 6 did, all on the call side. CAVEATS: these 17 months contain only 3 losers, the
 largest −₹1,815, so the test says nothing about a bad month at 500-pt – over all 66 months with no filter 500-pt is ₹71,053 /
 DD −₹16,938 / worst −₹15,031 (400-pt ₹61,439 / −₹14,946 / −₹11,604). More margin. 2019–20 not run at 500-pt. Not adopted – user's call.
-FIVE-WAY COMPARISON incl. 500-pt (11-Oct-2026, NIFTY 2021–26, NSE closes, net; output/five_variant_comparison_500pt.xlsx; n / net / max DD /
+FIVE-WAY COMPARISON incl. 500-pt (11-Oct-2026, NIFTY 2021–26, NSE closes, net; output/iron_condor/five_variant_comparison_500pt.xlsx; n / net / max DD /
 worst / PF / 0.5-pt slip). (1) no filter 300-pt 66 / ₹47,298 / −₹11,860 / −₹8,529 / 1.67 / ₹33,318. (2) ±2.5% 300-pt 45 / ₹66,052 / −₹7,527 /
 −₹7,243 / 3.20 / ₹56,492. (3) FINALISED §1b (±2%; 400-pt TP 60% if credit>=45%, 300-pt if 40–45%) 36 / ₹85,729 / −₹5,523 / −₹5,523 / 5.67 /
 ₹77,669. (4) ±2%, 500-pt TP 50% on ALL months with credit>=40% 36 / ₹110,219 / −₹9,515 / −₹9,515 (trade 30) / 4.68 / ₹102,159. (5) ±2%; 500-pt
@@ -628,7 +637,7 @@ all from cached data; net / max DD) – NOTHING beats it at the same drawdown, d
 ₹103,210 / −₹5,523 (adds trades 38 and 43, readings 2.01 and 2.05); ±2.5% ₹105,507 / −₹6,211 + losing year (15, 41). Floor 38–39% ₹101,146 (adds 45);
 41% ₹98,613; 42% ₹87,489. Plateau: credit line 44.5–46%, move limit 2–2.25%. Untested (needs downloads): 600-pt on the 17 rich months
 (349 calls; all 67 months 1,259), 500-pt in 2019–20. Sizing (2 lots in rich months) is the user's call, not a filter.
-600-PT HEDGES ON THE 17 RICH-CREDIT MONTHS (11-Oct-2026, NIFTY; only those 17 months downloaded at 600-pt; output/
+600-PT HEDGES ON THE 17 RICH-CREDIT MONTHS (11-Oct-2026, NIFTY; only those 17 months downloaded at 600-pt; output/iron_condor/
 nifty_hedge_400_500_600_rich_credit_trades.xlsx; net / max DD / targets; TP 50% | TP 60%): 400-pt ₹55,646 | ₹59,061 / −₹1,558; 500-pt ₹70,204 |
 ₹73,619 / −₹1,815; 600-pt ₹84,392 | ₹88,271 / −₹2,045 (7 | 4 targets, 0 stops, win 88%). Each extra 100 pts adds ≈ ₹14.6k on these months
 (600 beats 500 on 16 of 17; trade 42 −₹1,815 → −₹2,045). Credit 191.5 / 224.5 / 254.1 pts; MAX LOSS per condor 208.5 / 275.5 / 345.9 pts
@@ -636,7 +645,7 @@ nifty_hedge_400_500_600_rich_credit_trades.xlsx; net / max DD / targets; TP 50% 
 (TP 60%) / DD −₹5,523 / PF 7.23 (500-pt ₹100,287; 400-pt ₹85,729). Only 2 of 17 on fallback strikes (44, 53; call spread 50 pts closer);
 92 non-exact daily prices vs 69 at 500-pt. CAVEAT: the gain is linear in width because none of these 17 months had a real loss – the test
 cannot show the cost of a bad month; the wider the hedge the closer this is to a short strangle. Not adopted – user's call.
-SIX-WAY SUMMARY (11-Oct-2026, NIFTY 2021–26, net; output/six_variant_comparison.xlsx): adds (6) ±2%, 600-pt TP 60% if 400-pt credit>=45%,
+SIX-WAY SUMMARY (11-Oct-2026, NIFTY 2021–26, net; output/iron_condor/six_variant_comparison.xlsx): adds (6) ±2%, 600-pt TP 60% if 400-pt credit>=45%,
 300-pt if 40–45%: 36 tr ₹114,939 / DD −₹5,523 / worst −₹5,523 / win 81% / PF 7.23 / 0.5-pt slip ₹106,879, no losing year – to the five above
 (₹47,298; ₹66,052; ₹85,729; ₹110,219 / −₹9,515; ₹100,287).
 GAP-UP vs THE BIG LOSERS, re-checked for the variant-6 rule (12-Oct-2026, user observation "Nov-2023 and Feb-2026 lost because of >1% gap-ups").
@@ -673,7 +682,7 @@ Trade set w7 (make_trades --entry-weeks 7; 68 trades incl. the Apr-2026 expiry; 
 strike set d30_w7 to select (~1,300 calls); candles 400-pt ≈ 1,700 calls, 300-pt hedges ≈ 850 more (for the 300-pt tier). New per-run
 settings IC_EXIT_DTE / --exit-dte and IC_TP / --tp (defaults 18 / 50; NIFTY reports byte-identical before/after, checked 16-Oct-2026).
 Note: holding period 52→25 = 27 days ≈ current 45→18; TP 40% and exit 21+ DTE were each worse on the current timing.
-RESULT (18-Oct-2026, 400-pt, 64 common expiries, output/entry50_exit25_tp40_400pt.xlsx; n / net / max DD / losing years) – NOT ADOPTED, do not
+RESULT (18-Oct-2026, 400-pt, 64 common expiries, output/iron_condor/entry50_exit25_tp40_400pt.xlsx; n / net / max DD / losing years) – NOT ADOPTED, do not
 re-test: the requested timing (Monday 7 weeks before = 50–52 DTE, exit 25 DTE, TP 40%, SL 100%) is much worse under every filter. ±2.5% & C/W>=42%:
 38 / ₹50,978 / −₹7,491 / 2 vs current (43–45 → 18 DTE, TP 50%) 36 / ₹75,635 / −₹6,976 / 1. ±2% & C/W>=45%: 20 / ₹43,505 / −₹6,557 / 2 vs 17 / ₹55,646 /
 −₹1,558 / 0. ±2.5% only: 45 / ₹36,448 / −₹13,433 / 3 vs 44 / ₹83,114 / −₹9,814 / 1. No filter: ₹10,332 / −₹20,275 vs ₹59,670 / −₹14,946.
@@ -681,7 +690,7 @@ Which part does the damage (±2.5% only, 400-pt): TP 50 → 40 at the current ti
 −₹37.4k (₹45,692, 0 targets, 14 days held); entry a week earlier with exit 25 ₹39,726 – the extra early week adds nothing. The profit is
 made between 25 and 18 DTE. Earlier strikes are also thinner (14 trades on fallback strikes vs 2; 563 non-exact prices vs 378; 4 not run).
 Credit a little higher (187.5 vs 180.2 pts, C/W 46.9% vs 45.0%). TP 60% at the current timing ₹88,104 (±2.5%) – same as found before.
-RISK/REWARD 400-pt vs 600-pt on the forward-test rule (18-Oct-2026, output/risk_reward_400_vs_600.xlsx; 17 rich-credit months, TP 60%, rest of the
+RISK/REWARD 400-pt vs 600-pt on the forward-test rule (18-Oct-2026, output/iron_condor/risk_reward_400_vs_600.xlsx; 17 rich-credit months, TP 60%, rest of the
 rule 300-pt): whole rule ₹85,729 vs ₹114,939, both DD −₹5,523 (trade 67, 300-pt). Rich months: net ₹59,061 vs ₹88,271; W/L 14/3 vs 15/2; avg win
 ₹4,407 vs ₹6,068, avg loss −₹879 vs −₹1,372; worst −₹1,558 vs −₹2,045. Per condor: credit 191.5 vs 254.1 pts, C/W 47.9% vs 42.3%, max loss 208.5 vs
 345.9 pts (₹13,554 vs ₹22,485 at lot 65), credit÷max loss 0.92 vs 0.74; a 100% stop = credit ≈ ₹12,446 vs ₹16,515 at lot 65. Profit ÷ average
@@ -695,19 +704,19 @@ out to 20Δ −₹27,207; B = trend side 20Δ + other side moved in to 35Δ −�
 sooner (50: −₹2.4k → −₹9.8k / −₹10.4k; 48, 16, 8 stops). Helps the continued rallies (5, 36, 46, 28) but not enough. Do not re-test;
 400-pt version would need 141–201 calls and has the same mechanics.
 20Δ SOLD + 500-PT HEDGES IN THE FILTER-SKIPPED MONTHS (21-Oct-2026, user idea; strike set d20_skip, deltas 0.18–0.21; 20 of 21 months ran (1 no
-price), 4 on fallback strikes, 0 days with value > width; output/skipped_months_20delta_500pt.xlsx) – NOT ADOPTED, do not re-test, and 15Δ
+price), 4 on fallback strikes, 0 days with value > width; output/iron_condor/skipped_months_20delta_500pt.xlsx) – NOT ADOPTED, do not re-test, and 15Δ
 not worth downloading. 20 tr −₹42,030 / 10 W / 10 L / worst −₹10,622 vs the normal 30Δ/300-pt on the same months −₹19,358 / 8 W / 12 L.
 After a rise 17 tr −₹33,552 (30Δ −₹15,664); after a fall 3 tr −₹8,478 (−₹3,694). Exits 7 stop / 6 target / 7 time. Credit 121 vs 144 pts
 but max loss 379 pts (≈ ₹24.6k at lot 65) – credit ÷ max loss 0.32. More winners, much bigger losers: stops at −100% to −147% (62, 52, 50,
 19, 8, 9, 36). Whole strategy: skip ₹66,052 / −₹7,527; add 30Δ/300 ₹46,694 / −₹11,860; add 20Δ/500 ₹24,023 / −₹22,305.
-20Δ / 500-PT IN SKIPPED MONTHS WITH TIGHTER STOPS (21-Oct-2026; output/skipped_months_20delta_500pt_stops.xlsx; 20 trades): SL 100% −₹42,029
+20Δ / 500-PT IN SKIPPED MONTHS WITH TIGHTER STOPS (21-Oct-2026; output/iron_condor/skipped_months_20delta_500pt_stops.xlsx; 20 trades): SL 100% −₹42,029
 (7 stops); SL 75% −₹37,286 (10 stops, worst −₹9,182); SL 50% −₹31,253 (11 stops, worst −₹9,182) vs 30Δ/300-pt SL 100% −₹19,357. Whole strategy
 (45 months inside ±2.5% at 300-pt + these): SL 50% ₹34,799 / DD −₹18,648 vs skipping ₹66,052 / −₹7,527. Tighter stops cut the big losers
 (52 −₹10.3k → −₹5.9k, 62 −₹10.6k → −₹6.4k, 19, 8) but stop out a winner (12 +₹2.3k → −₹5.2k) and with one check a day the stop overshoots
 (50: −94% of credit at the 50% stop). Still far worse than skipping. Not adopted; do not re-test.
 DIRECTIONAL STRUCTURES IN THE FILTER-SKIPPED MONTHS (21-Oct-2026, user request: credit spread vs hedged ratio spread, risk 3–4% of capital;
 2021–26, 21 months beyond ±2.5%, 1 lot, 11:16 entry, 15:16 check, 18-DTE exit; scratch simulator on cached candles, costs approximate;
-output/skipped_months_credit_vs_ratio_spread.xlsx) – NEITHER ADOPTED. Credit spread (put spread after a rise, call spread after a fall, 30Δ
+output/iron_condor/skipped_months_credit_vs_ratio_spread.xlsx) – NEITHER ADOPTED. Credit spread (put spread after a rise, call spread after a fall, 30Δ
 sold, TP 50% / SL 100% of its own credit; reproduces the 10-Oct test): 200-pt 21 tr −₹14,341 / DD −₹17,356, max loss ≈ ₹9.9k (lot 65); 300-pt
 −₹11,129 / DD −₹21,075, max loss ≈ ₹15.2k; put-after-rise only 300-pt 18 tr −₹5,024 (2021 +₹3.8k … 2025 −₹10.8k). Hedged ratio spread =
 broken-wing 1×2×1 in the direction of the move (after a rise: +1 CE 30Δ, −2 CE 20Δ, +1 CE 20Δ+500; mirror with puts after a fall): only 16
@@ -716,7 +725,7 @@ up to ₹19.7k (28: 200-pt inner gap); every trade a time exit – at 18 DTE the
 max profit never fired. A ratio/butterfly earns in the last 2 weeks, which the 18-DTE exit gives away (holding longer needs data to
 expiry – not downloaded). Call broken-wing after a fall ("bounce"): 3 tr +₹509. Normal 30Δ/300 IC on the same months −₹18,755. Skipping = ₹0.
 HEDGED RATIO SPREAD HELD TO EXPIRY IN THE SKIPPED MONTHS (21-Oct-2026; data to expiry downloaded for 16 months; broken-wing 1×2×1 in the
-direction of the move: +1 30Δ, −2 20Δ, +1 20Δ±500; output/skipped_months_ratio_spread_to_expiry.xlsx; n=16, net / W-L / worst / DD):
+direction of the move: +1 30Δ, −2 20Δ, +1 20Δ±500; output/iron_condor/skipped_months_ratio_spread_to_expiry.xlsx; n=16, net / W-L / worst / DD):
 exit 18 DTE −₹10,368 / 6-10 / −₹5,371 / −₹12,780; 7 DTE −₹9,173; 3 DTE +₹2,296 / DD −₹8,868; EXPIRY +₹18,089 / 4-12 / −₹5,971 / −₹13,108;
 expiry + TP 50% of max profit +₹11,313 / DD −₹7,796; expiry + TP 25% −₹4,892; expiry + TP50 + SL 50% of max loss +₹7,006. By year (expiry):
 2021 +₹16.2k, 2022 −₹5.3k, 2023 +₹1.2k, 2024 −₹1.1k, 2025 +₹12.1k, 2026 −₹4.9k. LOTTERY-LIKE: the 4 winners are the months NIFTY finished within
@@ -725,7 +734,7 @@ expiry + TP 50% of max profit +₹11,313 / DD −₹7,796; expiry + TP 25% −�
 loss avg ₹11.5k, up to ₹19.7k (28, 200-pt inner gap). Whole strategy (45 months ±2.5% at 300-pt + these at expiry): ₹84,141 / DD −₹14,566
 vs skipping ₹66,052 / −₹7,527. NOT ADOPTED yet: 16 trades, profit from 3–4 of them, exit chosen after seeing the results, 2019–20 not
 tested (8 skipped months; needs data). Candidate to shadow-log in the forward test.
-RATIO SPREAD TO EXPIRY – TRADE BY TRADE (21-Oct-2026, output/ratio_spread_trade_by_trade.xlsx): result is decided by where NIFTY finishes.
+RATIO SPREAD TO EXPIRY – TRADE BY TRADE (21-Oct-2026, output/iron_condor/ratio_spread_trade_by_trade.xlsx): result is decided by where NIFTY finishes.
 Near the sold strikes (±200 pts) 4 tr +₹42,656 (57, 5, 28, 9 – NIFTY carried on 2.8–6.5% in the direction; sold strikes were 3.5–6.6% away);
 past the sold strike towards the hedge 1 tr −₹450 (46); never reached the bought strike (move stalled or reversed) 11 tr −₹24,117, each
 ≈ the entry debit + costs (−₹670…−₹3,135; 33 −₹5,971 because its 500-pt inner gap made the debit 115 pts). Max-loss zone (beyond the far
@@ -733,7 +742,7 @@ hedge) never reached. Trades 36 and 12 were near the sold strike mid-trade (+5.4
 version) 13 tr +₹23,654; after a FALL (put version) 3 tr −₹5,565 – the market bounced (52 +8.8%), as the direction study said. Entry VIX
 and the 10-day move do not separate winners from losers; winners had cheaper entries (debit avg 17 vs 34 pts).
 PUT CREDIT SPREAD AFTER A RISE WITH A 20Δ SOLD PUT (23-Oct-2026, user request; 18 skipped months after a 10-day rise > 2.5%, 2021–26; TP 50% /
-SL 100% of own credit, 18 DTE; all 18 ran; output/put_spread_20delta_vs_30delta_skipped_months.xlsx; net / W-L / max DD / worst / PF):
+SL 100% of own credit, 18 DTE; all 18 ran; output/iron_condor/put_spread_20delta_vs_30delta_skipped_months.xlsx; net / W-L / max DD / worst / PF):
 20Δ 200-pt −₹3,286 / 12-6 / −₹7,765 / −₹3,210 / 0.75; 20Δ 300-pt −₹2,657 / 12-6 / −₹9,548 / −₹4,607 / 0.84; vs 30Δ 200-pt −₹10,238 / 10-8 /
 −₹13,253; 30Δ 300-pt −₹5,024 / 12-6 / −₹14,970. Drawdown about halves and the total loss shrinks, but it is still a loss: credit only 30 / 42
 pts (sold put 3.9% below spot vs 2.2% for 30Δ) against a max loss of 170 / 258 pts (≈ ₹11.1k / ₹16.8k at lot 65) – credit ÷ max loss 0.18 /
@@ -741,7 +750,7 @@ pts (sold put 3.9% below spot vs 2.2% for 30Δ) against a max loss of 170 / 258 
 months), stops overshoot to −102%…−202% of credit. By entry period 2021–23 +₹2.3k / +₹4.2k, 2024–26 −₹5.6k / −₹6.8k. 0.5-pt slippage per leg
 → −₹5.2k / −₹4.6k. Not adopted; improvement ideas (VIX/50-DMA condition, lower target, NIFTY-level stop) still to revisit.
 PUT SPREAD AFTER A RISE – FILTERS TO SKIP REVERSALS AND EARLY EXITS (23-Oct-2026, user request; 18 months 2021–26; 20Δ 200 / 20Δ 300 / 30Δ 300;
-output/put_spread_filters_and_exits.xlsx; n / net / W-L / DD). Base TP50 SL100: 20Δ200 −₹3,286 / 12-6 / −₹7,765; 20Δ300 −₹2,657 / −₹9,548; 30Δ300
+output/iron_condor/put_spread_filters_and_exits.xlsx; n / net / W-L / DD). Base TP50 SL100: 20Δ200 −₹3,286 / 12-6 / −₹7,765; 20Δ300 −₹2,657 / −₹9,548; 30Δ300
 −₹5,024 / −₹14,970. All 6 losers (12, 16, 33, 48, 50, 62) came after a 10-day rise in which VIX FELL 9.6–24.5% and NIFTY was barely above its
 50-DMA (avg +0.6% vs +3.5% for winners); their last-5-day move was small (avg +0.7% vs +2.5%) = the rally had already stalled.
 ENTRY FILTERS (TP50 SL100): VIX not down >10% in 10 days → 8 tr, 7-1: 20Δ200 +₹3,821 / −₹1,568; 20Δ300 +₹6,827 / −₹1,206; 30Δ300 +₹8,252 / −₹2,774.
@@ -755,7 +764,7 @@ sold put) only trim the 30Δ DD (−₹15.0k → −₹6.5k…−₹9.7k) with n
 CAVEATS: 18 trades / 6 losers, thresholds read off the same data; VIX filter passes 0 of 4 rise months in 2025–26. Not adopted – best
 candidates to shadow-log: 5-day move > +1% at entry (and/or VIX not down >10%), 20Δ or 30Δ sold put, 300-pt hedge.
 PUT CREDIT vs CALL DEBIT vs HEDGED RATIO on the 13 months that pass "5-day move > +1%" (27-Oct-2026, user request; 2021–26, strikes from the
-reference 30Δ call and the d20_skip 20Δ legs; output/filtered13_put_spread_vs_call_debit_vs_ratio.xlsx; n / net / W-L / DD / avg max risk per lot at 65):
+reference 30Δ call and the d20_skip 20Δ legs; output/iron_condor/filtered13_put_spread_vs_call_debit_vs_ratio.xlsx; n / net / W-L / DD / avg max risk per lot at 65):
 PUT CREDIT 20Δ/300 TP50 SL100 13 / +₹8,383 / 11-2 / −₹2,573 / ₹16.7k; 30Δ/300 +₹12,672 / 11-2 / −₹3,630 / ₹15.4k. CALL DEBIT (buy 30Δ CE, sell 20Δ CE,
 debit ≈ ₹5.4k at lot 65, max ₹7.5k): hold to 18 DTE +₹10,765 / 7-6 / −₹7,195; TP 100% of debit / SL 50% +₹1,815 / 5-8; TP 50% / SL 50% +₹13,301 /
 9-4 / −₹5,664 (profit ÷ risk 2.47 vs 0.50–0.83 for the put spreads); hold to expiry +₹18,476 / 6-7 / −₹9,875. HEDGED RATIO (+1 30Δ, −2 20Δ, +1 20Δ+500
@@ -765,7 +774,7 @@ risks a third as much per trade (≈ ₹5.4k vs ₹16.7k), so its result per rup
 at ₹3L, but it wins less often and its DD is larger in rupees. The ratio is a 3-winner lottery on 8 trades. All fitted on 13 trades;
 TP/SL for the debit spread chosen after seeing results. Not adopted – shadow-log candidates.
 PUT vs CALL CREDIT SPREAD IN ALL MONTHS THE FORWARD-TEST RULE SKIPS (27-Oct-2026, user request; 2021–26; skipped = |10-day move| > 2% or 400-pt
-C/W < 40%: 30 months; 30Δ sold, 300-pt hedge, TP50 SL100, 18 DTE; output/skipped_months_put_vs_call_credit_spread.xlsx; n / net / W-L / DD):
+C/W < 40%: 30 months; 30Δ sold, 300-pt hedge, TP50 SL100, 18 DTE; output/iron_condor/skipped_months_put_vs_call_credit_spread.xlsx; n / net / W-L / DD):
 PUT spread in every skipped month 30 / +₹7,936 / 22-8 / −₹10,659 (worst −₹6,129); CALL spread 30 / −₹18,738 / 17-13 / −₹30,722; normal 300-pt IC
 −₹20,491. By reason: rise > 2.5% (18) PCS −₹5,024 / CCS −₹2,576 (calls win the reversal months 12, 16, 33, 48, 50, 62 and lose the continuations);
 move 2–2.5% up (7) PCS +₹8,946 / 6-1 vs CCS −₹5,207; fall < −2.5% (3) PCS +₹2,226 (bounce) vs CCS −₹6,105; move −2…−2.5% (1, trade 41) PCS +₹974;
@@ -775,7 +784,7 @@ rise > 2%: 21 / +₹19,323 / −₹3,630. Credit avg PCS 65 / CCS 80 pts; max lo
 forward rule (₹85,729): +PCS ≈ ₹93.7k; +PCS with 5-day filter ≈ ₹111.4k (combined drawdown not computed). CAVEATS: 5-day filter fitted on these
 months; 2019–20 put spreads after a rise all won (no test of the filter); NIFTY's upward drift in 2021–26 favours puts. Not adopted.
 PUT CREDIT vs CALL DEBIT SPREAD IN ALL 30 FORWARD-RULE SKIPPED MONTHS (27-Oct-2026, user request; 2021–26; PCS = sell 30Δ put / buy 300 lower,
-TP50 SL100; CDS = buy 30Δ call / sell call 300 higher, debit ≈ 80 pts ≈ ₹5.2k at lot 65 (max ₹7.3k); 18 DTE; output/skipped_months_put_credit_vs_
+TP50 SL100; CDS = buy 30Δ call / sell call 300 higher, debit ≈ 80 pts ≈ ₹5.2k at lot 65 (max ₹7.3k); 18 DTE; output/iron_condor/skipped_months_put_credit_vs_
 call_debit.xlsx; n / net / W-L / DD / worst). ALL 30: PCS +₹7,936 / 22-8 / −₹10,659 / −₹6,129; CDS hold +₹17,799 / 13-17 / −₹15,478 / −₹5,678; CDS TP50
 SL50 +₹7,504 / 16-14 / −₹5,825 / −₹3,319; CDS TP100 SL50 +₹11,472 / 12-18 / −₹8,077. By reason: rise > 2.5% (18) PCS −₹5,024 / CDS hold +₹1,603 /
 TP50-SL50 +₹286 (DD −₹8.0k); rise 2–2.5% (7) PCS +₹8,946 / 6-1 vs CDS hold +₹11,844 / 3-4 (35 +₹10.5k); falls (4) CDS better (bounces: 52 +₹6.0k).
@@ -783,14 +792,14 @@ With the 5-day filter on rise > 2.5% (25 tr): PCS +₹25,632 / 21-4 / −₹3,63
 PCS = higher win rate and the lowest drawdown in rupees, but ≈ ₹15.3k at risk per trade; CDS = about a third of the risk per trade (fits 2%
 of ₹3L), wins less than half the time, profit per rupee at risk far higher (filtered: CDS ≈ 5.9× its average risk vs PCS ≈ 1.7×). Not adopted.
 20Δ PUT CREDIT SPREAD vs CALL DEBIT SPREAD HELD TO 18 DTE (27-Oct-2026, user's two candidates; 20Δ puts only exist for the 18 rise > 2.5% months;
-output/put20_credit_vs_call_debit_hold18.xlsx; n / net / win / DD / worst / PF / risk per lot at 65). 18 rise months: PCS 20Δ/200 −₹3,286 / 67% /
+output/iron_condor/put20_credit_vs_call_debit_hold18.xlsx; n / net / win / DD / worst / PF / risk per lot at 65). 18 rise months: PCS 20Δ/200 −₹3,286 / 67% /
 −₹7,765 / −₹3,210 / 0.75 / ₹11.1k; PCS 20Δ/300 −₹2,657 / −₹9,548 / ₹16.8k; CDS (buy 30Δ call, sell +300) +₹1,603 / 44% / −₹17,356 / −₹5,678 / 1.05 /
 ₹5.2k. 13 months with the 5-day filter: PCS 20Δ/200 +₹5,469 / 85% / −₹1,891 / −₹1,891 / 2.53; PCS 20Δ/300 +₹8,383 / 85% / −₹2,573 / 2.71; CDS +₹14,217 /
 54% / −₹6,004 / −₹5,174 / 1.94. CDS profit is concentrated in 2021 (+₹14.0k of +₹14.2k; 2025–26 −₹2.7k) while PCS 20Δ is positive in 2025–26
 (+₹1.9k / +₹2.9k). Avg win/loss: PCS 20Δ/200 ₹822 / −₹1,786; CDS ₹4,199 / −₹2,530. Not run yet: 20Δ PCS in the other 12 skipped months (2–2.5%
 band, falls, C/W < 40%) – needs 20Δ put strikes for 9 months + hedges for 12.
 20Δ PUT CREDIT SPREAD IN ALL 30 FORWARD-RULE SKIPPED MONTHS (27-Oct-2026; strikes d20_skip + d20_rest (9 new months); 200 and 300-pt hedges;
-trade 41 has no 300-pt hedge price; output/put20_credit_spread_all_skipped_filters.xlsx; n / net / W-L / DD / worst; TP50 SL100 unless stated).
+trade 41 has no 300-pt hedge price; output/iron_condor/put20_credit_spread_all_skipped_filters.xlsx; n / net / W-L / DD / worst; TP50 SL100 unless stated).
 No filter: 200-pt 30 / +₹3,359 / 23-7 / −₹6,318 / −₹3,210; 300-pt 29 / +₹5,306 / −₹7,895. 5-DAY FILTER (skip rise > 2.5% months whose last 5 days
 added <= +1%): 200-pt 25 / +₹12,114 / 22-3 / −₹1,891 / −₹1,891, every year positive (2021 +₹2.6k, 2022 +₹4.5k, 2023 +₹1.0k, 2024 +₹0.9k, 2025 +₹2.2k,
 2026 +₹0.9k); 300-pt 24 / +₹16,346 / 21-3 / −₹2,573. By group (200-pt, filtered): rise > 2.5% 13 tr +₹5,469; rise 2–2.5% 7 tr +₹5,020; falls 4 tr +₹1,274;
@@ -803,18 +812,18 @@ Risk per lot (65): 200-pt ≈ ₹11.1k (3.7% of ₹3L, 2.2% of ₹5L), 300-pt �
 month, skipping rise > 2.5% months with 5-day move <= +1%. Not adopted (fitted on 30 months; 2019–20 not tested at 20Δ).
 PUT CREDIT SPREAD IN THE 2019–20 FORWARD-RULE SKIPPED MONTHS – 30Δ PREVIEW (27-Oct-2026; cached data; 20Δ needs strike selection + candles).
 2019–20: the forward rule skips 20 of 24 months – 13 of them only because the 400-pt C/W was < 40% (thin credit; in 2021–26 only 1 such month).
-30Δ sold put, TP50 SL100, 18 DTE, lot 75 (output/put30_spread_2019_2020_skipped_months.xlsx; n / net / W-L / DD / worst): 300-pt 18 / +₹1,639 / 13-5 /
+30Δ sold put, TP50 SL100, 18 DTE, lot 75 (output/iron_condor/put30_spread_2019_2020_skipped_months.xlsx; n / net / W-L / DD / worst): 300-pt 18 / +₹1,639 / 13-5 /
 −₹15,388 / −₹8,306; 400-pt 16 / +₹4,184 / −₹12,630 / −₹10,580. Rise > 2.5% months 5 / +₹13,155 / 5-0 (300-pt); all OTHER skipped months 13 / −₹11,516 /
 8-5 / DD −₹23,185 – stops 1907, 1908, 2002, 2003 (COVID), 2009. The 5-day filter only removes two winners (1911, 2006) → 16 / −₹3,548 / DD −₹20,575.
 WARNING for the "put spread in every skipped month" idea: the thin-credit (C/W < 40%) and non-rise months were the losers in 2019–20.
 COMBINED: FORWARD-RULE IC + 20Δ PUT SPREAD IN ITS SKIPPED MONTHS (27-Oct-2026, 2021–26, 1 lot, net, one position per month – they never overlap;
 IC = variant 3 (400-pt TP 60% if C/W >= 45%, 300-pt if 40–45%, |move| <= 2%); PCS = 20Δ put spread TP50 SL100 18 DTE in the other months, skipping
-rise > 2.5% months with 5-day move <= +1% (9, 16, 48, 50, 62); output/combined_ic_plus_put20_spread.xlsx; n / net / W-L / max DD / worst / PF):
+rise > 2.5% months with 5-day move <= +1% (9, 16, 48, 50, 62); output/iron_condor/combined_ic_plus_put20_spread.xlsx; n / net / W-L / max DD / worst / PF):
 IC only 36 / ₹85,729 / 28-8 / −₹5,523 / −₹5,523 / 5.67. + PCS 200-pt 61 / ₹97,843 / 50-11 / −₹5,523 / −₹5,523 / 5.27. + PCS 300-pt (41 no price) 60 /
 ₹102,075 / 49-11 / −₹5,523 / 5.18. The put spreads add ₹12.1k / ₹16.3k without deepening the drawdown (still trade 67); every year positive (2022:
 IC +₹0.7k, PCS +₹4.5k / +₹6.5k). CAVEAT: 5-day filter fitted on these months; 2019–20 not tested at 20Δ (30Δ preview lost in thin-credit months).
 20Δ PUT CREDIT SPREAD IN THE 2019–20 FORWARD-RULE SKIPPED MONTHS (27-Oct-2026; strike set d20_2019_2020, deltas 0.18–0.22; lot 75; TP50 SL100,
-18 DTE; output/put20_credit_spread_2019_2020_skipped_months.xlsx; n / net / W-L / DD / worst). 20 skipped months; not run: 2003 (Mar-2020 crash, no
+18 DTE; output/iron_condor/put20_credit_spread_2019_2020_skipped_months.xlsx; n / net / W-L / DD / worst). 20 skipped months; not run: 2003 (Mar-2020 crash, no
 price), 1905 and 2004 at 200-pt (no hedge price; fallback not simulated). 5-DAY FILTER (removes 1911, 2006 – both winners): 200-pt 15 / +₹2,795 /
 12-3 / −₹5,280 / −₹4,487; 300-pt 17 / +₹9,285 / 14-3 / −₹7,028 / −₹6,349. No filter: 200-pt 17 / +₹5,064; 300-pt 19 / +₹12,529. Losers: 1907
 (Jul-19, −3.1% fall, −₹3,052 / −₹4,169), 1909 (Sep-19, −3.4% in 3 days, −₹2,334 / −₹3,210), 2009 (Sep-20, −5.8%, −₹4,487 / −₹6,349; stops at −112…−212%
@@ -825,7 +834,7 @@ Risk per lot at 75: ≈ ₹13.0k (200) / ₹19.6k (300). On top of 5-day: above 
 VERDICT: the 20Δ/200 put spread with the 5-day filter stays profitable out of sample (small, +₹2.8k), with a drawdown inside the 2021–26 condor's
 −₹5.5k; thin-credit calm months are about break-even. Caveat: the crash month 2003 could not be priced (30Δ lost −₹5,315 there).
 WHOLE RULEBOOK 2019–26 – FALLBACK, SLIPPAGE, THIN-CREDIT PUT SPREADS (28-Oct-2026, points 2–4 of the improvement list; condor = variant 3, put spread
-20Δ TP50 SL100 with the 5-day filter; new module ic/spread_sim.py = the put-spread simulator; output/rulebook_2019_2026_fallback_slippage_thin_credit.xlsx).
+20Δ TP50 SL100 with the 5-day filter; new module shared/spread_sim.py = the put-spread simulator; output/iron_condor/rulebook_2019_2026_fallback_slippage_thin_credit.xlsx).
 (2) FALLBACK STRIKES for put spreads (move the spread −50/+50/−100/+100, then widen the hedge +50/+100): reproduces every earlier result within ₹0.5 and
 adds 1905 (200-pt → 300-pt hedge, +₹3,171), 2004 (spread 100 pts out, 7700/7500, +₹3,737), 41 at 300-pt (100 closer, +₹551). 2003 (Mar-2020 crash) still
 has no price except the sold put – untestable. Rulebook, 200-pt put spread (n / net / DD / worst / PF): 2021–26 61 / ₹97,843 / −₹5,523 / −₹5,523 / 5.27;
@@ -843,20 +852,20 @@ the same rule and was not adopted. Not adopted – user's call.
 USER DECISION 28-Oct-2026: NO credit (C/W < 40%) filter on the put spread – 9 of the 10 affected months are 2019–20, where the low ratio came from the fixed
 400-pt width at NIFTY 10–12k. The put spread trades in every condor-skipped month except the 5-day-filter skips. Do not propose it again.
 PUT SPREAD TARGET × EXIT DTE WITH THE 5-DAY FILTER (28-Oct-2026, point 5; 20Δ, SL 100%, fallback strikes; 2021–26 25 tr + 2019–20 17 tr = 42;
-output/put_spread_target_exitdte_5day_2019_2026.xlsx; net 2021–26 / DD 2021–26 | net 2019–20 / DD 2019–20 | 2019–26 net). 200-pt, 18 DTE: TP 30% ₹8,234 /
+output/iron_condor/put_spread_target_exitdte_5day_2019_2026.xlsx; net 2021–26 / DD 2021–26 | net 2019–20 / DD 2019–20 | 2019–26 net). 200-pt, 18 DTE: TP 30% ₹8,234 /
 −₹1,891 | ₹7,077 / −₹4,487 | ₹15,311; TP 40% ₹11,234 / −₹1,891 | ₹10,501 / −₹4,487 | ₹21,735 (hold 7.8 days); TP 50% ₹12,114 / −₹1,891 | ₹9,702 / −₹5,281 |
 ₹21,816 (10.7 days); TP 60% ₹10,245 / −₹4,384 | ₹21,305; TP 70% ₹20,771; no target ₹13,895 / −₹4,384 | ₹10,797 | ₹24,692 (time exit only, 22.6 days).
 21 DTE ≈ ₹1k less at every target; 25 DTE much worse (₹8–14k). 300-pt, 18 DTE: TP 40% ₹22,973; TP 50% ₹26,181 (best); TP 60% ₹15,840 / DD −₹6,119 (2021–26);
 no target ₹25,440 / −₹6,119. VERDICT: keep TP 50% and 18 DTE. TP 40% ≈ the same at 200-pt (−₹81 over 8 years, smaller 2019–20 DD, 3 days shorter) –
 equivalent alternative; above 50% the 2021–26 DD more than doubles (trades held into the late losses). Do not re-test.
-PUT SPREAD SOLD DELTA 15 / 20 / 25 (28-Oct-2026, point 6; condor-skipped months, 5-day filter, TP50 SL100, 18 DTE, fallback strikes; output/
+PUT SPREAD SOLD DELTA 15 / 20 / 25 (28-Oct-2026, point 6; condor-skipped months, 5-day filter, TP50 SL100, 18 DTE, fallback strikes; output/iron_condor/
 put_spread_15_20_25_delta_2019_2026.xlsx; net 2021–26 / DD | net 2019–20 / DD | 2019–26). 15Δ/200 −₹316 / −₹3,090 | +₹6,595 / −₹3,665 | ₹6,279 (credit 21 pts,
 6 stops in 23); 15Δ/300 ₹10,374 / −₹2,152 | ₹1,951 / −₹6,400 | ₹12,325. 20Δ/200 ₹12,114 / −₹1,891 | ₹9,702 / −₹5,281 | ₹21,816; 20Δ/300 ₹16,896 / −₹2,573 |
 ₹9,284 / −₹7,028 | ₹26,181. 25Δ/200 ₹14,892 / −₹2,358 | ₹5,513 / −₹9,756 | ₹20,405; 25Δ/300 ₹29,338 / −₹2,999 (PF 7.6) | −₹1,764 / −₹18,552 | ₹27,575.
 VERDICT: 20Δ is the only delta that is solid in BOTH periods; 15Δ collects too little (stops at the same rate), 25Δ/300 is the best 2021–26 result but loses
 out of sample with a −₹18.6k drawdown. Keep 20Δ/200. Do not re-test.
 WALK-FORWARD OF THE RULEBOOK THRESHOLDS (28-Oct-2026, point 1; 900 rules = 10-day limit 1.5–2.5% × rich line 43–47% × floor 36–42% × put-spread rise
-2/2.5/3% × 5-day limit 0.5/1/1.5%; every month's condor 400 (TP60; 2019–20 TP50) / condor 300 / 20Δ-200 put spread priced; output/
+2/2.5/3% × 5-day limit 0.5/1/1.5%; every month's condor 400 (TP60; 2019–20 TP50) / condor 300 / 20Δ-200 put spread priced; output/iron_condor/
 walk_forward_rulebook_thresholds.xlsx). ALL 900 rules are profitable in every period (2021–23, 2024–26, 2019–20); grid medians 2021–26 ₹88.1k / DD −₹5.5k,
 2019–20 ₹18.8k. Fit on 2021–23 → best rule (1.75%, 43%, 42%) makes ₹60.6k / −₹7.0k in 2024–26 vs the adopted rule ₹68.2k / −₹5.5k (adopted beats 81% of the
 grid there); fit on 2024–26 → ₹28.5k / −₹4.9k in 2021–23 vs adopted ₹29.7k / −₹3.7k (beats 98%); fit on 2021–26 → ₹28.1k in 2019–20 vs adopted ₹16.7k (beats 32%,
@@ -865,9 +874,9 @@ sample: the result comes from the structure, not the exact numbers. One-at-a-tim
 −₹9.1k (trade 35 enters) – the only cliff; rich 43% ₹101.8k but DD −₹7.0k; floor 36–40% same in 2021–26, 42% ₹84.1k; rise 2/2.5/3% and 5-day 0.5/1/1.5%
 within ±₹3k. Put spread in the 40 condor months instead of the condor: +₹4.0k (2021–26, 36 tr, DD −₹9.2k) vs condors ₹85.7k → condor is right in calm months.
 VERDICT: thresholds robust; keep them. Do not re-test.
-HEDGE WIDTHS AS A % OF NIFTY (28-Oct-2026, point 7, user idea; whole rulebook re-simulated with ic/spread_sim.py incl. per-side fallback; widths =
+HEDGE WIDTHS AS A % OF NIFTY (28-Oct-2026, point 7, user idea; whole rulebook re-simulated with shared/spread_sim.py incl. per-side fallback; widths =
 % × NIFTY at entry rounded to 100 (min 100); A = calibrated to the 2021–26 average NIFTY 20,530 (wide 1.95% / normal 1.46% / put spread 0.97%), B = to
-today's 22,500 (1.78 / 1.33 / 0.89%); output/percent_width_hedges_2019_2026.xlsx; n / net / DD / worst / PF). Same simulator, fixed 400/300/200: 2021–26 61 /
+today's 22,500 (1.78 / 1.33 / 0.89%); output/iron_condor/percent_width_hedges_2019_2026.xlsx; n / net / DD / worst / PF). Same simulator, fixed 400/300/200: 2021–26 61 /
 ₹97,350 / −₹5,503 / 5.26 (engine ₹97,843 – simulator validated); 2019–20 21 / ₹16,700 / −₹5,281; 2019–26 ₹114,050. % A: 2021–26 ₹84,192 / −₹6,959 / 4.07;
 2019–20 19 / +₹406 / −₹11,452 (a losing year); 2019–26 ₹84,598 / −₹11,452. % B: 2021–26 ₹83,242 / −₹5,503; 2019–20 −₹830 / −₹11,452; 2019–26 ₹82,412.
 WHAT HAPPENS: the C/W ratio does become level-independent (median 45–48% in both periods vs 45% / 37% with fixed widths), so in 2019–20 the credit test
@@ -884,14 +893,14 @@ above 22,000), target reached ≈ 8-Apr as NIFTY rallied to 24,051 → probably 
 totals (rulebook stays 61 tr ₹97,843 for 2021–26). Live lesson: after a crash far puts trade only on round 100/500 strikes – use the chain's bid/ask.
 SECOND ENTRY TWO WEEKS LATER, EXIT 18 DTE (28-Oct-2026, point 8 part 1; trade set w4 = Monday 4 weeks before the expiry week, 28–31 DTE, 90 trades,
 id = expiry YYMM; strike sets d30_w4 / d20_w4; full rulebook applied at the second entry with its own 10-day / 5-day readings and 400-pt credit test;
-1 lot each; ic/spread_sim.py; output/second_entry_2weeks_18dte.xlsx; n / net / DD / worst / PF; DD in exit-date order). Second entry alone: 2021–26 59 /
+1 lot each; shared/spread_sim.py; output/iron_condor/second_entry_2weeks_18dte.xlsx; n / net / DD / worst / PF; DD in exit-date order). Second entry alone: 2021–26 59 /
 +₹3,680 / −₹22,197 / −₹4,189 / 1.10 (2 losing years); 2019–20 22 / +₹919 / −₹14,652. At 29 DTE the 400-pt credit is thinner (C/W median 41.8% vs 44.3%), so
 60 of 81 become put spreads (2021–26: 39 tr −₹2,056) and only 21 condors (2021–26: 20 tr +₹5,735 / DD −₹6,707; all time exits – 11 days is too short for a
 target). Combined A + B, 2021–26: all 120 tr ₹101,030 / DD −₹10,287 vs A alone 61 tr ₹97,350 / −₹5,503; B condor only 81 tr ₹103,085 / −₹10,287; 2019–20 A+B
 ₹17,618 / −₹15,203 vs A ₹16,700 / −₹5,281. 0.5-pt slippage on B's extra fills (≈ ₹5k on its 20 condors) removes the gain. VERDICT: about +₹4–6k over six years
 for twice the drawdown, twice the margin in overlapping weeks and 20–60 more trades – NOT adopted. Part 2 (exit 7 DTE) below.
 SECOND ENTRY TWO WEEKS LATER, EXIT 7 DTE (28-Oct-2026, point 8 part 2; same w4 entries and rulebook, time exit at 7 DTE instead of 18; normal entry A
-unchanged at 18 DTE; output/second_entry_2weeks_7dte.xlsx; n / net / DD / worst / PF). Second entry alone: 2021–26 59 / +₹44,127 / −₹20,213 / −₹11,247 / 1.87
+unchanged at 18 DTE; output/iron_condor/second_entry_2weeks_7dte.xlsx; n / net / DD / worst / PF). Second entry alone: 2021–26 59 / +₹44,127 / −₹20,213 / −₹11,247 / 1.87
 (18 DTE: +₹3,680); 2019–20 22 / +₹11,010 / −₹13,295. By structure 2021–26: 400-pt condors 7 tr +₹35,890 (4 targets, held ≈ 21 days); 300-pt condors 13 tr
 +₹2,543 incl. two stops near the full max loss (2510 −₹11,247, 2603 −₹11,198) and 2609 −₹6,840; put spreads 39 tr +₹5,694 (DD −₹12.4k alone). Combined A + B:
 2021–26 120 tr ₹141,477 / DD −₹14,748 / worst −₹11,247 / PF 2.92 vs A alone ₹97,350 / −₹5,503 / 5.26; 2019–20 ₹27,710 / −₹13,846 vs ₹16,700 / −₹5,281; slippage
@@ -904,7 +913,7 @@ second entry held to 7 DTE.
 TRADE 45 DATA CORRECTION (29-Oct-2026, user check; entry 16-Sep-2024, Oct-2024 expiry): the 26450 CE (400-pt call hedge) shows 114.65 at 11:16 – a stale
 quote with zero volume on 16 and 17 Sep, priced above the nearer 26400 CE (102.00). With it the 400-pt credit is 158.55 = 39.6% → below the floor → put
 spread (+₹351). Realistic 26450 CE = 92.75 (midway 26400 CE 102.00 / 26500 CE 83.50, both heavily traded) → credit 180.45 = 45.1% → 400-pt IC, TP 60%: worst
-−48% on 27-Sep, time exit 11-Oct +46.45 pts, net ₹942 (300-pt IC would be ₹854; 0.45 pt above the 45% line). output/combined_ic_plus_put20_spread.xlsx
+−48% on 27-Sep, time exit 11-Oct +46.45 pts, net ₹942 (300-pt IC would be ₹854; 0.45 pt above the 45% line). output/iron_condor/combined_ic_plus_put20_spread.xlsx
 updated (Changes sheet): COMBINED IC + PCS 200 2021–26 61 tr ₹97,843 → ₹98,434 (37 IC + 24 PCS), IC + PCS 300 ₹102,075 → ₹102,510, DD unchanged −₹5,523.
 Other quoted rulebook totals (₹97,843, 2019–26 ₹114,585 etc.) are BEFORE this fix (+₹591). The engine's bad-print rule only catches a hedge priced >= its
 own sold leg; a hedge priced above a nearer strike or with zero volume is not caught (proposed check, not built).
@@ -913,21 +922,21 @@ TRADE 38 300-PT PCS CORRECTION (29-Oct-2026; Mar-2024 expiry, alternative column
 COMBINED IC + PCS 300 2021–26 → ₹102,939; official IC + PCS 200 unchanged ₹98,434.
 LOT SIZE FIX (29-Oct-2026, user check, NSE circular NSE/FAOP/47854 of 31-Mar-2021): NIFTY's lot was 75 for every contract expiring up to the
 Jun-2021 expiry; 50 only from the Jul-2021 expiry. config.LOT_SIZES had 50 from the Feb-2021 expiry (StockMock's quantity) → trades 1–5 (Feb–Jun 2021
-expiries) were a third too small. Fixed in ic/config.py (75 up to 2021-06-24). All five were winners, so 2021–26 profits rise, drawdowns unchanged:
+expiries) were a third too small. Fixed in the lot table, now shared/config.py (75 up to 2021-06-24). All five were winners, so 2021–26 profits rise, drawdowns unchanged:
 main report 300-pt ±2.5% 45 tr ₹66,052 → ₹69,855 / DD −₹7,527 / PF 3.32; 400-pt ±2.5% ₹83,114 → ₹87,879 / −₹9,814; no filter 300-pt ₹47,298 → ₹50,851 /
-−₹11,860; 400-pt ₹61,439 → ₹66,440 / −₹14,946. Forward rule (output/combined_ic_plus_put20_spread.xlsx, also incl. the trade 38/45 price fixes): IC only
-37 tr ₹90,667; COMBINED IC + PCS 200 61 tr ₹103,880 / DD −₹5,523 / PF 5.54; IC + PCS 300 ₹108,959. Put spreads (output/pcs_trade_details.xlsx): 2021–26
+−₹11,860; 400-pt ₹61,439 → ₹66,440 / −₹14,946. Forward rule (output/iron_condor/combined_ic_plus_put20_spread.xlsx, also incl. the trade 38/45 price fixes): IC only
+37 tr ₹90,667; COMBINED IC + PCS 200 61 tr ₹103,880 / DD −₹5,523 / PF 5.54; IC + PCS 300 ₹108,959. Put spreads (output/iron_condor/pcs_trade_details.xlsx): 2021–26
 200-pt 24 tr ₹13,212, 300-pt ₹18,842 (incl. trade 41 on fallback strikes). Trade by trade at 75: 1 PCS ₹1,109 → ₹1,711; 2 PCS ₹664 → ₹1,043; 3 IC 400
 ₹5,146 → ₹7,814; 4 IC 400 ₹2,469 → ₹3,798; 5 PCS ₹843 → ₹1,312. ALL 2021–26 totals quoted in the entries above this one used lot 50 for those five
-months – add roughly ₹3–5.5k (depending on which of 1–5 a rule trades) when comparing. 2019–20 unchanged. Old reports kept in output/pre_lotfix/.
-ENTRY-DAY CHECK FIX IN ic/spread_sim.py (29-Oct-2026, user check): the put-spread simulator started its daily 15:16 checks the day AFTER entry; the
-engine (ic/engine.py) checks the entry day too. Fixed (entry <= day <= time exit). Re-run of output/pcs_trade_details.xlsx: no 2021–26 trade changes; in
+months – add roughly ₹3–5.5k (depending on which of 1–5 a rule trades) when comparing. 2019–20 unchanged. Old reports kept in output/iron_condor/pre_lotfix/.
+ENTRY-DAY CHECK FIX IN shared/spread_sim.py (29-Oct-2026, user check): the put-spread simulator started its daily 15:16 checks the day AFTER entry; the
+engine (strategies/iron_condor/engine.py) checks the entry day too. Fixed (entry <= day <= time exit). Re-run of output/iron_condor/pcs_trade_details.xlsx: no 2021–26 trade changes; in
 2019–20 only 2004 (Apr-2020, COVID) changes – and its put prices are unusable (7800 PE 9 trades / 7700 PE 3 trades on 13-Apr-2020, 7700 priced above 7800,
 7800 196 → 280 intraday with NIFTY flat; only 8000/7500 traded normally). 2004 is now NOT TESTABLE and out of the totals (its earlier +₹3,737 at 200-pt
 rested on the same prints). Put spreads 2019–20: 200-pt 16 tr ₹5,965 / DD −₹5,281 (was 17 tr ₹9,702); 300-pt 16 tr ₹7,278 / −₹7,028. So the 2019–20 /
 2019–26 rulebook totals quoted above (e.g. 2019–20 ₹16,742, 2019–26 ₹114,585) include ≈ +₹3.7k from 2004 that should be removed. Studies run with the
 old simulator (points 7 and 8) did not check entry days – re-run them before relying on small differences.
-VARIANTS 3–6 RE-RUN WITH THE 29-OCT CORRECTIONS (29-Oct-2026, user request; output/variants_400_500_600_corrected.xlsx; 2021–26, ±2%, 400-pt credit test; n /
+VARIANTS 3–6 RE-RUN WITH THE 29-OCT CORRECTIONS (29-Oct-2026, user request; output/iron_condor/variants_400_500_600_corrected.xlsx; 2021–26, ±2%, 400-pt credit test; n /
 net / max DD / worst / W-L / PF / 0.5-pt slip). Lot 75 for Feb–Jun 2021 (trades 3, 4 are rich months) and trade 45 now rich – its far call hedge was stale at
 every width (400-pt 26450 CE 114.65 → 92.75; 500-pt 26550 CE 157.40 from one 09:29 trade, above 26500 → 73.80 = midway 26500/26600, stale 16–19 Sep; 600-pt
 26650 CE 44.05 zero volume, below 26700 → 58.33, stale 16–17 Sep); credits 180.45 / 214.1 / 245.5, nets ₹942 / ₹1,229 / ₹1,541 (the engine's raw 500-pt run
@@ -937,12 +946,12 @@ books an impossible −₹4,363 stop). 18 rich + 19 at 300-pt = 37 condors. (3) 
 loss −₹879 vs −₹1,372, worst −₹1,558 vs −₹2,045, credit 190.9 vs 253.6, max loss 209.1 vs 346.4 pts (≈ ₹13.6k vs ₹22.5k at lot 65), credit ÷ max loss 0.91 vs
 0.73, rich profit ÷ avg max loss 5.5× vs 5.0×. Same picture as before; summary page updated. Version B estimate (600 + 300-pt PCS) ≈ ₹1.41L.
 Future (user idea, not built): 45-DTE short strangle, TP 50% / SL 100% – separate entry script per strategy (e.g.
-backtest_strangle.py) reusing ic/engine.py with a 2-leg leg builder; note unlimited risk and much higher margin than the IC.
+backtest_strangle.py) reusing strategies/iron_condor/engine.py with a 2-leg leg builder; note unlimited risk and much higher margin than the IC.
 
 Action items:
 1. Done: 18-DTE StockMock run reconciled; 10-day filter adopted and built in.
 2. Decide on the election-results rule (checklist only, or optional engine setting).
-3. Fallback-strike rule built in (1-Oct-2026, ic/fallback.py, FALLBACK_SHIFTS −50/+50/−100/+100 then hedge
+3. Fallback-strike rule built in (1-Oct-2026, strategies/iron_condor/fallback.py, FALLBACK_SHIFTS −50/+50/−100/+100 then hedge
    350/400; strike_note column). Matches the user's StockMock picks for trades 1, 29, 30, 57; 31 and 33
    differ (StockMock availability / user moved toward 30Δ); 24 has no Breeze data. Downloaded 1-Oct-2026.
    Main report now 45 trades (29, 30, 31 on fallback strikes), net ₹66,052, max DD −₹7,527, win 73%, PF 3.20;
@@ -977,7 +986,7 @@ Action items:
    check, export-ref; journal/ CSVs). `filter` reads NIFTY closes from NSE's daily index files
    (archives.nseindia.com/content/indices/ind_close_all_DDMMYYYY.csv; no login), falls back to data/nifty_daily.csv with a
    warning; `--closes-file` for Kite-connector data. Kite MCP: read-only tools only.
-   Added 4-Oct-2026: `holidays [--write]` (NSE F&O holiday list -> `NSE_HOLIDAYS` block in ic/config.py, forward-test calendar
+   Added 4-Oct-2026: `holidays [--write]` (NSE F&O holiday list -> `NSE_HOLIDAYS` block in shared/config.py, forward-test calendar
    only; refresh each January) and `strikes --expiry` (NSE option chain -> ~30Δ sold strikes, 300-pt hedges with the fallback
    rule, bid/ask, credit, target/stop). NSE chain lags a few minutes; user confirms strikes and prices. 2026-11-08 (Sunday
    Muhurat) added to MUHURAT_DAYS. Nov-2026 monthly expiry is Mon 23-Nov (24-Nov holiday) -> entry Mon 12-Oct-2026.

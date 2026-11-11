@@ -9,9 +9,14 @@ This skill runs the routine in README section 5.10 ("Monthly routine") of the re
 
 ## Source of truth
 
+Repository layout (since 11-Nov-2026): shared code in `shared/`, the condor in `strategies/iron_condor/` (entry scripts in
+`strategies/iron_condor/scripts/`, research scripts in `strategies/iron_condor/analysis/`), condor data in `data/iron_condor/`, reports in
+`output/iron_condor/`. Run every command from the repository root. A Batman strategy is being set up in `strategies/batman/`
+(rules not final) – this skill covers the iron condor only.
+
 The rules change often (hedge width, exit DTE and the filter were all revised within one week). So:
 
-1. Run `python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py rules` at the start of every session. It prints the live values from `ic/config.py`.
+1. Run `python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py rules` at the start of every session. It prints the live values from `strategies/iron_condor/config.py` (which re-exports `shared/config.py`).
 2. For anything not covered by those values, read **README section 1 (Strategy rules)** and **section 7** in the repo.
 3. If this file and `config.py`/README disagree, `config.py`/README win. Tell the user about the mismatch.
 
@@ -19,7 +24,7 @@ Do not quote strategy numbers from memory. Take them from the `rules` output. Th
 
 ## The rule set being forward-tested (README section 1b)
 
-Adopted on 10-Oct-2026, finalised on 11-Oct-2026 (one ±2% limit for all widths) and set to a **400-point condor on rich-credit months** on 18-Oct-2026, from the October-2026 cycle. A 600-point condor makes more profit in the backtest, but the user chose 400 points because of the lower risk: its largest possible loss stays within 2–3% of the account. The width is to be reviewed after 6–12 months of forward testing (around April–October 2027). On 27-Oct-2026 the user added a **20-delta put credit spread with a 200-point hedge** for the months the condor rule skips (section "Put credit spread in the skipped months" below); a 300-point hedge makes more profit but is kept as a shadow line for the same reason as 600 points. The numbers below are the values at adoption; `rules` prints the live ones from `ic/config.py` (`FWD_*`). If they differ, the `rules` output wins and the user should be told.
+Adopted on 10-Oct-2026, finalised on 11-Oct-2026 (one ±2% limit for all widths) and set to a **400-point condor on rich-credit months** on 18-Oct-2026, from the October-2026 cycle. A 600-point condor makes more profit in the backtest, but the user chose 400 points because of the lower risk: its largest possible loss stays within 2–3% of the account. The width is to be reviewed after 6–12 months of forward testing (around April–October 2027). On 27-Oct-2026 the user added a **20-delta put credit spread with a 200-point hedge** for the months the condor rule skips (section "Put credit spread in the skipped months" below); a 300-point hedge makes more profit but is kept as a shadow line for the same reason as 600 points. The numbers below are the values at adoption; `rules` prints the live ones from `strategies/iron_condor/config.py` (`FWD_*`). If they differ, the `rules` output wins and the user should be told.
 
 ### Combined rulebook at a glance (condor + put spread, 27-Oct-2026; figures corrected 29-Oct-2026)
 
@@ -40,7 +45,7 @@ For every trade: entry Monday 11:16 at 43 DTE; one check at 15:16 (stop, then ta
 | Put spread | 20Δ / 200-pt | 20Δ / 300-pt (priced and logged every put-spread month) |
 | Largest possible loss per lot (65) | condor ≈ ₹13,600 · put spread ≈ ₹11,000 | ≈ ₹22,500 · ≈ ₹16,800 |
 
-Backtest 2021–26, net, no slippage (`output/combined_ic_plus_put20_spread.xlsx`; includes the 29-Oct corrections – see "Data corrections" below):
+Backtest 2021–26, net, no slippage (`output/iron_condor/combined_ic_plus_put20_spread.xlsx`; includes the 29-Oct corrections – see "Data corrections" below):
 
 | Year | Condor | Put spread 200 | **Total (traded)** | Put spread 300 | Total (300 shadow) |
 |---|---|---|---|---|---|
@@ -95,7 +100,7 @@ What the evening reading already tells the user:
 | Shadow line | price and log the same sold put with a **300-point** hedge every time |
 | Config | `FWD_PCS_DELTA`, `FWD_PCS_WIDTHS` = [200], `FWD_PCS_ALT_WIDTHS` = [300], `FWD_PCS_RISE_PCT`, `FWD_PCS_MIN_5D_PCT`, `FWD_PCS_TP_FRACTION` |
 
-Backtest 2021–26 (1 lot, net, the 30 months the condor rule skips; `output/put20_credit_spread_all_skipped_filters.xlsx`, `output/combined_ic_plus_put20_spread.xlsx`):
+Backtest 2021–26 (1 lot, net, the 30 months the condor rule skips; `output/iron_condor/put20_credit_spread_all_skipped_filters.xlsx`, `output/iron_condor/combined_ic_plus_put20_spread.xlsx`):
 
 | | 200-point (chosen) | 300-point (shadow; review in 6–12 months) |
 |---|---|---|
@@ -108,7 +113,7 @@ Backtest 2021–26 (1 lot, net, the 30 months the condor rule skips; `output/put
 
 Why 200 and not 300: 300 points makes about ₹5.6k more over six years, but only because each trade carries about 50% more risk; per rupee at risk it is slightly worse, and its largest loss breaks the 2–3% rule. Same reasoning as 400 vs 600 for the condor; review both widths together.
 
-Small print: the 5-day filter was chosen on these 30 months; only 3 put spreads lost, so the stop is barely tested; the profit per trade is small (≈ ₹550), so fills matter. 2019–20 out of sample (lot 75, 5-day filter, corrected 29-Oct): 200-point 16 trades +₹5,965, 13–3, drawdown −₹5,281; 300-point 16 trades +₹7,278, drawdown −₹7,028. Losers Jul-19, Sep-19 and Sep-20 (falls of 3–6%). Mar-2020 (no price) and Apr-2020 (only a few odd trades on the put strikes) could not be tested. With the 4 condors of those years: 20 trades +₹12,963, drawdown −₹5,281 (200-point). Leg-by-leg detail of every put spread: `output/pcs_trade_details.xlsx`.
+Small print: the 5-day filter was chosen on these 30 months; only 3 put spreads lost, so the stop is barely tested; the profit per trade is small (≈ ₹550), so fills matter. 2019–20 out of sample (lot 75, 5-day filter, corrected 29-Oct): 200-point 16 trades +₹5,965, 13–3, drawdown −₹5,281; 300-point 16 trades +₹7,278, drawdown −₹7,028. Losers Jul-19, Sep-19 and Sep-20 (falls of 3–6%). Mar-2020 (no price) and Apr-2020 (only a few odd trades on the put strikes) could not be tested. With the 4 condors of those years: 20 trades +₹12,963, drawdown −₹5,281 (200-point). Leg-by-leg detail of every put spread: `output/iron_condor/pcs_trade_details.xlsx`.
 
 **Size (user decision, 29-Oct-2026): 1 lot.** The put spread needs about half the margin of the 400-point condor, but 2 lots would carry a largest possible loss of about ₹22,000 (7.4% / 5.5% / 4.4% of ₹3L / ₹4L / ₹5L) – outside the 2–3% limit, like the 600-point condor. Backtest at 2 lots: 2021–26 rulebook ₹1,17,094 with the same −₹5,523 drawdown, but 2019–20 put-spread drawdown −₹10,562 and worst trade −₹8,974. Revisit at the 6–12-month review with real fills; 2 lots fit 3% only from an account of about ₹7.4L. If the user asks again, give these numbers; sizing is the user's call.
 
@@ -126,7 +131,7 @@ Small print: the 5-day filter was chosen on these 30 months; only 3 put spreads 
 
 ### Config names behind the table
 
-| Value | Setting in `ic/config.py` |
+| Value | Setting in `strategies/iron_condor/config.py` (shared values such as times, lot sizes and holidays live in `shared/config.py`) |
 |---|---|
 | 400 points: the credit-test condor | `FWD_SIGNAL_WIDTH` |
 | 400 points: the condor traded on rich-credit months (a list; add 600 to paper trade both) | `FWD_WIDE_WIDTHS` |
@@ -152,7 +157,7 @@ A shadow row holds the 300-point condor's strikes and 11:16 prices and has `shad
 
 ### Backtest of this rule set
 
-1 lot, net of costs, NSE official closes for the 10-day move, 60% target on the 400-point trades. The first table is the rule being forward-tested; the second compares hedge widths on the same months. Files: `output/variants_400_500_600_corrected.xlsx` (29-Oct, with the corrections), older `output/six_variant_comparison.xlsx`, `output/risk_reward_400_vs_600.xlsx`.
+1 lot, net of costs, NSE official closes for the 10-day move, 60% target on the 400-point trades. The first table is the rule being forward-tested; the second compares hedge widths on the same months. Files: `output/iron_condor/variants_400_500_600_corrected.xlsx` (29-Oct, with the corrections), older `output/iron_condor/six_variant_comparison.xlsx`, `output/iron_condor/risk_reward_400_vs_600.xlsx`.
 
 | Period | Trades (400 / 300) | Net P&L | Max drawdown | Worst trade | Win rate | Profit factor |
 |---|---|---|---|---|---|---|
@@ -237,7 +242,7 @@ The data source decides these. With Breeze's last-traded close, trade 35 read +1
 
 ### Robustness checks (28-Oct-2026)
 
-Run on the whole rulebook (condor + 20-delta / 200-point put spread), including 2019–20, which the rules were never fitted on. None of them changed a rule. The walk-forward, delta, target and reshuffle rows were measured before the 29-Oct corrections; their conclusions do not depend on them. Files: `output/walk_forward_rulebook_thresholds.xlsx`, `output/put_spread_15_20_25_delta_2019_2026.xlsx`, `output/put_spread_target_exitdte_5day_2019_2026.xlsx`, `output/rulebook_2019_2026_fallback_slippage_thin_credit.xlsx`.
+Run on the whole rulebook (condor + 20-delta / 200-point put spread), including 2019–20, which the rules were never fitted on. None of them changed a rule. The walk-forward, delta, target and reshuffle rows were measured before the 29-Oct corrections; their conclusions do not depend on them. Files: `output/iron_condor/walk_forward_rulebook_thresholds.xlsx`, `output/iron_condor/put_spread_15_20_25_delta_2019_2026.xlsx`, `output/iron_condor/put_spread_target_exitdte_5day_2019_2026.xlsx`, `output/iron_condor/rulebook_2019_2026_fallback_slippage_thin_credit.xlsx`.
 
 | Check | Result | Verdict |
 |---|---|---|
@@ -265,12 +270,12 @@ A leg-by-leg check of the backtest found four problems; all figures above includ
 
 | Fix | What was wrong | Live lesson |
 |---|---|---|
-| Lot size, Feb–Jun 2021 expiries | The backtest used 50; NSE kept 75 until the Jun-2021 expiry (circular FAOP47854). `ic/config.py` fixed | The lot that counts is the contract's own lot (NSE changes apply by expiry). Take it from the broker's contract details |
+| Lot size, Feb–Jun 2021 expiries | The backtest used 50; NSE kept 75 until the Jun-2021 expiry (circular FAOP47854). Lot table fixed (now `shared/config.py`) | The lot that counts is the contract's own lot (NSE changes apply by expiry). Take it from the broker's contract details |
 | Sep-2024 entry | The 400-pt call hedge (and the 500/600-pt ones) showed old quotes with zero volume, priced above a nearer strike → credit 158.6 (put spread). Realistic 180.45 = 45.1% → 400-pt condor (+₹942) | A stale far-strike price can flip the decision at the 160 / 180 lines. Use live bid/ask; compare with the neighbouring strikes |
 | Mar-2024 expiry, 300-pt put spread | The 20650 PE was an old quote, so the 300-pt spread "collected" less than the 200-pt one | Same check: a wider spread must collect more |
 | Entry-day 15:16 check | The put-spread simulator skipped the entry day's 15:16 check (the condor engine had it). No 2021–26 trade changed; Apr-2020's put prices turned out to be unusable | Run `check` at 15:16 on the entry day too – a target or stop can hit the same afternoon |
 
-Files: `output/pcs_trade_details.xlsx` (every put spread, legs, volumes, daily path), `output/combined_ic_plus_put20_spread.xlsx` (Changes sheet), `output/variants_400_500_600_corrected.xlsx`.
+Files: `output/iron_condor/pcs_trade_details.xlsx` (every put spread, legs, volumes, daily path), `output/iron_condor/combined_ic_plus_put20_spread.xlsx` (Changes sheet), `output/iron_condor/variants_400_500_600_corrected.xlsx`.
 
 ### What to do with this live
 
@@ -302,25 +307,25 @@ Files: `output/pcs_trade_details.xlsx` (every put spread, legs, volumes, daily p
 python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py plan --expiry YYYY-MM-DD
 ```
 
-Shows the entry date and the time-exit date (expiry minus the configured exit DTE, moved back to the previous trading day on holidays, weekends and Muhurat sessions). The calendar uses the NSE holiday list in `ic/config.py` (`NSE_HOLIDAYS`). If `plan` warns that a year has no holiday list, refresh it first (below), or pass a known holiday as `--holiday YYYY-MM-DD`.
+Shows the entry date and the time-exit date (expiry minus the configured exit DTE, moved back to the previous trading day on holidays, weekends and Muhurat sessions). The calendar uses the NSE holiday list in `shared/config.py` (`NSE_HOLIDAYS`). If `plan` warns that a year has no holiday list, refresh it first (below), or pass a known holiday as `--holiday YYYY-MM-DD`.
 
 Holiday list:
 
 ```
 python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py holidays            # show NSE's list and what would change
-python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py holidays --write    # update NSE_HOLIDAYS in ic/config.py
+python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py holidays --write    # update NSE_HOLIDAYS in shared/config.py
 ```
 
-It reads the F&O trading holidays from NSE's website. Run it without `--write` first and show the user the difference. `--write` edits `ic/config.py`, so do it only when the user agrees, then run `python tests/smoke_test.py` and commit. Refresh it each January (NSE publishes the next year's list in December) and after any special holiday announcement. A date NSE marks `*` is a Muhurat session: tell the user it must also be in `MUHURAT_DAYS`.
+It reads the F&O trading holidays from NSE's website. Run it without `--write` first and show the user the difference. `--write` edits `shared/config.py`, so do it only when the user agrees, then run `python tests/smoke_test.py` and commit. Refresh it each January (NSE publishes the next year's list in December) and after any special holiday announcement. A date NSE marks `*` is a Muhurat session: tell the user it must also be in `MUHURAT_DAYS`.
 
 Monthly expiries move to the previous trading day when the Tuesday is a holiday, so take the expiry date from NSE's listed expiries (the `strikes` command rejects a date that is not listed and prints the listed ones).
 
-The entry date is `ENTRY_DTE` calendar days before expiry (`ic/config.py`). NIFTY monthly expiries have been on Tuesday since Sep-2025, so the entry is 43 DTE: the Monday six weeks before expiry. If that Monday is a holiday, the entry moves to the next trading day (42 DTE). The old 42-45 DTE window belonged to Thursday expiries and is no longer used.
+The entry date is `ENTRY_DTE` calendar days before expiry (`shared/config.py`). NIFTY monthly expiries have been on Tuesday since Sep-2025, so the entry is 43 DTE: the Monday six weeks before expiry. If that Monday is a holiday, the entry moves to the next trading day (42 DTE). The old 42-45 DTE window belonged to Thursday expiries and is no longer used.
 
 If `plan` prints a NOTE that the expiry is not on the configured weekday, find out why before going on:
 
 - The expiry was moved for a holiday: keep the entry date `plan` prints (the usual Monday).
-- NSE changed the expiry day: stop and tell the user. `ENTRY_DTE` and `EXPIRY_WEEKDAY` in `ic/config.py` (and the README rule) must be updated first, and that is the user's decision.
+- NSE changed the expiry day: stop and tell the user. `ENTRY_DTE` and `EXPIRY_WEEKDAY` in `strategies/iron_condor/config.py` (and the README rule) must be updated first, and that is the user's decision.
 
 ### 2. Evening before entry: `filter`
 
@@ -341,7 +346,7 @@ Where the closes come from:
 
 - **Default: NSE's website.** The script reads NSE's public daily index file (one small CSV per trading day, `ind_close_all_DDMMYYYY.csv`) for the last 11 sessions and takes the "Closing Index Value" of the "Nifty 50" row. That is NSE's official close (the last-30-minute average), the same figure the backtest file now holds; it is not the last traded value a broker's daily candle may show. No login and no Breeze token are needed. The file for a day appears in the evening, so run the check after about 18:30, or on the entry morning.
 - **Cross-check or alternative: Kite connector.** If a Zerodha Kite MCP is connected, `get_historical_data` (NIFTY 50, daily) is a read-only second source. Save its `date,close` rows to a CSV and pass `--closes-file <path>`. A broker's daily close can differ from NSE's official close by several points; if the two disagree near a limit, the NSE figure decides.
-- **Fallback: `data/nifty_daily.csv`.** Used only when NSE cannot be reached, and the script prints a WARNING. The file holds NSE official closes up to the last `python fetch_index_nse.py` run; check its last date before trusting the result. `--source nse` or `--source csv` forces one source.
+- **Fallback: `data/nifty_daily.csv`.** Used only when NSE cannot be reached, and the script prints a WARNING. The file holds NSE official closes up to the last `python shared/scripts/fetch_index_nse.py` run; check its last date before trusting the result. `--source nse` or `--source csv` forces one source.
 
 Always pass `--entry-date` so that only closes before the entry day are used, the same as the backtest. Report the two closes and dates the script printed. If it warns that the latest close is stale, do not judge the result.
 
@@ -411,7 +416,7 @@ When an exit action fires and the user has exited, fill `exit_date`, `exit_reaso
 python .claude/skills/nifty-ic-forward-test/scripts/ic_tools.py export-ref --trade-id N
 ```
 
-(For a put credit spread it stops with a message: the backtest reference files hold condors only, so the put spread stays in the journal.) For a condor it prints the rows for `data/reference/ic_reference_trades.csv` and `data/reference/ic_reference_legs.csv`. It does not write to them. Show the output, and append only if the user agrees. After that follow README section 5.8 and 5.10, step 5: `python download.py`, then `python backtest.py`, and compare the forward fills with the backtest's prices for the same trade. `qty_stockmock` is informational only, and the engine uses `config.LOT_SIZES`.
+(For a put credit spread it stops with a message: the backtest reference files hold condors only, so the put spread stays in the journal.) For a condor it prints the rows for `data/iron_condor/reference/ic_reference_trades.csv` and `data/iron_condor/reference/ic_reference_legs.csv`. It does not write to them. Show the output, and append only if the user agrees. After that follow README section 5.8 and 5.10, step 5: `python strategies/iron_condor/scripts/download.py`, then `python strategies/iron_condor/scripts/backtest.py`, and compare the forward fills with the backtest's prices for the same trade. `qty_stockmock` is informational only, and the engine uses `config.LOT_SIZES`.
 
 ## Reporting style
 
@@ -420,7 +425,7 @@ Keep answers short and numeric. For a check, give: action, P&L in points and as 
 ## Known gaps
 
 - The 10-day filter follows the README: last close before the entry day versus the close 10 trading days earlier, either direction. If the README definition changes, update `cmd_filter` in the script.
-- The forward-test rule set lives only in the skill script and `ic/config.py`. `backtest.py` still runs the earlier rule, so after a trade is exported for reconciliation the backtest's 300-point result is the shadow comparison, not a check of a 400-point trade unless it is run with `--hedge 400`.
+- The forward-test rule set lives only in the skill script and `strategies/iron_condor/config.py`. `backtest.py` still runs the earlier rule, so after a trade is exported for reconciliation the backtest's 300-point result is the shadow comparison, not a check of a 400-point trade unless it is run with `--hedge 400`.
 - The rule's thresholds were chosen on backtest data and it trades about five times a year. Do not present its backtest results as what to expect.
 - NSE's index file URL (`NSE_INDEX_URL` in the script) can change or be blocked. If the script falls back to the local CSV more than once, tell the user so the source can be fixed.
 - Today's NIFTY open for the gap-up log is not in NSE's file until the evening. Take it from a read-only Kite quote or ask the user.
