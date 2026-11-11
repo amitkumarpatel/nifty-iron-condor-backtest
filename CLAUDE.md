@@ -122,6 +122,13 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
   `stockmock_export.xlsx`; validation workbook in `docs/`
 - Generated (git-ignored): `data/shared/cache/` (1-min candles, shared), `data/shared/nifty_trading_days.csv`, `output/` (`output/iron_condor/`, `output/batman/`)
 
+## Batman strategy (strategies/batman/; rules agreed 11-Nov-2026, NOT backtested yet)
+- Unhedged first: per side buy 1 lot ~20Δ, sell 2 lots ~16Δ (Black-Scholes at 11:16, distinct strikes); entry Monday 11:16 at 43 DTE (condor
+  dates), every month (no filter); one 15:16 check incl. entry day, stop before target; TP / SL = +4% / −4% of the margin blocked at entry;
+  time exit 18 DTE to start (to be tested); 2021–26 (68 cycles) + 2019–20. Margin estimate = MARGIN_K × NIFTY × lot, k calibrated from one live
+  Kite basket margin – OPEN. Unlimited risk (one uncovered sold lot per side) – hedged variant (far wing) is the next test, then exit-DTE and
+  the condor's 10-day filter. Settings in strategies/batman/config.py; notes in strategies/batman/README.md.
+
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
   (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.
