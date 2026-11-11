@@ -266,7 +266,8 @@ nifty-iron-condor-backtest/
 │   │   ├── common.py, engine.py, downloader.py, export.py, fallback.py, strikes.py, tradeset.py, probe.py, cli.py
 │   │   ├── scripts/                # entry points: backtest, download, select_strikes, export_prices, make_trades, probe
 │   │   └── analysis/               # research scripts: put-spread detail, rulebook simulator, second entry, downloads
-│   └── batman/                     # next strategy – skeleton, rules being finalised (strategies/batman/README.md)
+│   └── batman/                     # Batman (unhedged ratio spreads): config, common, strikes, downloader, engine
+│       └── scripts/                # select_strikes, download, backtest (see strategies/batman/README.md)
 ├── data/
 │   ├── shared/                     # NOT committed: market data every strategy uses
 │   │   ├── cache/                  #   1-minute option and spot candles, one CSV per contract per day

@@ -1,0 +1,154 @@
+"""
+Batman backtest (offline, reads the shared candle cache). Rules (strategies/batman/config.py): per side buy BUY_LOTS at
+~20 delta and sell SELL_LOTS at ~16 delta, entry Monday 11:16 at 43 DTE, one check a day at 15:16 on the whole
+position (entry day included; stop before target), target +TP_RS / stop -SL_RS (4% of CAPITAL), else time exit at
+EXIT_DTE. 1 unit (2 + 1 lots per side) at each expiry's lot size. Uses the shared multi-leg simulator.
+
+Run:  python strategies/batman/scripts/backtest.py [--trades ..] [--exit-dte N] [--out file]
+Output: output/batman/BATMAN_backtest_report.xlsx (Read me, Summary, By year, Trades, Daily, Not run, StockMock check)
+"""
+import argparse
+from pathlib import Path
+
+import pandas as pd
+
+from strategies.batman import config as C
+from strategies.batman.common import load_cycles, load_strikes, legs_of
+from shared import spread_sim
+from shared.calendar import contract_key
+
+SAMPLE = {"file": "Batman strategy 43DTE entry sell 2lots 16delta and buy 1 lot 20 delta_StockMock.xlsx", "trade_id": 66,
+          "legs": {"25100CE": 103.0, "25200CE": 82.0, "23350PE": 135.5, "23150PE": 105.2}, "pnl": 6039,
+          "exit": "2026-08-07", "reason": "TIME"}
+
+
+def max_dd(s):
+    eq = s.cumsum()
+    return (eq - eq.cummax().clip(lower=0)).min()
+
+
+def run_cycle(t, strikes, exit_dte):
+    legs = legs_of(strikes, t.trade_id)
+    base = dict(trade_id=t.trade_id, entry_date=t.entry_date.date(), expiry=t.expiry.date(), lot=t.lot)
+    if not legs:
+        return dict(base, status="no strikes (no usable 11:16 prices)"), []
+    exp = t.expiry.strftime("%Y-%m-%d")
+    r = spread_sim.run(t.entry_date, exp, legs, t.lot, tp_pts=C.TP_RS / t.lot, sl_pts=C.SL_RS / t.lot,
+                       exit_dte=exit_dte, detail=True)
+    if r is None:
+        return dict(base, status="not priceable (a leg has no entry price or no daily prices)"), []
+    row = dict(base, status="run")
+    for p, o, k in legs:
+        key = contract_key(exp, k, o)
+        tag = f"{'buy' if p > 0 else 'sell'}_{o.lower()}"
+        sd = strikes[(strikes.trade_id == t.trade_id) & (strikes.opt_type == o) & (strikes.role == ("BUY" if p > 0 else "SELL"))]
+        row[f"{tag}_strike"] = k
+        row[f"{tag}_delta"] = sd.delta.iloc[0] if len(sd) else None
+        row[f"{tag}_lots"] = abs(p)
+        row[f"{tag}_entry"], row[f"{tag}_entry_q"] = r["legs_entry"][key]
+        row[f"{tag}_exit"], row[f"{tag}_exit_q"] = r["legs_exit"][key]
+    credit = -r["entry_val"]
+    path = pd.DataFrame(r["path"])
+    row.update(net_credit_pts=round(credit, 2), net_credit_rs=round(credit * t.lot), target_rs=C.TP_RS, stop_rs=-C.SL_RS,
+               exit_date=r["exit_day"], exit_time=C.CHECK_TIME, exit_reason=r["reason"], pnl_pts=round(r["pnl_pts"], 2),
+               gross_rs=round(r["gross"], 2), costs_rs=round(r["cost"], 2), net_rs=round(r["net"], 2),
+               days_held=(r["exit_day"] - t.entry_date.date()).days,
+               best_rs=path.pnl_rs.max() if len(path) else None, worst_rs=path.pnl_rs.min() if len(path) else None,
+               non_exact_entry=sum(q != "EXACT" for _, q in r["legs_entry"].values()))
+    daily = [dict(trade_id=t.trade_id, **d) for d in r["path"]]
+    return row, daily
+
+
+def summary(tr):
+    s = tr.sort_values("exit_date").net_rs
+    w, l = s[s > 0], s[s <= 0]
+    g = tr.gross_rs
+    rows = [("Cycles in 2021-26", None), ("Trades run", len(s)), ("Net P&L (Rs)", round(s.sum())), ("Gross P&L (Rs)", round(g.sum())),
+            ("Costs (Rs)", round(tr.costs_rs.sum())), ("Winners / losers", f"{len(w)} / {len(l)}"),
+            ("Win rate", f"{len(w) / len(s):.0%}" if len(s) else None),
+            ("Targets / stops / time exits", f"{(tr.exit_reason == 'TARGET').sum()} / {(tr.exit_reason == 'STOPLOSS').sum()} / "
+                                             f"{(tr.exit_reason == 'TIME').sum()}"),
+            ("Max drawdown (Rs, exit order)", round(max_dd(s))), ("Worst trade (Rs)", round(s.min())), ("Best trade (Rs)", round(s.max())),
+            ("Average win / loss (Rs)", f"{round(w.mean()) if len(w) else 0} / {round(l.mean()) if len(l) else 0}"),
+            ("Profit factor", round(w.sum() / -l.sum(), 2) if len(l) and l.sum() else None),
+            ("Average net credit (pts)", round(tr.net_credit_pts.mean(), 1)),
+            ("Worst point inside a trade (Rs)", round(tr.worst_rs.min())),
+            ("Trades whose final loss passed the stop", int((tr.net_rs < -C.SL_RS).sum())),
+            ("Net with 0.5 pt slippage per lot per fill (Rs)", round((tr.net_rs - 0.5 * 12 * tr.lot).sum()))]
+    return pd.DataFrame(rows, columns=["item", "value"])
+
+
+def stockmock_check(tr, strikes):
+    f = Path(C.REF_DIR) / SAMPLE["file"]
+    t = tr[tr.trade_id == SAMPLE["trade_id"]]
+    if not f.exists() or not len(t):
+        return pd.DataFrame()
+    t = t.iloc[0]
+    rows = []
+    for tag in ("buy_ce", "sell_ce", "buy_pe", "sell_pe"):
+        k, o = t[f"{tag}_strike"], tag[-2:].upper()
+        rows.append(dict(leg=tag, engine_strike=k, engine_delta=t[f"{tag}_delta"], engine_entry=t[f"{tag}_entry"],
+                         stockmock_strike=next((s for s in SAMPLE["legs"] if s.endswith(o) and
+                                                (("buy" in tag) == (s in ("25100CE", "23350PE")))), None),
+                         ))
+    df = pd.DataFrame(rows)
+    df["stockmock_entry"] = df.stockmock_strike.map(SAMPLE["legs"])
+    extra = pd.DataFrame([dict(leg="P&L (Rs)", engine_entry=t.gross_rs, stockmock_entry=SAMPLE["pnl"]),
+                          dict(leg="exit", engine_strike=str(t.exit_date), stockmock_strike=SAMPLE["exit"]),
+                          dict(leg="exit reason", engine_strike=t.exit_reason, stockmock_strike=SAMPLE["reason"])])
+    return pd.concat([df, extra], ignore_index=True)
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Batman backtest (offline)")
+    ap.add_argument("--trades", type=int, nargs="*")
+    ap.add_argument("--exit-dte", type=int, default=C.EXIT_DTE)
+    ap.add_argument("--out", help="report file (default output/batman/BATMAN_backtest_report.xlsx, or _x<N> for another exit DTE)")
+    a = ap.parse_args()
+    cyc, strikes = load_cycles(a.trades), load_strikes()
+    rows, daily = [], []
+    for t in cyc.itertuples():
+        r, d = run_cycle(t, strikes, a.exit_dte)
+        rows.append(r)
+        daily += d
+    allr = pd.DataFrame(rows)
+    tr = allr[allr.status == "run"].copy()
+    notrun = allr[allr.status != "run"][["trade_id", "entry_date", "expiry", "status"]]
+    if not len(tr):
+        raise SystemExit("No cycle could be run - download the candles first (strategies/batman/scripts/download.py).")
+    tr["year"] = pd.to_datetime(tr.entry_date).dt.year
+    S = summary(tr)
+    S.loc[0, "value"] = len(cyc)
+    by_year = tr.groupby("year").agg(trades=("net_rs", "size"), net_rs=("net_rs", "sum"), wins=("net_rs", lambda s: (s > 0).sum()),
+                                     targets=("exit_reason", lambda s: (s == "TARGET").sum()),
+                                     stops=("exit_reason", lambda s: (s == "STOPLOSS").sum()), worst_rs=("net_rs", "min")).round()
+    readme = pd.DataFrame({"Batman backtest": [
+        f"Rules: per side buy {C.BUY_LOTS} lot ~{C.BUY_DELTA:.2f} delta, sell {C.SELL_LOTS} lots ~{C.SELL_DELTA:.2f} delta (further out), calls and puts.",
+        "Entry Monday 11:16 at 43 DTE (the condor's dates), every month, no filter. Strikes by Black-Scholes delta at 11:16 (nearest).",
+        f"One check a day at 15:16 on the whole position, entry day included; stop before target. Target +Rs {C.TP_RS:,.0f}, "
+        f"stop -Rs {C.SL_RS:,.0f} (4% of a static capital of Rs {C.CAPITAL:,}); else time exit at {a.exit_dte} DTE.",
+        "Size: 2 + 1 lots per side at each expiry's lot size. UNHEDGED: one sold lot per side is uncovered (unlimited risk).",
+        "Prices: Breeze 1-minute closes (EXACT = candle at that minute; FFILL/STALE = earlier candle). Costs approximate "
+        "(shared/config.py COSTS; each lot counted as an order).",
+        "A loss can pass the stop: with one check a day the position is only closed at the next 15:16.",
+        "Sheets: Summary, By year, Trades (legs, prices, credit, exit, P&L), Daily (every 15:16 check), Not run, StockMock check (sample trade)."]})
+    out = Path(a.out) if a.out else C.OUTPUT_DIR / ("BATMAN_backtest_report.xlsx" if a.exit_dte == C.EXIT_DTE
+                                                    else f"BATMAN_backtest_report_x{a.exit_dte}.xlsx")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with pd.ExcelWriter(out) as w:
+        readme.to_excel(w, sheet_name="Read me", index=False)
+        S.to_excel(w, sheet_name="Summary", index=False)
+        by_year.to_excel(w, sheet_name="By year")
+        tr.drop(columns=["status"]).to_excel(w, sheet_name="Trades", index=False)
+        pd.DataFrame(daily).to_excel(w, sheet_name="Daily", index=False)
+        notrun.to_excel(w, sheet_name="Not run", index=False)
+        stockmock_check(tr, strikes).to_excel(w, sheet_name="StockMock check", index=False)
+    print(S.to_string(index=False))
+    print(by_year.to_string())
+    if len(notrun):
+        print(f"Not run: {notrun.trade_id.tolist()}")
+    print(f"Report saved: {out}")
+
+
+if __name__ == "__main__":
+    main()

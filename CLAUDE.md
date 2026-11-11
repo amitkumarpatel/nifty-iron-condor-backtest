@@ -128,6 +128,12 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
   time exit 18 DTE to start (to be tested); 2021–26 (68 cycles) + 2019–20. Margin estimate = MARGIN_K × NIFTY × lot, k calibrated from one live
   Kite basket margin – OPEN. Unlimited risk (one uncovered sold lot per side) – hedged variant (far wing) is the next test, then exit-DTE and
   the condor's 10-day filter. Settings in strategies/batman/config.py; notes in strategies/batman/README.md.
+- 11-Nov-2026 user decisions: nearest-delta strikes (our Black-Scholes, option A), 2021–26 only (no 2019–20 yet), STATIC capital ₹2.5L →
+  TP = SL = ₹10,000 every month (margin-scaled k = 0.159 set aside). StockMock sample (trade 66, 13-Jul-2026) reproduced on Breeze: +₹6,052
+  vs +₹6,039; our 16Δ call = 25300 (StockMock 25200, both ≈ 0.16). Code built: strategies/batman/{common,strikes,downloader,engine}.py +
+  scripts; shared/options_math.py (bs, implied_vol moved from the condor picker); shared/spread_sim.run(detail=True). Needs: select_strikes
+  (~146 calls) + download --exit-dte 7 (~700 calls) by the user. A provisional run on cached strikes only (not final) showed a large
+  drawdown (≈ −₹46k) with losses running past the ₹10k stop (8 stops, worst −₹23k, trade 35) – confirm after the real run.
 
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`

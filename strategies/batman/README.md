@@ -9,14 +9,14 @@ strikes is unlimited.
 | Item | Rule |
 |---|---|
 | Structure | Per side (calls and puts): **buy 1 lot ~20Δ, sell 2 lots ~16Δ** (further out). One sold lot per side is uncovered → unlimited risk beyond the sold strikes |
-| Strikes | Deltas from Black-Scholes at 11:16 (option and spot prices), same method as the condor's strike picker; 16Δ and 20Δ must be different strikes |
+| Strikes | Deltas from Black-Scholes at 11:16 (option and spot prices), same method as the condor's strike picker, **nearest delta** (option A, user 11-Nov-2026); the sold strike is always further out than the bought one |
 | Entry | Monday 11:16 at 43 DTE – same dates and expiries as the condor; every month (no filter) |
 | Check | Once a day at 15:16 on the whole position, entry day included; stop checked before target |
 | Target / stop | **+4% / −4% of the margin blocked at entry** |
-| Margin estimate | k × NIFTY spot at entry × lot size; **k = 0.159**, from the user's capital of ₹2.5L per Batman at the StockMock sample (NIFTY 24,141, lot 65) → TP / SL ₹10,000 there |
+| Capital | **Static ₹2.5L for the tests** (user, 11-Nov-2026) → target = stop = **₹10,000** in every month. (A margin scaled by NIFTY × lot, k = 0.159 from the sample, was set aside.) |
 | Time exit | 18 DTE to start (same as the condor); other exit days to be tested |
 | Size | 2 + 1 lots per side at each expiry's lot size |
-| Periods | 2021–26 (68 cycles) and 2019–20 (24 cycles, out of sample) |
+| Period | 2021–26 (68 cycles) only for now; 2019–20 later |
 
 ## StockMock sample trade (11-Nov-2026, `data/batman/reference/Batman strategy 43DTE entry ..._StockMock.xlsx`)
 Entry Mon 13-Jul-2026 11:16, expiry 25-Aug-2026, time exit Fri 7-Aug-2026 15:16 (18 DTE), lot 65: buy 25100 CE @103 and 23350 PE @135.5,
@@ -39,8 +39,19 @@ reconcile every month as for the condor.
 Earlier related test (iron condor work, 21-Oct-2026): a one-sided hedged ratio spread (+1 30Δ, −2 20Δ, +1 20Δ±500) made its
 money only when held close to expiry – see README §7 "HEDGED RATIO SPREAD HELD TO EXPIRY".
 
-## Layout (to be filled)
+## How to run (from the repository root)
+```bash
+python shared/scripts/login_url.py                          # today's Breeze session (only for the first two steps)
+python strategies/batman/scripts/select_strikes.py          # 20Δ / 16Δ strikes at 11:16 for the 68 cycles (~150 calls)
+python strategies/batman/scripts/download.py --dry-run      # count the candle calls (no login)
+python strategies/batman/scripts/download.py --exit-dte 7   # candles entry -> 7 DTE (covers the 18-DTE exit too; ~700 calls)
+python strategies/batman/scripts/backtest.py                # offline -> output/batman/BATMAN_backtest_report.xlsx
+python strategies/batman/scripts/backtest.py --exit-dte 10  # another time exit -> BATMAN_backtest_report_x10.xlsx
+```
+
+## Layout
 - `config.py` – Batman rules (placeholders until agreed); shared settings come from `shared/config.py`.
-- `scripts/` – entry scripts (strike selection, download, backtest).
+- `common.py` (cycles, strikes), `strikes.py` (delta picker), `downloader.py`, `engine.py` (backtest + report).
+- `scripts/` – entry scripts: `select_strikes.py`, `download.py`, `backtest.py`.
 - `analysis/` – research scripts.
 - Data: `data/batman/reference/`; reports: `output/batman/`.
