@@ -31,6 +31,7 @@ SL_PCT_OF_MARGIN = 4.0           # stop:   P&L <= -4% of the margin blocked at e
 EXIT_DTE       = 18              # time exit: last trading day on/before expiry - 18 days (same as the condor; to be tested)
 # Margin blocked at entry (historical margin is not in the Breeze data): MARGIN_K x NIFTY spot at entry x lot size.
 # MARGIN_K is calibrated from one live Batman margin read from Kite's basket (margin / (NIFTY x lot)).
-MARGIN_K       = None            # TO DO: calibrate with the user
+MARGIN_K       = 0.1593          # 11-Nov-2026: user's capital per Batman Rs 2.5L at the StockMock sample (13-Jul-2026, NIFTY 24,141 at
+                                 # 11:16, lot 65): 250000 / (24141.15 x 65) = 0.159 -> TP / SL = Rs 10,000 then (4% of Rs 2.5L)
 ENTRY_FILTER   = None            # every month first; the condor's 10-day move filter is a later variant
 PERIODS        = ["2021-26 (68 cycles)", "2019-20 (24 cycles, out of sample)"]
