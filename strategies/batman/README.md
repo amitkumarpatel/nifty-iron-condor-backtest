@@ -13,7 +13,7 @@ strikes is unlimited.
 | Entry | Monday 11:16 at 43 DTE – same dates and expiries as the condor; every month (no filter) |
 | Check | Once a day at 15:16 on the whole position, entry day included; stop checked before target |
 | Target / stop | **+4% / −4% of the margin blocked at entry** |
-| Capital | **Static ₹2.5L for the tests** (user, 11-Nov-2026) → target = stop = **₹10,000** in every month. (A margin scaled by NIFTY × lot, k = 0.159 from the sample, was set aside.) |
+| Capital | **4% of the capital used by each trade** (user correction 13-Nov-2026). Capital used = k × NIFTY at 11:16 × lot size; k from the StockMock samples: unhedged 0.159 (₹2.5L), hedged 0.121 (₹1.9L). `--capital static` = the earlier fixed ₹2.5L (₹10,000) runs |
 | Time exit | 18 DTE to start (same as the condor); other exit days to be tested |
 | Size | 2 + 1 lots per side at each expiry's lot size |
 | Period | 2021–26 (68 cycles) only for now; 2019–20 later |
@@ -44,6 +44,10 @@ same P&L curve (within ≈ ₹700 for moves up to ±4%). Strike set `h30_100_600
 - Entry filters for the unhedged version (13-Nov-2026): none robust – losers are 4–9% moves after entry; VIX, IV, skew, strike
   distance, credit, C/W, 20-day move all look the same for winners and losers. A strike-gap filter looked good (DD −₹11.8k) but is an
   artifact of 50-pt strike spacing. Verdict: the condor stays better; test the hedged version.
+
+- With target/stop = 4% of each trade's capital used (13-Nov-2026; avg ₹7.2k, ₹3.5k–12.4k): 18 DTE ₹102,835 / −₹42,924 / worst −₹18,899;
+  ±2.5% ₹117,592 / −₹24,340; 7 DTE ₹125,869 / −₹39,435; 7 DTE ±2.5% ₹132,867 / −₹24,206. Same conclusion – drawdown 4–8× the condor's.
+  (The fixed-₹10,000 results above are the `_static` reports.)
 
 ## Next tests (after the first run)
 - Hedged Batman: buy 1 far lot per side beyond the 16Δ strike – caps the loss and lowers the margin.

@@ -1,7 +1,7 @@
 """
 Batman backtest (offline, reads the shared candle cache). Rules (strategies/batman/config.py): per side buy BUY_LOTS at
 ~20 delta and sell SELL_LOTS at ~16 delta, entry Monday 11:16 at 43 DTE, one check a day at 15:16 on the whole
-position (entry day included; stop before target), target +TP_RS / stop -SL_RS (4% of CAPITAL), else time exit at
+position (entry day included; stop before target), target / stop = 4% of the capital used (config.capital_used), else time exit at
 EXIT_DTE. 1 unit (2 + 1 lots per side) at each expiry's lot size. Uses the shared multi-leg simulator.
 
 Run:  python strategies/batman/scripts/backtest.py [--trades ..] [--exit-dte N] [--out file]
@@ -16,6 +16,7 @@ from strategies.batman import config as C
 from strategies.batman.common import load_cycles, load_strikes, legs_of
 from shared import spread_sim
 from shared.calendar import contract_key
+from shared.pricing import price_at
 
 SAMPLE = {"file": "Batman strategy 43DTE entry sell 2lots 16delta and buy 1 lot 20 delta_StockMock.xlsx", "trade_id": 66,
           "legs": {"25100CE": 103.0, "25200CE": 82.0, "23350PE": 135.5, "23150PE": 105.2}, "pnl": 6039,
@@ -33,7 +34,10 @@ def run_cycle(t, strikes, exit_dte):
     if not legs:
         return dict(base, status="no strikes (no usable 11:16 prices)"), []
     exp = t.expiry.strftime("%Y-%m-%d")
-    r = spread_sim.run(t.entry_date, exp, legs, t.lot, tp_pts=C.TP_RS / t.lot, sl_pts=C.SL_RS / t.lot,
+    spot = price_at(C.SPOT_KEY, t.entry_date.date(), C.ENTRY_TIME)[0]
+    cap = C.capital_used(spot, t.lot)
+    tp_rs, sl_rs = cap * C.TP_PCT_OF_CAPITAL / 100, cap * C.SL_PCT_OF_CAPITAL / 100
+    r = spread_sim.run(t.entry_date, exp, legs, t.lot, tp_pts=tp_rs / t.lot, sl_pts=sl_rs / t.lot,
                        exit_dte=exit_dte, detail=True)
     if r is None:
         return dict(base, status="not priceable (a leg has no entry price or no daily prices)"), []
@@ -54,7 +58,7 @@ def run_cycle(t, strikes, exit_dte):
     row["fills_per_side"] = sum(abs(p) for p, _, _ in legs)
     credit = -r["entry_val"]
     path = pd.DataFrame(r["path"])
-    row.update(net_credit_pts=round(credit, 2), net_credit_rs=round(credit * t.lot), target_rs=C.TP_RS, stop_rs=-C.SL_RS,
+    row.update(net_credit_pts=round(credit, 2), net_credit_rs=round(credit * t.lot), spot=spot, capital_used_rs=round(cap), target_rs=round(tp_rs), stop_rs=-round(sl_rs),
                exit_date=r["exit_day"], exit_time=C.CHECK_TIME, exit_reason=r["reason"], pnl_pts=round(r["pnl_pts"], 2),
                gross_rs=round(r["gross"], 2), costs_rs=round(r["cost"], 2), net_rs=round(r["net"], 2),
                days_held=(r["exit_day"] - t.entry_date.date()).days,
@@ -78,7 +82,9 @@ def summary(tr):
             ("Profit factor", round(w.sum() / -l.sum(), 2) if len(l) and l.sum() else None),
             ("Average net credit (pts)", round(tr.net_credit_pts.mean(), 1)),
             ("Worst point inside a trade (Rs)", round(tr.worst_rs.min())),
-            ("Trades whose final loss passed the stop", int((tr.net_rs < -C.SL_RS).sum())),
+            ("Trades whose final loss passed the stop", int((tr.net_rs < tr.stop_rs).sum())),
+            ("Capital used (Rs), average / range", f"{tr.capital_used_rs.mean():,.0f} / {tr.capital_used_rs.min():,.0f}-{tr.capital_used_rs.max():,.0f}"),
+            ("Target = stop (Rs), average / range", f"{tr.target_rs.mean():,.0f} / {tr.target_rs.min():,.0f}-{tr.target_rs.max():,.0f}"),
             ("Net with 0.5 pt slippage per lot per fill (Rs)", round((tr.net_rs - 0.5 * 2 * tr.fills_per_side * tr.lot).sum()))]
     return pd.DataFrame(rows, columns=["item", "value"])
 
@@ -158,8 +164,10 @@ def main():
         ("Entry Monday 11:16 at 43 DTE (the condor's dates), every month, no filter." if a.filter is None else
          f"Entry Monday 11:16 at 43 DTE (the condor's dates); month skipped if |NIFTY 10-day move| > {a.filter}% at the close before entry "
          "(NSE official closes; see sheet Skipped).") + " Strikes by Black-Scholes delta at 11:16 (nearest).",
-        f"One check a day at 15:16 on the whole position, entry day included; stop before target. Target +Rs {C.TP_RS:,.0f}, "
-        f"stop -Rs {C.SL_RS:,.0f} (4% of a static capital of Rs {C.CAPITAL:,}); else time exit at {a.exit_dte} DTE.",
+        "One check a day at 15:16 on the whole position, entry day included; stop before target. Target / stop = 4% of the capital "
+        + (f"(static Rs {C.STATIC_CAPITAL:,} = Rs {C.STATIC_CAPITAL * 0.04:,.0f})" if C.CAPITAL_MODE == "static" else
+           f"used by the trade, estimated as {C.MARGIN_K:.3f} x NIFTY at 11:16 x lot size (k from the user's StockMock sample)")
+        + f"; else time exit at {a.exit_dte} DTE.",
         ("Size: 2 + 1 lots per side at each expiry's lot size. UNHEDGED: one sold lot per side is uncovered (unlimited risk)."
          if not C.WING_OFFSET else "Size: 1 + 2 + 1 lots per side at each expiry's lot size; the far wing caps the loss on each side."),
         "Prices: Breeze 1-minute closes (EXACT = candle at that minute; FFILL/STALE = earlier candle). Costs approximate "
@@ -168,7 +176,8 @@ def main():
         "Sheets: Summary, By year, Trades (legs, prices, credit, exit, P&L), Daily (every 15:16 check), Not run, StockMock check (sample trade)."]})
     out = Path(a.out) if a.out else C.OUTPUT_DIR / (f"BATMAN_{C.VARIANT}_backtest_report"
                                                     + ("" if a.exit_dte == C.EXIT_DTE else f"_x{a.exit_dte}")
-                                                    + ("" if a.filter is None else f"_f{a.filter:g}") + ".xlsx")
+                                                    + ("" if a.filter is None else f"_f{a.filter:g}")
+                                                    + ("_static" if C.CAPITAL_MODE == "static" else "") + ".xlsx")
     out.parent.mkdir(parents=True, exist_ok=True)
     with pd.ExcelWriter(out) as w:
         readme.to_excel(w, sheet_name="Read me", index=False)

@@ -37,13 +37,22 @@ SELL_LOTS      = 2
 WING_LOTS      = 1
 STRIKE_METHOD  = "black_scholes_11:16"   # delta from option and spot prices at 11:16, as strategies/iron_condor/strikes.py
 # Exits, checked once a day at CHECK_TIME (15:16) on the whole position, entry day included; stop before target.
-# Capital per Batman: STATIC Rs 2.5 lakh for the tests (user, 11-Nov-2026) -> target = stop = Rs 10,000 in every month.
-# (A margin estimate scaled by NIFTY x lot, k = 0.159 from the StockMock sample, was considered and set aside for now.)
-CAPITAL        = 250_000
-TP_PCT_OF_CAPITAL = 4.0           # target: P&L >= 4% of CAPITAL
-SL_PCT_OF_CAPITAL = 4.0           # stop:   P&L <= -4% of CAPITAL
-TP_RS          = CAPITAL * TP_PCT_OF_CAPITAL / 100     # Rs 10,000
-SL_RS          = CAPITAL * SL_PCT_OF_CAPITAL / 100     # Rs 10,000
+# Target / stop = 4% of the CAPITAL USED by that trade (user correction 13-Nov-2026: not a fixed Rs 10,000). Historical margin is not
+# in the Breeze data, so capital used = MARGIN_K x NIFTY spot at 11:16 x lot size, with k from the user's StockMock samples:
+#   unhedged: Rs 2.5L at NIFTY 24,141 (13-Jul-2026, lot 65) -> k 0.159;  hedged: Rs 1.9L at NIFTY 24,147 -> k 0.121.
+# BATMAN_CAPITAL=static (or --capital static) = the earlier test: a fixed Rs 2.5L, so target = stop = Rs 10,000 in every month.
+CAPITAL_MODE   = os.environ.get("BATMAN_CAPITAL", "margin").lower()     # margin | static
+MARGIN_K       = {"unhedged": 250_000 / (24141.15 * 65), "hedged": 190_000 / (24147.2 * 65)}[VARIANT]
+STATIC_CAPITAL = 250_000
+TP_PCT_OF_CAPITAL = 4.0           # target: P&L >= 4% of the capital used
+SL_PCT_OF_CAPITAL = 4.0           # stop:   P&L <= -4% of the capital used
+
+
+def capital_used(spot, lot):
+    """Capital used by one Batman entered at NIFTY `spot` with lot size `lot` (Rs)."""
+    return STATIC_CAPITAL if CAPITAL_MODE == "static" else MARGIN_K * spot * lot
+
+
 EXIT_DTE       = int(os.environ.get("BATMAN_EXIT_DTE", 18))   # time exit: last trading day on/before expiry - 18 days
                                                              # (same as the condor; to be tested; --exit-dte per run)
 # Entry filter (tested 13-Nov-2026 at the user's request; --filter X on backtest.py): skip the month if |NIFTY 10-day move| > X %

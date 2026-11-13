@@ -124,7 +124,7 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
 
 ## Batman strategy (strategies/batman/; rules agreed 11-Nov-2026, NOT backtested yet)
 - Unhedged first: per side buy 1 lot ~20Δ, sell 2 lots ~16Δ (Black-Scholes at 11:16, distinct strikes); entry Monday 11:16 at 43 DTE (condor
-  dates), every month (no filter); one 15:16 check incl. entry day, stop before target; TP / SL = +4% / −4% of the margin blocked at entry;
+  dates), every month (no filter); one 15:16 check incl. entry day, stop before target; TP / SL = +4% / −4% of the capital used by the trade (k × NIFTY × lot; corrected 13-Nov-2026, see entry below);
   time exit 18 DTE to start (to be tested); 2021–26 (68 cycles) + 2019–20. Margin estimate = MARGIN_K × NIFTY × lot, k calibrated from one live
   Kite basket margin – OPEN. Unlimited risk (one uncovered sold lot per side) – hedged variant (far wing) is the next test, then exit-DTE and
   the condor's 10-day filter. Settings in strategies/batman/config.py; notes in strategies/batman/README.md.
@@ -165,6 +165,14 @@ bought→sold CALL STRIKE GAP >= 150 pts & ±2.5% 30 / ₹119,107 / −₹11,791
 spacing: gap 150 had the MOST losers (8 of 23 vs 5 of 26 at 100), and the continuous versions (sold-call distance, call IV) separate nothing; it
 works only by dropping 35, 11, 14, 62. Remaining stops still pass −₹10k (one check a day, uncovered lot). Verdict: filters cannot fix the unhedged
 Batman; the condor rule (₹90,667 / −₹5,523) stays clearly better. Next: the hedged Batman (capped loss).
+
+BATMAN TARGET/STOP = 4% OF CAPITAL USED PER TRADE (13-Nov-2026, user correction: not a fixed ₹10,000). Capital used = k × NIFTY at 11:16 × lot,
+k from the user's StockMock samples: unhedged ₹2.5L / (24,141 × 65) = 0.159, hedged ₹1.9L / (24,147 × 65) = 0.121 (BATMAN_CAPITAL / --capital margin|static;
+static = fixed ₹2.5L, the earlier runs, reports renamed …_static.xlsx). Unhedged capital ₹87k (2024, lot 25) … ₹310k (2025, lot 75), avg ₹1.80L →
+target = stop avg ₹7,188 (₹3,493–12,401). Unhedged results with it (n / net / max DD / worst / W-L / targets-stops-time / PF): 18 DTE 66 / ₹102,835 /
+−₹42,924 / −₹18,899 / 50-16 / 10-14-42 / 1.77; ±2.5% 45 / ₹117,592 / −₹24,340 / −₹15,395 / 2.99; 15 DTE ₹97,230 / −₹39,894 (±2.5% ₹113,587 / −₹24,206);
+12 DTE ₹104,158 / −₹39,963 (±2.5% ₹119,878 / −₹24,206); 10 DTE ₹106,215 / −₹40,620 (±2.5% ₹124,262 / −₹24,206); 7 DTE ₹125,869 / −₹39,435 (±2.5% ₹132,867 /
+−₹24,206). Smaller targets and stops = more targets and more stops; drawdown still 4–8× the condor rule's −₹5,523. Conclusion unchanged.
 
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`

@@ -10,6 +10,10 @@ if "--variant" in sys.argv:                                      # before the co
     i = sys.argv.index("--variant")
     os.environ["BATMAN_VARIANT"] = sys.argv[i + 1]
     del sys.argv[i:i + 2]
+if "--capital" in sys.argv:                                      # margin (default) | static
+    i = sys.argv.index("--capital")
+    os.environ["BATMAN_CAPITAL"] = sys.argv[i + 1]
+    del sys.argv[i:i + 2]
 from strategies.batman.strikes import main  # noqa: E402
 
 if __name__ == "__main__":
