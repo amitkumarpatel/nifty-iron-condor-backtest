@@ -36,6 +36,8 @@ same P&L curve (within ≈ ₹700 for moves up to ±4%). Strike set `h30_100_600
 ## Results
 - Unhedged, 18 DTE (13-Nov-2026): 66 trades, net ₹93,264, max drawdown −₹33,842, worst −₹23,258, 8 stops all beyond −₹10k, PF 1.66
   (`output/batman/BATMAN_unhedged_backtest_report.xlsx`).
+- Unhedged exit ladder: 15 DTE ₹94,870 / −₹38,119; 12 DTE ₹93,973 / −₹45,998; 10 DTE ₹86,089 / −₹54,398; 7 DTE ₹122,428 / −₹42,843 –
+  worst trade −₹23,258 at every exit day; later exits add stops and deepen the drawdown.
 
 ## Next tests (after the first run)
 - Hedged Batman: buy 1 far lot per side beyond the 16Δ strike – caps the loss and lowers the margin.

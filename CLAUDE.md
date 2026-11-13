@@ -143,6 +143,11 @@ lets an uncovered short lot run. By year: 2021 +₹20.0k, 2022 −₹6.6k, 2023 
 ₹90,667 / DD −₹5,523; rulebook ₹103,880 / −₹5,523): about the same profit for ≈ 6× the drawdown and 4× the worst trade. Sample trade 66 +₹6,149 vs
 StockMock +₹6,039 (16Δ call 25300 vs 25200). Data downloaded to 7 DTE as well. Hedged variant (30Δ / +100 / +600) added 13-Nov – next.
 
+UNHEDGED BATMAN EXIT-DTE LADDER (13-Nov-2026, same strikes and ₹10k TP/SL; output/batman/BATMAN_unhedged_backtest_report[_x<DTE>].xlsx; n / net / max DD /
+worst / W-L / targets-stops-time / PF / 0.5-pt slip): 18 DTE 66 / ₹93,264 / −₹33,842 / −₹23,258 / 52-14 / 4-8-54 / 1.66 / ₹71,544; 15 ₹94,870 / −₹38,119 / 1.58;
+12 ₹93,973 / −₹45,998 / 1.56; 10 ₹86,089 / −₹54,398 / 1.50; 7 ₹122,428 / −₹42,843 / 1.71 / ₹100,708. Every exit day: worst −₹23,258 (trade 35) and one losing
+year; later exits add stops (8 → 12) and deepen the drawdown – the uncovered lot is the problem, not the exit day. Not adopted.
+
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
   (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.
