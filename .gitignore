@@ -26,3 +26,6 @@ logs/
 .idea/
 .vscode/
 ~$*.xlsx
+
+# chat edition of the forward-test skill: generated folder (the zip is committed)
+.claude/skills/nifty-ic-forward-test/chat_edition/dist/

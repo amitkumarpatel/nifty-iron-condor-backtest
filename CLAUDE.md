@@ -304,6 +304,12 @@ if the Batman is ever revisited. Caveats: 14 trades on a fallback wing, the bad-
   BANKNIFTY ₹35,593 / −₹13,944); finalised NIFTY rule (400-pt) + BANKNIFTY ₹121,321 / −₹11,126. BANKNIFTY adds size, not diversification.
 - The `FWD_*` forward-test rule and the skill are NIFTY only. Do not apply NIFTY-fitted thresholds to BANKNIFTY without a test.
 
+## Chat edition of the forward-test skill (13-Nov-2026, user request: use it from Claude chat on mobile)
+`.claude/skills/nifty-ic-forward-test/chat_edition/`: `ic_chat_template.py` + `SKILL_template.md` → `build_chat_skill.py` embeds the live
+config values (rules, FWD_*, lot sizes, NSE holidays, Muhurat) → `nifty-ic-chat.zip` (committed; `dist/` git-ignored), uploaded by the user to
+claude.ai. Standalone, stdlib only, no internet: data from the user (typed / pasted / screenshot) or a read-only Kite connector; prints journal
+lines. REBUILD + tell the user to re-upload whenever the rules, lot size or holiday list change.
+
 ## Commands
 ```bash
 source .venv/bin/activate

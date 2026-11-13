@@ -317,6 +317,10 @@ forward test, log it in `notes` as a deviation if they do it anyway, and do not 
 
 - `journal/forward_trades.csv`: one row per forward-test trade. Create it by copying `assets/forward_trades_template.csv` if missing.
 - `journal/forward_daily.csv`: one row per daily check, created by `check --log`.
+- `chat_edition/`: the chat/mobile version of this skill (no repo, no internet; the user or a read-only Kite connector supplies
+  closes and quotes). Rebuild after any change to the rules, lot size or holiday list (each December):
+  `python .claude/skills/nifty-ic-forward-test/chat_edition/build_chat_skill.py` → `chat_edition/nifty-ic-chat.zip`, then ask the user to
+  re-upload it in claude.ai (Settings → Capabilities → Skills). Its journal lines use the same columns as `forward_trades.csv`.
 - Run all commands from the repo root. `journal/` is in `.gitignore` (the repo is public), so the journal stays on this machine and is never committed.
 
 ## Workflow
