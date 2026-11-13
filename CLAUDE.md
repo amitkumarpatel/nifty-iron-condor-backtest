@@ -186,6 +186,16 @@ Batman (±2%, 15 DTE – picked after seeing the results) makes about the same (
 PF 4.09, more slippage cost (16 lots per trade vs 8) and higher margin (≈ ₹1.9L vs the condor's). Much better than the unhedged Batman; condor still
 better. Sample month: our 30Δ strikes 24850/23750 vs StockMock's 24700/23700, credit ₹8,317 vs ₹9,107. Not adopted.
 
+HEDGED BATMAN – LOSERS AND EXTRA FILTERS (13-Nov-2026, user request; no-filter runs, 18 and 15 DTE). 20 losers −₹98,907 (12 stops −₹4.8k…−₹9.4k)
+vs 44 winners +₹143,646. Losers = 3–8.6% one-way moves after entry (both directions). At entry only the 10-day move differs (avg +1.53% vs +0.83%;
+10 of 12 stops followed a 10-day RISE); VIX, VIX change, realised vol, VIX−RV, skew, strike distance, credit, condor C/W, 50-DMA, distance from high
+all ≈ equal (|corr| <= 0.2). Filters, 18 DTE | 15 DTE (n / net / max DD; worst): ±2% 35 ₹78,667 −₹12,077 | ₹88,179 −₹10,644; ±1.5% 24 ₹64,203 −₹7,473 |
+₹67,372 −₹7,473 (no losing year; DD = trade 11); up <= +1.5% only 33 ₹63,299 −₹9,057 | ₹65,269 −₹9,057; 10-day range <= 3% 35 ₹53,668 −₹9,271 | ₹71,589
+−₹8,476; ±2% & 10-day range <= 3% 25 ₹52,959 −₹7,473; ±2% & rv20 <= 14 26 ₹62,705 −₹7,473; ±2% & C/W400 >= 45 (= the condor's rich months) 17 ₹53,830
+−₹4,996 | ₹57,659 −₹4,996 – the 400-pt condor made ₹64,000 / −₹1,558 in those months; ±2% & credit >= 120 pts 21 ₹60,462 −₹8,898. VIX <= 18, VIX−RV, 5-day move:
+worse. VERDICT: only the 10-day move matters; tightening it (±1.5%) or adding a calm-range filter brings the DD to ≈ −₹7.5k but cuts profit to ₹54–67k,
+still below the condor rule (₹90,667 / −₹5,523). No filter makes the hedged Batman beat the condor on both profit and drawdown. Not adopted.
+
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
   (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.
