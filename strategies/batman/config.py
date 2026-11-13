@@ -22,6 +22,9 @@ REF_DIR    = Path(os.environ.get("BATMAN_REF_DIR", ROOT / "data" / STRATEGY / "r
 VARIANTS = {
     "unhedged": dict(buy_delta=0.20, sell_delta=0.16, sell_offset=None, wing_offset=None, strike_set="b20_16"),
     "hedged":   dict(buy_delta=0.30, sell_delta=None, sell_offset=100,  wing_offset=600,  strike_set="h30_100_600"),
+    # closer-wing tests (13-Nov-2026): same bought/sold strikes as "hedged", wing 500 / 400 pts beyond the bought leg
+    "hedged_w500": dict(buy_delta=0.30, sell_delta=None, sell_offset=100, wing_offset=500, strike_set="h30_100_500"),
+    "hedged_w400": dict(buy_delta=0.30, sell_delta=None, sell_offset=100, wing_offset=400, strike_set="h30_100_400"),
 }
 VARIANT        = os.environ.get("BATMAN_VARIANT", "unhedged").lower()
 if VARIANT not in VARIANTS:
@@ -42,7 +45,8 @@ STRIKE_METHOD  = "black_scholes_11:16"   # delta from option and spot prices at 
 #   unhedged: Rs 2.5L at NIFTY 24,141 (13-Jul-2026, lot 65) -> k 0.159;  hedged: Rs 1.9L at NIFTY 24,147 -> k 0.121.
 # BATMAN_CAPITAL=static (or --capital static) = the earlier test: a fixed Rs 2.5L, so target = stop = Rs 10,000 in every month.
 CAPITAL_MODE   = os.environ.get("BATMAN_CAPITAL", "margin").lower()     # margin | static
-MARGIN_K       = {"unhedged": 250_000 / (24141.15 * 65), "hedged": 190_000 / (24147.2 * 65)}[VARIANT]
+MARGIN_K       = {"unhedged": 250_000 / (24141.15 * 65), "hedged": 190_000 / (24147.2 * 65)}[VARIANT.split("_")[0]]
+#   (closer-wing variants keep the hedged k so target/stop in rupees stay comparable; their real margin is a little lower)
 STATIC_CAPITAL = 250_000
 TP_PCT_OF_CAPITAL = 4.0           # target: P&L >= 4% of the capital used
 SL_PCT_OF_CAPITAL = 4.0           # stop:   P&L <= -4% of the capital used

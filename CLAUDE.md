@@ -231,6 +231,19 @@ profit cut like the +300 wing. ONE SIDE: call side alone in rich months 17 ₹28
 no filter the call side is worse); 'put side only after a 10-day rise > 0.5/1/1.5%' worse everywhere. Nothing tested so far beats the condor
 (₹64,001 / −₹1,558 in the rich months; rule ₹90,667 / −₹5,523).
 
+HEDGED BATMAN WITH A CLOSER WING – 600 / 500 / 400 PTS BEYOND THE BOUGHT LEG (13-Nov-2026; wing 400/500 downloaded by the user; variants hedged_w500 /
+hedged_w400 in strategies/batman/config.py, strike sets h30_100_500 / _400; output/batman/BATMAN_hedged_wing_600_500_400.xlsx). Bad prints were common on the
+odd far strikes (trade 54 26250 CE stuck at 165.9 for 4 days vs ≈ 70–100 either side; 45 26550 CE 157.4), so the comparison uses a bad-print rule for all
+widths: wing >= the strike 50 pts closer or >= its sold leg → next wing strike at entry (14 of 64 trades at 500 and 400, 4 at 600), skip that day's check
+later. n / net / max DD / worst / stops / PF / losing years / credit, 18 DTE. NO FILTER: 600 64 ₹44,629 −₹30,786 −₹9,431 13 1.45 2 130; 500 ₹45,771 −₹16,687
+−₹9,060 6 1.78 1 103; 400 ₹30,972 −₹12,326 −₹6,681 1 1.70 1 74. ±2%: 600 35 ₹75,044 −₹12,077 −₹7,473 2 3.88 1; 500 ₹66,913 −₹5,816 −₹5,678 1 6.77 0; 400
+₹44,533 −₹2,915 −₹2,306 0 6.73 1. ±2% & C/W45: 600 17 ₹54,490 −₹4,996; 500 ₹44,191 −₹744 (PF 51); 400 ₹30,972 −₹609. 15 DTE: ±2% 600 ₹87,153 −₹10,644; 500 ₹73,699
+−₹5,844 (no losing year); 400 ₹45,058 −₹5,577; rich 500 ₹47,323 −₹2,484. The 500-pt wing is the best Batman found: same profit as 600 with no filter and half
+the drawdown; with ±2% it gives up ₹8k for half the drawdown and no losing year (2022 +₹2.2k). Max loss per unit ≈ 300 − credit ≈ 196 pts (≈ ₹12.7k at lot 65).
+VERSUS THE CONDOR: ±2% Batman-500 ₹66,913 / −₹5,816 vs the condor rule ₹90,667 / −₹5,523 (same drawdown, ₹24k less); rich months ₹44,191 / −₹744 vs the 400-pt
+condor ₹64,001 / −₹1,558 (Batman better on drawdown, ₹20k less profit, 16 fills vs 8). Condor still the better trade; Batman-500 is the version to keep
+if the Batman is ever revisited. Caveats: 14 trades on a fallback wing, the bad-print rule changes several results, wing chosen after seeing the data.
+
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
   (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.

@@ -57,6 +57,10 @@ same P&L curve (within ≈ ₹700 for moves up to ±4%). Strike set `h30_100_600
   ₹64–67k / DD −₹7,473; ±2% + 10-day range ≤ 3% → ₹53k / −₹7,473; ±2% + condor C/W ≥ 45% → 17 trades ₹54–58k / −₹4,996 (the condor made
   ₹64,000 / −₹1,558 in those months). None beats the condor rule on both profit and drawdown.
 
+- Closer wing (13-Nov-2026; `--variant hedged_w500` / `hedged_w400`): with a bad-print rule, ±2% 18 DTE wing 600 ₹75,044 / −₹12,077 → wing 500
+  ₹66,913 / −₹5,816 (no losing year), wing 400 ₹44,533 / −₹2,915; rich months wing 500 ₹44,191 / −₹744. Best Batman, still below the condor rule
+  (₹90,667 / −₹5,523). Workbook output/batman/BATMAN_hedged_wing_600_500_400.xlsx.
+
 ## Next tests (after the first run)
 - Hedged Batman: buy 1 far lot per side beyond the 16Δ strike – caps the loss and lowers the margin.
 - Exit day (e.g. 7 / 10 / 14 / 18 DTE) and the condor's 10-day move filter as variants.
