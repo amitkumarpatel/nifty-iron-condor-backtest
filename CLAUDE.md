@@ -211,6 +211,16 @@ corr of (Batman − IC) with every entry feature |r| <= 0.2 (VIX, VIX change, rv
 tercile of any feature where Batman beats the condor in total (falling VIX: Batman −₹12.3k vs IC +₹11.9k). Event months (7 budgets, 4 state elections,
 India 2024, US 2024) ≈ identical (budgets ₹26.9k vs ₹27.3k). Verdict: no deployable 'Batman month'; do not re-test.
 
+HEDGED BATMAN – EARLY STOP FROM THE PREVIOUS DAY'S 15:00–15:15 READING (13-Nov-2026, user idea; NOT ADOPTED, do not re-test). Rules on top of the
+4% stop / target: exit at 15:16 when P&L at 15:00 (or the 15:00–15:15 average) <= −40/50/60/75% of the stop; same warning → exit next day 09:20;
+NIFTY at 15:15 beyond a sold strike (+0/100/200) → exit. Simulator reproduces the engine (₹44,739 / ₹58,128). Every rule cuts profit and almost none
+lowers the drawdown (n / net / DD, 18 DTE): no filter base 64 ₹44,739 −₹31,612 → warn 15:00 −50% ₹24,913 −₹30,748, others ₹3.8k–₹39k / −₹34.2k…−₹50.9k;
+±2% base 35 ₹78,667 −₹12,077 → best ₹42,549 −₹10,954 (warn 15:00 −50%), others −₹11.3k…−₹16.5k at ₹31–57k; ±2% & C/W45 base 17 ₹53,830 −₹4,996 → every rule
+₹44–50k / −₹6.4k…−₹8.8k (worse). 15 DTE the same. WHY: of the 13 stops (18 DTE, no filter) only 6 were below −50% of the stop the day before (16, 21,
+48, 52, 62, 8) and those overshot little (−100…−111%, except 16 −147%); the big overshoots came in ONE day from a calm reading (11: −42% → −159%, 15:
+−44% → −142%, 12: −22% → −114%, 50: −23% → −103%). And a warning hits recoverers: warn 15:00 −50% exits 22 trades, 8 of them base winners (+₹15.0k) –
+early-exit total −₹79.3k vs −₹59.5k base for the same 22. Only intraday monitoring could cut the one-day jumps (not tested; breaks the one-check rule).
+
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
   (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.
