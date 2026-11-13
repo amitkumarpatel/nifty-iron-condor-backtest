@@ -1637,6 +1637,15 @@ lowers the drawdown (n / net / DD, 18 DTE): no filter base 64 ₹44,739 −₹31
 48, 52, 62, 8) and those overshot little (−100…−111%, except 16 −147%); the big overshoots came in ONE day from a calm reading (11: −42% → −159%, 15:
 −44% → −142%, 12: −22% → −114%, 50: −23% → −103%). And a warning hits recoverers: warn 15:00 −50% exits 22 trades, 8 of them base winners (+₹15.0k) –
 early-exit total −₹79.3k vs −₹59.5k base for the same 22. Only intraday monitoring could cut the one-day jumps (not tested; breaks the one-check rule).
+HEDGED BATMAN – VARIANTS TO CUT THE DRAWDOWN, CACHED-DATA PASS (13-Nov-2026, user request; simulator = shared/spread_sim, reproduces the engine; n / net /
+max DD; no filter | ±2% | ±2% & C/W45; base 18 DTE 64 ₹44,739 −₹31,612 | 35 ₹78,667 −₹12,077 | 17 ₹53,830 −₹4,996). TARGET/STOP (% of capital): TP5 SL4 ≈ base
+(₹45.7k | ₹80.9k −₹12,077 | ₹56.0k −₹4,996); TP3 SL4 ≈ base; tighter stops (SL 2–3%) much worse (more stops, same worst trade). WING +300 from the bought leg
+(max loss ≈ 66 pts): credit 34 pts (126) → ₹−5.4k −₹15.0k | ₹15.6k −₹2,791 | ₹13.0k −₹734 – a smaller trade, not a better one (profit ÷ DD 5.6 vs 6.5 at ±2%).
+Wing +400 / +500 only on the cached subsets (rich months: +500 9–10 tr ₹22.6k −₹744 vs +600 ₹26.2k −₹4,996; +400 12 tr ₹14.5k −₹1,837 vs ₹35.6k) – needs
+downloads to judge (strike sets h30_100_400 / h30_100_500 created; 107 / 130 calls to 18 DTE, 128 / 162 to 15 DTE). SOLD +200 (41 cached tr): credit 33 pts,
+profit cut like the +300 wing. ONE SIDE: call side alone in rich months 17 ₹28,294 −₹1,649 (put side ₹24,550 −₹10,623 – the put side is the drawdown there;
+no filter the call side is worse); 'put side only after a 10-day rise > 0.5/1/1.5%' worse everywhere. Nothing tested so far beats the condor
+(₹64,001 / −₹1,558 in the rich months; rule ₹90,667 / −₹5,523).
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
