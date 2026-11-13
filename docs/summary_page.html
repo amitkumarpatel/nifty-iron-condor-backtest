@@ -102,7 +102,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
 <div class="wrap">
 
 <header>
-  <span class="eyebrow">Backtest summary · 29 Oct 2026 · corrected figures</span>
+  <span class="eyebrow">Backtest summary · 13 Nov 2026 · condor rulebook + first Batman test</span>
   <h1>NIFTY Iron Condor Playbook</h1>
   <p class="lede">The rule set chosen for the forward test of a monthly NIFTY iron condor, and the backtest behind it: 68 monthly cycles from January 2021 to August 2026 (61 traded, 5 skipped by the rules, 2 without usable data), replayed on 1-minute option prices from ICICI Breeze and checked against StockMock.</p>
   <div class="meta">
@@ -396,6 +396,34 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   </div>
 </section>
 
+<section aria-labelledby="h-batman">
+  <div class="sec-head">
+    <span class="eyebrow">New strategy · 13 Nov 2026 · tested, not adopted</span>
+    <h2 id="h-batman">Unhedged Batman: about the condor's profit, five to six times its drawdown</h2>
+    <p>A Batman is a call ratio spread plus a put ratio spread. The first version tested: on each side buy 1 lot at ~20 delta and sell 2 lots at ~16 delta further out, entered on the condor's Mondays (11:16, 43 DTE), checked once a day at 15:16, with a target and a stop of ₹10,000 each (4% of a static ₹2.5L capital). One sold lot per side has no protection, so the loss beyond the sold strikes is unlimited. 2021–26, 1 unit per trade, after costs.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Exit</th><th>10-day filter</th><th class="n">Trades</th><th class="n">Net P&amp;L</th><th class="n">Max drawdown</th><th class="n">Worst trade</th><th class="n">Stops</th><th class="n">Profit factor</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">18 DTE</td><td>none</td><td class="n">66</td><td class="n">₹93,264</td><td class="n neg">−₹33,842</td><td class="n neg">−₹23,258</td><td class="n">8</td><td class="n">1.66</td></tr>
+        <tr><td class="lbl">18 DTE</td><td>±2.5%</td><td class="n">45</td><td class="n">₹99,973</td><td class="n neg">−₹28,632</td><td class="n neg">−₹23,258</td><td class="n">5</td><td class="n">2.34</td></tr>
+        <tr><td class="lbl">10 DTE</td><td>none</td><td class="n">66</td><td class="n">₹86,089</td><td class="n neg">−₹54,398</td><td class="n neg">−₹23,258</td><td class="n">12</td><td class="n">1.50</td></tr>
+        <tr><td class="lbl">7 DTE</td><td>none</td><td class="n">66</td><td class="n">₹1,22,428</td><td class="n neg">−₹42,843</td><td class="n neg">−₹23,258</td><td class="n">12</td><td class="n">1.71</td></tr>
+        <tr><td class="lbl">7 DTE</td><td>±2.5%</td><td class="n">45</td><td class="n">₹1,44,087</td><td class="n neg">−₹26,796</td><td class="n neg">−₹23,258</td><td class="n">5</td><td class="n">2.92</td></tr>
+        <tr class="hl"><td class="lbl">Condor rule</td><td>±2% + credit test</td><td class="n">37</td><td class="n">₹90,667</td><td class="n neg">−₹5,523</td><td class="n neg">−₹5,523</td><td class="n">0</td><td class="n">5.94</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="risks">
+    <li><b>The worst trade is −₹23,258 at every exit day</b> (the Nov-2023 rally), 9.3% of the ₹2.5L capital – far beyond the 2–3% rule. Every stop ended past −₹10,000: with one check a day the uncovered lot runs until 15:16.</li>
+    <li><b>The exit day does not fix it.</b> Later exits add stops and deepen the drawdown; with the ±2.5% filter a 7-DTE exit makes the most (₹1.44L) but the drawdown is still about −₹27k, and 2022 is a losing year at every exit day.</li>
+    <li><b>No entry filter cuts the losers.</b> The 11 big losses were 4–9% moves after entry, 6 down and 5 up. VIX, implied volatility, skew, strike distance, credit, the condor's credit test and the 20-day move looked the same for winners and losers. One strike-gap filter looked good but was a quirk of the 50-point strike spacing.</li>
+    <li><b>Verdict:</b> the unhedged Batman has the worst drawdown of everything tested; the condor rule stays clearly better. The sample month (13 Jul 2026) matched StockMock: ₹6,149 against ₹6,039.</li>
+    <li><b>Next:</b> the hedged Batman – per side buy ~30 delta, sell 2 lots 100 points further out, buy 1 lot 600 points beyond the bought leg (capped loss, about ₹16.9k a lot in the sample month against ₹13.8k for the 400-point condor) – with and without the 10-day filter, compared with the finalised condor rule.</li>
+  </ul>
+</section>
+
 <section aria-labelledby="h-small">
   <div class="sec-head">
     <span class="eyebrow">Small print</span>
@@ -513,7 +541,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
     <li><b>Run the 15:16 check on the entry day too</b>: a target or stop can be hit the same afternoon.</li>
     <li><b>Decide in advance what would stop the test</b>, for example a drawdown beyond about ₹13,000 a lot (the reshuffled-trade estimate) or average slippage above 1 point per leg.</li>
     <li><b>Review the hedge width after 6–12 months</b> (around April–October 2027): 400 against 600 points for the condor and 200 against 300 points for the put spread, with real fills and margin.</li>
-    <li><b>Next strategy: Batman</b> (a call ratio spread plus a put ratio spread). Set up on 11 Nov 2026 in its own folder of the repository; agreed so far: same Monday 11:16 entry at 43 DTE as the condor and a time exit before expiry. Strikes, wings, exit day, target and stop are still to be decided, and no Batman results are on this page until it has been backtested.</li>
+    <li><b>Batman:</b> the unhedged version was backtested on 13 Nov 2026 and rejected for its drawdown (section above). Next, the hedged Batman with and without the 10-day filter, compared with the finalised condor rule.</li>
   </ol>
 </section>
 
