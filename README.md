@@ -1624,7 +1624,7 @@ at expiry (400 − credit) avg ₹11.3k vs ₹14.3k per lot; Batman 8 lots / 16 
 Verdict: in the same months the condor makes more with a third of the worst loss; Batman not adopted.
 WHEN IS THE HEDGED BATMAN BETTER THAN THE CONDOR? (13-Nov-2026, user question; 63 common months 2021–26, no filter, Batman 18 DTE vs IC 400-pt TP60;
 Batman ₹41,332 vs IC ₹73,120, Batman better in 26 of 63). Only AFTER the fact: NIFTY move entry→exit 2–4% → Batman better in 10 of 16 (₹−279 vs ₹−8,111);
-< 2% → IC better (24 of 32); > 4% → Batman loses more (−₹77k vs −₹52k). Fast IV collapse (trade 42, target day 3) – 1 case. NOT PREDICTABLE at entry:
+< 2% → IC better (22 of 32); > 4% → Batman loses more (−₹77k vs −₹52k). Fast IV collapse (trade 42, target day 3) – 1 case. NOT PREDICTABLE at entry:
 corr of (Batman − IC) with every entry feature |r| <= 0.2 (VIX, VIX change, rv20, VIX−RV, 10/5/20-day move, 50-DMA, range, C/W, skew, strike distance); no
 tercile of any feature where Batman beats the condor in total (falling VIX: Batman −₹12.3k vs IC +₹11.9k). Event months (7 budgets, 4 state elections,
 India 2024, US 2024) ≈ identical (budgets ₹26.9k vs ₹27.3k). Verdict: no deployable 'Batman month'; do not re-test.
