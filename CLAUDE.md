@@ -432,7 +432,7 @@ Built in as optional `CE_BREACH_EXIT_PTS` / `IC_CE_BREACH_EXIT=hedge` (off by de
 gap-up ₹68,023/−₹5,523; CE cross ₹66,898/−₹6,018; both ₹67,989/−₹5,523 (CE cross redundant once gap-up is on; fires once,
 trade 30). 400-pt: gap-up ₹88,148/−₹6,976; CE cross alone ₹81,190/−₹9,814; both = gap-up. Gap-up remains the one useful exit.
 Summary web page: https://claude.ai/artifact/SHyqgqYkgyeEAg4FkPVwqm (republish on changes; shared by the user as "anyone with the link";
-last republished 13-Nov-2026 (v23) with the hedged Batman follow-up section (IC vs Batman trade by trade, filters, predictability, early stop) and the unhedged Batman section (after 29-Oct-2026 corrected figures (lot fix, trades 38/41/45, entry-day check; 'Corrections' section; variants 4–6 and the 400 vs 600 table re-run 29-Oct; walk-forward grid still pre-fix); source kept in docs/summary_page.html –
+last republished 13-Nov-2026 (v24) with the 500-pt-wing Batman table and the hedged Batman follow-up section (IC vs Batman trade by trade, filters, predictability, early stop) and the unhedged Batman section (after 29-Oct-2026 corrected figures (lot fix, trades 38/41/45, entry-day check; 'Corrections' section; variants 4–6 and the 400 vs 600 table re-run 29-Oct; walk-forward grid still pre-fix); source kept in docs/summary_page.html –
 edit that file and publish it with the artifact url).
 18-DTE StockMock manual run (data/iron_condor/reference/Iron condor sell 30delta and buy 300 points hedge with
 18DTE exit_StockMock.xlsx) validated 28-Sep-2026 (output/iron_condor/manual18_data_check.xlsx,

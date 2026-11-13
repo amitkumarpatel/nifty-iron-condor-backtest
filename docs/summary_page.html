@@ -474,7 +474,31 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
     <li><b>The Batman's good months cannot be picked in advance.</b> Over 63 months the Batman beat the condor only when NIFTY moved 2–4% by the exit (10 of 16 months). Nothing known at entry predicted that. VIX, VIX change, realised volatility, the 5, 10 and 20-day moves, the 50-day average, the range, the credit test, skew and strike distance were all checked, and every correlation was within ±0.2. Budget and election months came out about level (budgets ₹26.9k against ₹27.3k).</li>
     <li><b>Other entry filters only trade profit for drawdown.</b> Looking at the 20 losers without a filter, only the 10-day move differed at entry: 10 of the 12 stops followed a 10-day rise. Tightening to ±1.5% gives 24 trades, ₹64–67k and a −₹7,473 drawdown. Adding a 10-day range of at most 3%, realised volatility of at most 14, or a credit of at least 120 points gives a −₹7.5k to −₹10k drawdown for ₹53–72k. None beats the condor on both profit and drawdown.</li>
     <li><b>An earlier stop does not help.</b> Exiting when the previous day's 15:00–15:15 loss already reached 40–75% of the stop, or when NIFTY closed beyond a sold strike, cut profit sharply. It lowered the drawdown by about ₹1k at best (±2%: ₹78,667 / −₹12,077 → ₹42,549 / −₹10,954), and with the rich-month filter every version was worse. The big stop overshoots came in one day from a calm reading (for example −42% of the stop → −159%), and the warnings also closed 8 trades that would have recovered.</li>
-    <li><b>Verdict: the condor rule is the better strategy.</b> The hedged Batman is not adopted. The paper trade stays the condor (400-point when the premium is rich, 300-point otherwise) plus the 20-delta put spread in skipped months.</li>
+    <li><b>Target and stop sizes do not help.</b> A 3% target hits three times as often but the total is unchanged. Tighter stops (3% or 2%) close trades that would have recovered, and still miss the one-day jumps.</li>
+  </ul>
+  <h3 style="margin:28px 0 8px">A closer wing: 500 points is the best Batman found</h3>
+  <p>The same strikes with the far wing 500 or 400 points beyond the bought leg instead of 600. That caps the most a trade can lose at about 300 or 200 points minus the credit. Several far strikes had stale prices (for example the 26250 call stuck at ₹165.9 for 4 days while the strikes either side were at ₹70–100). So for all three widths, a wing priced at or above the strike 50 points closer is treated as a bad print: at entry the next strike is used (14 of 64 trades at 500), and during the trade that day's check is skipped. 18 DTE, 1 unit, after costs.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Filter</th><th>Wing</th><th class="n">Trades</th><th class="n">Net P&amp;L</th><th class="n">Max drawdown</th><th class="n">Worst trade</th><th class="n">Stops</th><th class="n">Losing years</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">none</td><td>600</td><td class="n">64</td><td class="n">₹44,629</td><td class="n neg">−₹30,786</td><td class="n neg">−₹9,431</td><td class="n">13</td><td class="n">2</td></tr>
+        <tr><td class="lbl">none</td><td>500</td><td class="n">64</td><td class="n">₹45,771</td><td class="n neg">−₹16,687</td><td class="n neg">−₹9,060</td><td class="n">6</td><td class="n">1</td></tr>
+        <tr><td class="lbl">±2%</td><td>600</td><td class="n">35</td><td class="n">₹75,044</td><td class="n neg">−₹12,077</td><td class="n neg">−₹7,473</td><td class="n">2</td><td class="n">1</td></tr>
+        <tr><td class="lbl">±2%</td><td>500</td><td class="n">35</td><td class="n">₹66,913</td><td class="n neg">−₹5,816</td><td class="n neg">−₹5,678</td><td class="n">1</td><td class="n">0</td></tr>
+        <tr><td class="lbl">±2%</td><td>400</td><td class="n">35</td><td class="n">₹44,533</td><td class="n neg">−₹2,915</td><td class="n neg">−₹2,306</td><td class="n">0</td><td class="n">1</td></tr>
+        <tr><td class="lbl">±2% + credit ≥ 45%</td><td>600</td><td class="n">17</td><td class="n">₹54,490</td><td class="n neg">−₹4,996</td><td class="n neg">−₹4,996</td><td class="n">1</td><td class="n">1</td></tr>
+        <tr><td class="lbl">±2% + credit ≥ 45%</td><td>500</td><td class="n">17</td><td class="n">₹44,191</td><td class="n neg">−₹744</td><td class="n neg">−₹744</td><td class="n">0</td><td class="n">1</td></tr>
+        <tr class="hl"><td class="lbl">Condor rule</td><td>400 / 300</td><td class="n">37</td><td class="n">₹90,667</td><td class="n neg">−₹5,523</td><td class="n neg">−₹5,523</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr class="hl"><td class="lbl">400-pt condor, rich months</td><td>400</td><td class="n">18</td><td class="n">₹64,001</td><td class="n neg">−₹1,558</td><td class="n neg">−₹1,558</td><td class="n">0</td><td class="n">0</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="risks">
+    <li><b>The 500-point wing halves the drawdown.</b> With no filter it makes the same as the 600-point wing with half the drawdown. With ±2% it gives up about ₹8k for half the drawdown and no losing year (2022: −₹4.6k → +₹2.2k). At 15 DTE with ±2%: ₹73,699 / −₹5,844. The most one unit can lose is about 196 points (≈ ₹12.7k at lot 65, against ≈ ₹13.6k for the 400-point condor).</li>
+    <li><b>400 points is too close.</b> The credit falls to about 75 points: a smaller trade, not a better one.</li>
+    <li><b>Still behind the condor.</b> With ±2% the Batman-500 has about the condor rule's drawdown but makes ₹24k less. In the rich months its drawdown is smaller (−₹744 against −₹1,558), but it makes ₹20k less and needs 16 orders per trade against 8. Caveats: 14 trades on a fallback wing, the bad-print rule moves several results, and the width was chosen after seeing the data.</li>
+    <li><b>Verdict: the condor rule is the better strategy.</b> The hedged Batman is not adopted; if it is ever revisited, the 500-point wing is the version to use. The paper trade stays the condor (400-point when the premium is rich, 300-point otherwise) plus the 20-delta put spread in skipped months.</li>
   </ul>
 </section>
 
