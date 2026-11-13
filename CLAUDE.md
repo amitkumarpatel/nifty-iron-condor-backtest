@@ -155,6 +155,17 @@ output/batman/BATMAN_unhedged_backtest_report[_x<DTE>]_f2.5.xlsx; net / max DD /
 (−₹12.6k) stops and lifts profit at every exit day, but the drawdown stays ≈ −₹27k (5 stops remain: 35 at +2.01%, 11, 21, 14, 51 – all inside
 ±2.5%, all past −₹10k) and 2022 loses at every exit (−₹3.4k…−₹11.3k). Versus the condor rule (₹90,667 / −₹5,523): more profit, ≈ 5× the drawdown.
 
+UNHEDGED BATMAN – ENTRY FILTERS TO CUT THE LOSERS (13-Nov-2026, user request; 66 trades 18 DTE / 7 DTE; n / net / max DD / worst). NO ROBUST FILTER.
+The 11 big losers (< −₹5k) are 4–9% one-way moves AFTER entry (6 down, 5 up; move entry→exit avg −0.75% losers vs +1.0% winners) – same as the condor.
+Known at entry, losers ≈ winners: VIX 15.7 vs 15.2, sold-leg IV 0.13 vs 0.13, put skew 0.05 vs 0.04, sold call 5.5% vs 5.6% above spot, sold put 4.9%
+vs 4.9% below, 20-day move, 50-DMA, distance from the high, credit, condor C/W (corr with P&L all |r| <= 0.2). Filters, 18 DTE alone | with ±2.5%:
+±2% 37 / ₹103,128 / −₹32,276 / −₹15,395; VIX not down >10% 47 / ₹99,451 / −₹23,258 | 36 / ₹87,995 / −₹23,258; VIX not down >8% 37 / ₹107,440 / −₹23,258;
+VIX−RV>=1 46 / ₹111,889 / −₹21,244; C/W400>=45 34 / ₹91,286 / −₹28,545 | 24 / ₹84,668 / −₹19,547; credit>=120 pts | 22 / ₹71,438 / −₹13,237. Best-looking:
+bought→sold CALL STRIKE GAP >= 150 pts & ±2.5% 30 / ₹119,107 / −₹11,791 / −₹11,791 (7 DTE ₹155,108 / −₹11,791) – REJECTED as an artifact of 50-pt strike
+spacing: gap 150 had the MOST losers (8 of 23 vs 5 of 26 at 100), and the continuous versions (sold-call distance, call IV) separate nothing; it
+works only by dropping 35, 11, 14, 62. Remaining stops still pass −₹10k (one check a day, uncovered lot). Verdict: filters cannot fix the unhedged
+Batman; the condor rule (₹90,667 / −₹5,523) stays clearly better. Next: the hedged Batman (capped loss).
+
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
   (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.

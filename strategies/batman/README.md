@@ -41,6 +41,10 @@ same P&L curve (within ≈ ₹700 for moves up to ±4%). Strike set `h30_100_600
 - With the ±2.5% 10-day filter (`--filter 2.5`, 45 trades): 18 DTE ₹99,973 / −₹28,632; 15 ₹120,451 / −₹26,796; 12 ₹126,038 / −₹26,796;
   10 ₹130,557 / −₹26,796; 7 ₹144,087 / −₹26,796 – more profit, drawdown still ≈ −₹27k (5 stops past −₹10k), 2022 a losing year.
 
+- Entry filters for the unhedged version (13-Nov-2026): none robust – losers are 4–9% moves after entry; VIX, IV, skew, strike
+  distance, credit, C/W, 20-day move all look the same for winners and losers. A strike-gap filter looked good (DD −₹11.8k) but is an
+  artifact of 50-pt strike spacing. Verdict: the condor stays better; test the hedged version.
+
 ## Next tests (after the first run)
 - Hedged Batman: buy 1 far lot per side beyond the 16Δ strike – caps the loss and lowers the margin.
 - Exit day (e.g. 7 / 10 / 14 / 18 DTE) and the condor's 10-day move filter as variants.
