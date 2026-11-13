@@ -39,11 +39,11 @@ def load_strikes(name=None) -> pd.DataFrame:
 
 
 def legs_of(strikes: pd.DataFrame, trade_id) -> list:
-    """[(pos, opt, strike)] of one Batman: +BUY_LOTS at the bought strike, -SELL_LOTS at the sold strike, both sides.
-    Empty if any of the four strikes is missing."""
+    """[(pos, opt, strike)] of one Batman: +BUY_LOTS at the bought strike, -SELL_LOTS at the sold strike and, for the
+    hedged variant, +WING_LOTS at the wing strike - both sides. Empty if any strike is missing."""
     s = strikes[strikes.trade_id == trade_id].set_index(["opt_type", "role"]).strike
+    roles = [("BUY", C.BUY_LOTS), ("SELL", -C.SELL_LOTS)] + ([("WING", C.WING_LOTS)] if C.WING_OFFSET else [])
     try:
-        return [(C.BUY_LOTS, "CE", int(s["CE", "BUY"])), (-C.SELL_LOTS, "CE", int(s["CE", "SELL"])),
-                (C.BUY_LOTS, "PE", int(s["PE", "BUY"])), (-C.SELL_LOTS, "PE", int(s["PE", "SELL"]))]
+        return [(n, o, int(s[o, r])) for o in ("CE", "PE") for r, n in roles]
     except KeyError:
         return []

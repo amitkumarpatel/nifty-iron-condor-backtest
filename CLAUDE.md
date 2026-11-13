@@ -135,6 +135,14 @@ Used by the forward-test skill only – `backtest.py` defaults stay the earlier 
   (~146 calls) + download --exit-dte 7 (~700 calls) by the user. A provisional run on cached strikes only (not final) showed a large
   drawdown (≈ −₹46k) with losses running past the ₹10k stop (8 stops, worst −₹23k, trade 35) – confirm after the real run.
 
+UNHEDGED BATMAN 2021–26, FIRST RESULT (13-Nov-2026; strike set b20_16 picked by the user's run 13-Nov; per side buy 1 ~20Δ, sell 2 ~16Δ;
+TP / SL ₹10,000 (4% of static ₹2.5L), 15:16 check, 18 DTE; output/batman/BATMAN_unhedged_backtest_report.xlsx): 66 tr (24 and 2603 no data) net ₹93,264 /
+gross ₹115,895 / costs ₹22,632; 52 W / 14 L; 4 targets / 8 stops / 54 time exits; max DD −₹33,842; worst −₹23,258 (35, Nov-2023 rally); avg win ₹4,516 vs
+avg loss −₹10,111; PF 1.66; 0.5-pt slip ₹71,544. All 8 stops ended beyond the ₹10k stop (−₹11.0k…−₹23.3k: 35, 62, 11, 52, 21, 14…) – one check a day
+lets an uncovered short lot run. By year: 2021 +₹20.0k, 2022 −₹6.6k, 2023 +₹6.8k, 2024 +₹25.6k, 2025 +₹31.1k, 2026 +₹16.4k. Versus the condor rule (IC
+₹90,667 / DD −₹5,523; rulebook ₹103,880 / −₹5,523): about the same profit for ≈ 6× the drawdown and 4× the worst trade. Sample trade 66 +₹6,149 vs
+StockMock +₹6,039 (16Δ call 25300 vs 25200). Data downloaded to 7 DTE as well. Hedged variant (30Δ / +100 / +600) added 13-Nov – next.
+
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
   (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.

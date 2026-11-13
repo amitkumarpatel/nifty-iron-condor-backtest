@@ -5,7 +5,7 @@ position (entry day included; stop before target), target +TP_RS / stop -SL_RS (
 EXIT_DTE. 1 unit (2 + 1 lots per side) at each expiry's lot size. Uses the shared multi-leg simulator.
 
 Run:  python strategies/batman/scripts/backtest.py [--trades ..] [--exit-dte N] [--out file]
-Output: output/batman/BATMAN_backtest_report.xlsx (Read me, Summary, By year, Trades, Daily, Not run, StockMock check)
+Output: output/batman/BATMAN_<variant>_backtest_report[_x<DTE>].xlsx (Read me, Summary, By year, Trades, Daily, Not run, StockMock check)
 """
 import argparse
 from pathlib import Path
@@ -37,16 +37,21 @@ def run_cycle(t, strikes, exit_dte):
                        exit_dte=exit_dte, detail=True)
     if r is None:
         return dict(base, status="not priceable (a leg has no entry price or no daily prices)"), []
-    row = dict(base, status="run")
-    for p, o, k in legs:
+    row = dict(base, status="run", variant=C.VARIANT)
+    roles = {}
+    for (p, o, k), role in zip(legs, [r for _ in ("CE", "PE") for r in (["BUY", "SELL", "WING"] if C.WING_OFFSET else ["BUY", "SELL"])]):
         key = contract_key(exp, k, o)
-        tag = f"{'buy' if p > 0 else 'sell'}_{o.lower()}"
-        sd = strikes[(strikes.trade_id == t.trade_id) & (strikes.opt_type == o) & (strikes.role == ("BUY" if p > 0 else "SELL"))]
+        tag = f"{role.lower()}_{o.lower()}"
+        sd = strikes[(strikes.trade_id == t.trade_id) & (strikes.opt_type == o) & (strikes.role == role)]
         row[f"{tag}_strike"] = k
         row[f"{tag}_delta"] = sd.delta.iloc[0] if len(sd) else None
         row[f"{tag}_lots"] = abs(p)
         row[f"{tag}_entry"], row[f"{tag}_entry_q"] = r["legs_entry"][key]
         row[f"{tag}_exit"], row[f"{tag}_exit_q"] = r["legs_exit"][key]
+        if "note" in sd and len(sd) and isinstance(sd.note.iloc[0], str):
+            roles[o] = sd.note.iloc[0]
+    row["strike_note"] = "; ".join(f"{o}: {n}" for o, n in roles.items())
+    row["fills_per_side"] = sum(abs(p) for p, _, _ in legs)
     credit = -r["entry_val"]
     path = pd.DataFrame(r["path"])
     row.update(net_credit_pts=round(credit, 2), net_credit_rs=round(credit * t.lot), target_rs=C.TP_RS, stop_rs=-C.SL_RS,
@@ -74,36 +79,48 @@ def summary(tr):
             ("Average net credit (pts)", round(tr.net_credit_pts.mean(), 1)),
             ("Worst point inside a trade (Rs)", round(tr.worst_rs.min())),
             ("Trades whose final loss passed the stop", int((tr.net_rs < -C.SL_RS).sum())),
-            ("Net with 0.5 pt slippage per lot per fill (Rs)", round((tr.net_rs - 0.5 * 12 * tr.lot).sum()))]
+            ("Net with 0.5 pt slippage per lot per fill (Rs)", round((tr.net_rs - 0.5 * 2 * tr.fills_per_side * tr.lot).sum()))]
     return pd.DataFrame(rows, columns=["item", "value"])
 
 
+HEDGED_SAMPLE = {"trade_id": 66, "legs": {"buy_ce": (24700, 216.9), "sell_ce": (24800, 181.5), "wing_ce": (25300, 67.3),
+                                          "buy_pe": (23700, 214.9), "sell_pe": (23600, 187.6), "wing_pe": (23100, 99.0)},
+                 "credit_rs": 9106.5, "max_profit": 15544, "max_loss": -16893}
+
+
 def stockmock_check(tr, strikes):
-    f = Path(C.REF_DIR) / SAMPLE["file"]
-    t = tr[tr.trade_id == SAMPLE["trade_id"]]
-    if not f.exists() or not len(t):
+    """Entry legs of trade 66 (13-Jul-2026) next to the user's StockMock sample (unhedged: file with the full trade;
+    hedged: the screenshot of 13-Nov-2026, entry only)."""
+    t = tr[tr.trade_id == 66]
+    if not len(t):
         return pd.DataFrame()
     t = t.iloc[0]
+    if C.WING_OFFSET:
+        rows = [dict(leg=tag, engine_strike=t.get(f"{tag}_strike"), engine_delta=t.get(f"{tag}_delta"),
+                     engine_entry=t.get(f"{tag}_entry"), stockmock_strike=k, stockmock_entry=px)
+                for tag, (k, px) in HEDGED_SAMPLE["legs"].items()]
+        rows += [dict(leg="net credit (Rs)", engine_entry=t.net_credit_rs, stockmock_entry=HEDGED_SAMPLE["credit_rs"]),
+                 dict(leg="StockMock max profit / max loss (Rs)", stockmock_entry=f"{HEDGED_SAMPLE['max_profit']} / {HEDGED_SAMPLE['max_loss']}")]
+        return pd.DataFrame(rows)
+    if not (Path(C.REF_DIR) / SAMPLE["file"]).exists():
+        return pd.DataFrame()
     rows = []
     for tag in ("buy_ce", "sell_ce", "buy_pe", "sell_pe"):
-        k, o = t[f"{tag}_strike"], tag[-2:].upper()
-        rows.append(dict(leg=tag, engine_strike=k, engine_delta=t[f"{tag}_delta"], engine_entry=t[f"{tag}_entry"],
-                         stockmock_strike=next((s for s in SAMPLE["legs"] if s.endswith(o) and
-                                                (("buy" in tag) == (s in ("25100CE", "23350PE")))), None),
-                         ))
-    df = pd.DataFrame(rows)
-    df["stockmock_entry"] = df.stockmock_strike.map(SAMPLE["legs"])
-    extra = pd.DataFrame([dict(leg="P&L (Rs)", engine_entry=t.gross_rs, stockmock_entry=SAMPLE["pnl"]),
-                          dict(leg="exit", engine_strike=str(t.exit_date), stockmock_strike=SAMPLE["exit"]),
-                          dict(leg="exit reason", engine_strike=t.exit_reason, stockmock_strike=SAMPLE["reason"])])
-    return pd.concat([df, extra], ignore_index=True)
+        o = tag[-2:].upper()
+        sm = next((s for s in SAMPLE["legs"] if s.endswith(o) and (("buy" in tag) == (s in ("25100CE", "23350PE")))), None)
+        rows.append(dict(leg=tag, engine_strike=t[f"{tag}_strike"], engine_delta=t[f"{tag}_delta"],
+                         engine_entry=t[f"{tag}_entry"], stockmock_strike=sm, stockmock_entry=SAMPLE["legs"].get(sm)))
+    rows += [dict(leg="P&L (Rs)", engine_entry=t.gross_rs, stockmock_entry=SAMPLE["pnl"]),
+             dict(leg="exit", engine_strike=str(t.exit_date), stockmock_strike=SAMPLE["exit"]),
+             dict(leg="exit reason", engine_strike=t.exit_reason, stockmock_strike=SAMPLE["reason"])]
+    return pd.DataFrame(rows)
 
 
 def main():
     ap = argparse.ArgumentParser(description="Batman backtest (offline)")
     ap.add_argument("--trades", type=int, nargs="*")
     ap.add_argument("--exit-dte", type=int, default=C.EXIT_DTE)
-    ap.add_argument("--out", help="report file (default output/batman/BATMAN_backtest_report.xlsx, or _x<N> for another exit DTE)")
+    ap.add_argument("--out", help="report file (default output/batman/BATMAN_<variant>_backtest_report[_x<N>].xlsx)")
     a = ap.parse_args()
     cyc, strikes = load_cycles(a.trades), load_strikes()
     rows, daily = [], []
@@ -123,17 +140,21 @@ def main():
                                      targets=("exit_reason", lambda s: (s == "TARGET").sum()),
                                      stops=("exit_reason", lambda s: (s == "STOPLOSS").sum()), worst_rs=("net_rs", "min")).round()
     readme = pd.DataFrame({"Batman backtest": [
-        f"Rules: per side buy {C.BUY_LOTS} lot ~{C.BUY_DELTA:.2f} delta, sell {C.SELL_LOTS} lots ~{C.SELL_DELTA:.2f} delta (further out), calls and puts.",
+        (f"Variant {C.VARIANT}: per side buy {C.BUY_LOTS} lot ~{C.BUY_DELTA:.2f} delta, sell {C.SELL_LOTS} lots ~{C.SELL_DELTA:.2f} delta (further out), calls and puts."
+         if not C.WING_OFFSET else
+         f"Variant {C.VARIANT}: per side buy {C.BUY_LOTS} lot ~{C.BUY_DELTA:.2f} delta, sell {C.SELL_LOTS} lots {C.SELL_OFFSET} pts further out, buy "
+         f"{C.WING_LOTS} lot {C.WING_OFFSET} pts beyond the bought leg (capped loss), calls and puts."),
         "Entry Monday 11:16 at 43 DTE (the condor's dates), every month, no filter. Strikes by Black-Scholes delta at 11:16 (nearest).",
         f"One check a day at 15:16 on the whole position, entry day included; stop before target. Target +Rs {C.TP_RS:,.0f}, "
         f"stop -Rs {C.SL_RS:,.0f} (4% of a static capital of Rs {C.CAPITAL:,}); else time exit at {a.exit_dte} DTE.",
-        "Size: 2 + 1 lots per side at each expiry's lot size. UNHEDGED: one sold lot per side is uncovered (unlimited risk).",
+        ("Size: 2 + 1 lots per side at each expiry's lot size. UNHEDGED: one sold lot per side is uncovered (unlimited risk)."
+         if not C.WING_OFFSET else "Size: 1 + 2 + 1 lots per side at each expiry's lot size; the far wing caps the loss on each side."),
         "Prices: Breeze 1-minute closes (EXACT = candle at that minute; FFILL/STALE = earlier candle). Costs approximate "
         "(shared/config.py COSTS; each lot counted as an order).",
         "A loss can pass the stop: with one check a day the position is only closed at the next 15:16.",
         "Sheets: Summary, By year, Trades (legs, prices, credit, exit, P&L), Daily (every 15:16 check), Not run, StockMock check (sample trade)."]})
-    out = Path(a.out) if a.out else C.OUTPUT_DIR / ("BATMAN_backtest_report.xlsx" if a.exit_dte == C.EXIT_DTE
-                                                    else f"BATMAN_backtest_report_x{a.exit_dte}.xlsx")
+    out = Path(a.out) if a.out else C.OUTPUT_DIR / (f"BATMAN_{C.VARIANT}_backtest_report"
+                                                    + ("" if a.exit_dte == C.EXIT_DTE else f"_x{a.exit_dte}") + ".xlsx")
     out.parent.mkdir(parents=True, exist_ok=True)
     with pd.ExcelWriter(out) as w:
         readme.to_excel(w, sheet_name="Read me", index=False)

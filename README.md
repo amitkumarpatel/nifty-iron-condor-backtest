@@ -1561,6 +1561,13 @@ books an impossible −₹4,363 stop). 18 rich + 19 at 300-pt = 37 condors. (3) 
 7.63 / ₹114,117 (before: ₹85,729 / ₹110,219 / ₹100,287 / ₹114,939). Rich months 400 vs 600: ₹64,000 vs ₹95,809, W/L 15/3 vs 16/2, avg win ₹4,442 vs ₹6,160, avg
 loss −₹879 vs −₹1,372, worst −₹1,558 vs −₹2,045, credit 190.9 vs 253.6, max loss 209.1 vs 346.4 pts (≈ ₹13.6k vs ₹22.5k at lot 65), credit ÷ max loss 0.91 vs
 0.73, rich profit ÷ avg max loss 5.5× vs 5.0×. Same picture as before; summary page updated. Version B estimate (600 + 300-pt PCS) ≈ ₹1.41L.
+UNHEDGED BATMAN 2021–26, FIRST RESULT (13-Nov-2026; strike set b20_16 picked by the user's run 13-Nov; per side buy 1 ~20Δ, sell 2 ~16Δ;
+TP / SL ₹10,000 (4% of static ₹2.5L), 15:16 check, 18 DTE; output/batman/BATMAN_unhedged_backtest_report.xlsx): 66 tr (24 and 2603 no data) net ₹93,264 /
+gross ₹115,895 / costs ₹22,632; 52 W / 14 L; 4 targets / 8 stops / 54 time exits; max DD −₹33,842; worst −₹23,258 (35, Nov-2023 rally); avg win ₹4,516 vs
+avg loss −₹10,111; PF 1.66; 0.5-pt slip ₹71,544. All 8 stops ended beyond the ₹10k stop (−₹11.0k…−₹23.3k: 35, 62, 11, 52, 21, 14…) – one check a day
+lets an uncovered short lot run. By year: 2021 +₹20.0k, 2022 −₹6.6k, 2023 +₹6.8k, 2024 +₹25.6k, 2025 +₹31.1k, 2026 +₹16.4k. Versus the condor rule (IC
+₹90,667 / DD −₹5,523; rulebook ₹103,880 / −₹5,523): about the same profit for ≈ 6× the drawdown and 4× the worst trade. Sample trade 66 +₹6,149 vs
+StockMock +₹6,039 (16Δ call 25300 vs 25200). Data downloaded to 7 DTE as well. Hedged variant (30Δ / +100 / +600) added 13-Nov – next.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give

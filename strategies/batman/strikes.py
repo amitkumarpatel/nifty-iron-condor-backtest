@@ -1,6 +1,9 @@
 """
 Batman strike selection: for every monthly cycle pick, on each side (calls and puts), the strike whose Black-Scholes
-delta at 11:16 is nearest BUY_DELTA (bought, 1 lot) and the strike nearest SELL_DELTA further out (sold, 2 lots).
+delta at 11:16 is nearest BUY_DELTA (bought, 1 lot) and
+  unhedged: the strike nearest SELL_DELTA further out (sold, 2 lots);
+  hedged:   the strike SELL_OFFSET points further out (sold, 2 lots) and WING_OFFSET points beyond the bought one (wing, 1 lot).
+For the hedged variant, if the sold or wing strike has no usable 11:16 price, the next-nearest bought strike is tried.
 Same method as the condor's picker: NIFTY spot at 11:16, implied volatility from each option's 11:16 price,
 r = RISK_FREE_RATE. Only prices from a candle at or before 11:16 (EXACT / FFILL) are used, so every chosen strike
 has a usable entry price. The sold strike is always further out than the bought one.
@@ -50,7 +53,8 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="only count the API calls needed (no login)")
     a = ap.parse_args()
     cyc = load_cycles(a.trades)
-    targets = (C.BUY_DELTA, C.SELL_DELTA)
+    targets = tuple(d for d in (C.BUY_DELTA, C.SELL_DELTA) if d)
+    hedged = bool(C.WING_OFFSET)
     out_dir = 1                                  # CE: further out = higher strike; PE: lower
 
     # ---- first window: SEARCH_AROUND strikes each side of the estimate of each target strike ----
@@ -69,6 +73,10 @@ def main():
                     c = int(ref) // STEP * STEP + (STEP * 4 if opt == "CE" else -STEP * 4)
                 ks |= set(range(c - C.SEARCH_AROUND * STEP, c + C.SEARCH_AROUND * STEP + 1, STEP))
             plan[(t.trade_id, opt)] = ks
+            if hedged:     # sold and wing strikes of the three candidates nearest the estimate
+                sgn = 1 if opt == "CE" else -1
+                near = sorted(ks, key=lambda k: abs(k - c))[:3]
+                plan[(t.trade_id, opt)] |= {k + sgn * C.SELL_OFFSET for k in near} | {k + sgn * C.WING_OFFSET for k in near}
 
     def missing(pl):
         out = []
@@ -112,7 +120,8 @@ def main():
             for (tid, opt), ks in plan.items():
                 t = cyc[cyc.trade_id == tid].iloc[0]
                 rows = [delta_of(t, opt, k) for k in ks]
-                ok = [r for r in rows if r["delta"] and r["quality"] in ("EXACT", "FFILL")]
+                ok = [r for r in rows if r["delta"] and r["quality"] in ("EXACT", "FFILL")
+                      and (not hedged or 0.05 < r["delta"] < 0.6)]
                 if not ok:
                     continue
                 sgn = 1 if opt == "CE" else -1
@@ -140,9 +149,29 @@ def main():
     C.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     cand.to_csv(C.OUTPUT_DIR / f"strike_selection_{a.name}.csv", index=False)
     ok = cand[cand.delta.notna() & cand.quality.isin(["EXACT", "FFILL"])]
+    usable = {(r.trade_id, r.opt_type, r.strike) for r in cand.itertuples() if r.price and r.quality in ("EXACT", "FFILL")}
     picks, none = [], []
     for (tid, opt), g in ok.groupby(["trade_id", "opt_type"]):
-        buy = g.loc[(g.delta - C.BUY_DELTA).abs().idxmin()]
+        t = cyc[cyc.trade_id == tid].iloc[0]
+        g = g.assign(err=(g.delta - C.BUY_DELTA).abs()).sort_values("err")
+        if hedged:
+            sgn, chosen, note = (1 if opt == "CE" else -1), None, ""
+            for n, buy in enumerate(g.head(3).itertuples()):       # nearest 30-delta first, then the next ones
+                ks = (int(buy.strike), int(buy.strike) + sgn * C.SELL_OFFSET, int(buy.strike) + sgn * C.WING_OFFSET)
+                rows = {k: delta_of(t, opt, k) for k in ks}
+                if all(rows[k]["price"] and rows[k]["quality"] in ("EXACT", "FFILL") for k in ks):
+                    chosen, note = ks, ("" if n == 0 else f"fallback: bought strike #{n + 1} nearest {C.BUY_DELTA}")
+                    break
+            if not chosen:
+                none.append((tid, opt))
+                continue
+            for role, k in zip(("BUY", "SELL", "WING"), chosen):
+                r = rows[k]
+                picks.append(dict(trade_id=tid, entry_date=r["entry_date"], expiry=r["expiry"], lot=r["lot"], opt_type=opt,
+                                  role=role, target_delta=C.BUY_DELTA if role == "BUY" else None, strike=k, delta=r["delta"],
+                                  iv=r["iv"], price=r["price"], quality=r["quality"], spot=r["spot"], note=note))
+            continue
+        buy = g.iloc[0]
         further = g[g.strike > buy.strike] if opt == "CE" else g[g.strike < buy.strike]
         if not len(further):
             none.append((tid, opt))
@@ -151,27 +180,28 @@ def main():
         for role, r, tgt in (("BUY", buy, C.BUY_DELTA), ("SELL", sell, C.SELL_DELTA)):
             picks.append(dict(trade_id=tid, entry_date=r.entry_date, expiry=r.expiry, lot=r.lot, opt_type=opt, role=role,
                               target_delta=tgt, strike=int(r.strike), delta=r.delta, iv=r.iv, price=r.price,
-                              quality=r.quality, spot=r.spot))
+                              quality=r.quality, spot=r.spot, note=""))
     out = pd.DataFrame(picks).sort_values(["entry_date", "opt_type", "role"])
     f = strike_file(a.name)
     f.parent.mkdir(parents=True, exist_ok=True)
     out.to_csv(f, index=False)
+    need = 6 if hedged else 4
     full = out.groupby("trade_id").size()
-    print(f"\nSaved {len(out)} strikes for {int((full == 4).sum())} of {len(cyc)} cycles -> {f}")
+    print(f"\nSaved {len(out)} strikes for {int((full == need).sum())} of {len(cyc)} cycles ({C.VARIANT}) -> {f}")
     for opt in ("CE", "PE"):
-        for role in ("BUY", "SELL"):
+        for role in ("BUY", "SELL", "WING"):
             o = out[(out.opt_type == opt) & (out.role == role)]
             if len(o):
-                print(f"  {opt} {role}: target {o.target_delta.iloc[0]:.2f}, chosen delta {o.delta.mean():.3f} "
+                print(f"  {opt} {role}: chosen delta {o.delta.mean():.3f} "
                       f"(range {o.delta.min():.3f}-{o.delta.max():.3f})")
     gap = out.pivot_table(index=["trade_id", "opt_type"], columns="role", values="strike")
     if len(gap):
         print(f"  gap bought -> sold strike: {(gap.SELL - gap.BUY).abs().mean():.0f} pts on average "
               f"({(gap.SELL - gap.BUY).abs().min():.0f}-{(gap.SELL - gap.BUY).abs().max():.0f})")
-    missing_cycles = sorted(set(cyc.trade_id) - set(full[full == 4].index))
+    missing_cycles = sorted(set(cyc.trade_id) - set(full[full == need].index))
     if missing_cycles or none:
         print(f"  no complete strike set (no usable 11:16 price): cycles {missing_cycles}")
-    print("Next: python strategies/batman/scripts/download.py --dry-run, then without --dry-run")
+    print(f"Next: python strategies/batman/scripts/download.py --variant {C.VARIANT} --dry-run, then without --dry-run")
 
 
 if __name__ == "__main__":

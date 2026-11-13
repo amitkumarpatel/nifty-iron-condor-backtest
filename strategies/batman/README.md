@@ -1,4 +1,4 @@
-# Batman (NIFTY) – rules agreed, backtest to be built
+# Batman (NIFTY) – two variants: unhedged (backtested) and hedged (data to download)
 
 A Batman is a **call ratio spread plus a put ratio spread** on the same expiry: on each side buy 1 option and sell 2
 further out. The payoff has two profit peaks near the sold strikes ("bat ears"). With a far bought leg on each side
@@ -27,6 +27,16 @@ time exit; never near ±₹10,000 (range −₹777 … +₹6,201). Our Black-Sch
 are about equally near 0.16 and our nearest-delta rule picks 25300. Delta models differ slightly; a full StockMock run would let us
 reconcile every month as for the condor.
 
+## Hedged variant (agreed 13-Nov-2026, StockMock screenshot of 13-Jul-2026)
+Per side: buy 1 lot ~30Δ, sell 2 lots 100 pts further out, buy 1 lot 600 pts beyond the bought leg (500 beyond the sold strike).
+Same entry, 15:16 check, ₹10,000 target / stop, 18-DTE exit to start. Sample month: credit ₹9,097 (StockMock ₹9,106), max profit ₹15.6k
+(only at a sold strike at expiry), max loss −₹16.9k vs the 400-pt condor's credit ₹12,162 / max loss −₹13.8k; at 18 DTE both have almost the
+same P&L curve (within ≈ ₹700 for moves up to ±4%). Strike set `h30_100_600`; run the scripts with `--variant hedged`.
+
+## Results
+- Unhedged, 18 DTE (13-Nov-2026): 66 trades, net ₹93,264, max drawdown −₹33,842, worst −₹23,258, 8 stops all beyond −₹10k, PF 1.66
+  (`output/batman/BATMAN_unhedged_backtest_report.xlsx`).
+
 ## Next tests (after the first run)
 - Hedged Batman: buy 1 far lot per side beyond the 16Δ strike – caps the loss and lowers the margin.
 - Exit day (e.g. 7 / 10 / 14 / 18 DTE) and the condor's 10-day move filter as variants.
@@ -45,8 +55,9 @@ python shared/scripts/login_url.py                          # today's Breeze ses
 python strategies/batman/scripts/select_strikes.py          # 20Δ / 16Δ strikes at 11:16 for the 68 cycles (~150 calls)
 python strategies/batman/scripts/download.py --dry-run      # count the candle calls (no login)
 python strategies/batman/scripts/download.py --exit-dte 7   # candles entry -> 7 DTE (covers the 18-DTE exit too; ~700 calls)
-python strategies/batman/scripts/backtest.py                # offline -> output/batman/BATMAN_backtest_report.xlsx
-python strategies/batman/scripts/backtest.py --exit-dte 10  # another time exit -> BATMAN_backtest_report_x10.xlsx
+python strategies/batman/scripts/backtest.py                # offline -> output/batman/BATMAN_unhedged_backtest_report.xlsx
+python strategies/batman/scripts/backtest.py --exit-dte 10  # another time exit -> BATMAN_<variant>_backtest_report_x10.xlsx
+# hedged variant: add --variant hedged to each of the four scripts above (strike set h30_100_600)
 ```
 
 ## Layout
