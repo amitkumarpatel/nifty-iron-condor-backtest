@@ -49,6 +49,10 @@ same P&L curve (within ≈ ₹700 for moves up to ±4%). Strike set `h30_100_600
   ±2.5% ₹117,592 / −₹24,340; 7 DTE ₹125,869 / −₹39,435; 7 DTE ±2.5% ₹132,867 / −₹24,206. Same conclusion – drawdown 4–8× the condor's.
   (The fixed-₹10,000 results above are the `_static` reports.)
 
+- HEDGED (13-Nov-2026, target/stop 4% of capital used, k 0.121): no filter 18 DTE ₹44,739 / −₹31,612; ±2.5% 18 DTE ₹77,418 / −₹18,370,
+  15 DTE ₹93,314 / −₹16,938; ±2% 18 DTE ₹78,667 / −₹12,077 / worst −₹7,473, 15 DTE ₹88,179 / −₹10,644 / PF 4.09. 2022 loses in every variant.
+  Versus the finalised condor rule (₹90,667 / −₹5,523 / PF 5.94): about the same profit, twice the drawdown – not adopted.
+
 ## Next tests (after the first run)
 - Hedged Batman: buy 1 far lot per side beyond the 16Δ strike – caps the loss and lowers the margin.
 - Exit day (e.g. 7 / 10 / 14 / 18 DTE) and the condor's 10-day move filter as variants.

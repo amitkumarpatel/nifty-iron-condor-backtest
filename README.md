@@ -1595,6 +1595,17 @@ target = stop avg ₹7,188 (₹3,493–12,401). Unhedged results with it (n / ne
 −₹42,924 / −₹18,899 / 50-16 / 10-14-42 / 1.77; ±2.5% 45 / ₹117,592 / −₹24,340 / −₹15,395 / 2.99; 15 DTE ₹97,230 / −₹39,894 (±2.5% ₹113,587 / −₹24,206);
 12 DTE ₹104,158 / −₹39,963 (±2.5% ₹119,878 / −₹24,206); 10 DTE ₹106,215 / −₹40,620 (±2.5% ₹124,262 / −₹24,206); 7 DTE ₹125,869 / −₹39,435 (±2.5% ₹132,867 /
 −₹24,206). Smaller targets and stops = more targets and more stops; drawdown still 4–8× the condor rule's −₹5,523. Conclusion unchanged.
+HEDGED BATMAN 2021–26 (13-Nov-2026; strike set h30_100_600 picked by the user's run; per side buy 1 ~30Δ, sell 2 at +100 pts, buy 1 wing at +600 from the
+bought leg; 12 months on the next-nearest 30Δ strike (a leg unpriced), 64 run (24, 30, 53, 2603 no full strike set); target = stop = 4% of capital used
+(0.121 × NIFTY × lot, avg ₹5.4k, ₹2.7k–9.4k); output/batman/BATMAN_hedged_backtest_report[_x<DTE>][_f<X>].xlsx; n / net / max DD / worst / W-L / PF /
+0.5-pt slip). NO FILTER: 18 DTE 64 / ₹44,739 / −₹31,612 / −₹9,431 / 44-20 / 1.45 / ₹16,779; 15 ₹58,128 / −₹31,892; 12 ₹38,508 / −₹40,233; 10 ₹38,249 /
+−₹44,280; 7 ₹34,145 / −₹39,301. ±2.5%: 18 43 / ₹77,418 / −₹18,370 / −₹7,473 / 3.12; 15 ₹93,314 / −₹16,938 / 3.22; 12 ₹82,233 / −₹18,129; 10 ₹89,708 / −₹17,869;
+7 ₹74,556 / −₹16,819. ±2%: 18 35 / ₹78,667 / −₹12,077 / −₹7,473 / 4.42 / ₹62,947; 15 ₹88,179 / −₹10,644 / 4.09 / ₹72,459; 12 ₹76,691 / −₹12,333; 10 ₹83,899 /
+−₹11,575; 7 ₹68,917 / −₹11,194. Every variant has 2022 as a losing year. Worst trades 62 −₹9.4k, 50 −₹9.3k, 52 −₹9.1k (the filters skip these), 11 −₹7.5k.
+VERSUS THE FINALISED CONDOR RULE (±2% + credit test, 37 tr ₹90,667 / −₹5,523 / worst −₹5,523 / PF 5.94 / slip ₹82,307 / no losing year): the best hedged
+Batman (±2%, 15 DTE – picked after seeing the results) makes about the same (₹88,179) with twice the drawdown (−₹10,644), a bigger worst trade (−₹7,473),
+PF 4.09, more slippage cost (16 lots per trade vs 8) and higher margin (≈ ₹1.9L vs the condor's). Much better than the unhedged Batman; condor still
+better. Sample month: our 30Δ strikes 24850/23750 vs StockMock's 24700/23700, credit ₹8,317 vs ₹9,107. Not adopted.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
