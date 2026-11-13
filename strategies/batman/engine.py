@@ -120,9 +120,16 @@ def main():
     ap = argparse.ArgumentParser(description="Batman backtest (offline)")
     ap.add_argument("--trades", type=int, nargs="*")
     ap.add_argument("--exit-dte", type=int, default=C.EXIT_DTE)
-    ap.add_argument("--out", help="report file (default output/batman/BATMAN_<variant>_backtest_report[_x<N>].xlsx)")
+    ap.add_argument("--filter", type=float, default=C.ENTRY_FILTER,
+                    help="skip months whose |10-day NIFTY move| at the close before entry is above this %% (e.g. 2.5)")
+    ap.add_argument("--out", help="report file (default output/batman/BATMAN_<variant>_backtest_report[_x<N>][_f<X>].xlsx)")
     a = ap.parse_args()
     cyc, strikes = load_cycles(a.trades), load_strikes()
+    from shared.calendar import index_move_pct
+    mv = index_move_pct(cyc.entry_date, C.TREND_LOOKBACK_DAYS)
+    cyc["move_10d_pct"] = [round(mv[d], 2) for d in cyc.entry_date]
+    skipped = cyc[cyc.move_10d_pct.abs() > a.filter] if a.filter is not None else cyc.iloc[0:0]
+    cyc = cyc.drop(skipped.index)
     rows, daily = [], []
     for t in cyc.itertuples():
         r, d = run_cycle(t, strikes, a.exit_dte)
@@ -134,8 +141,12 @@ def main():
     if not len(tr):
         raise SystemExit("No cycle could be run - download the candles first (strategies/batman/scripts/download.py).")
     tr["year"] = pd.to_datetime(tr.entry_date).dt.year
+    tr.insert(4, "move_10d_pct", tr.trade_id.map(dict(zip(cyc.trade_id, cyc.move_10d_pct))))
     S = summary(tr)
-    S.loc[0, "value"] = len(cyc)
+    S.loc[0, "value"] = len(cyc) + len(skipped)
+    if a.filter is not None:
+        S = pd.concat([S.iloc[:1], pd.DataFrame([("Skipped by the 10-day filter", f"{len(skipped)} (|move| > {a.filter}%)")],
+                                                 columns=S.columns), S.iloc[1:]], ignore_index=True)
     by_year = tr.groupby("year").agg(trades=("net_rs", "size"), net_rs=("net_rs", "sum"), wins=("net_rs", lambda s: (s > 0).sum()),
                                      targets=("exit_reason", lambda s: (s == "TARGET").sum()),
                                      stops=("exit_reason", lambda s: (s == "STOPLOSS").sum()), worst_rs=("net_rs", "min")).round()
@@ -144,7 +155,9 @@ def main():
          if not C.WING_OFFSET else
          f"Variant {C.VARIANT}: per side buy {C.BUY_LOTS} lot ~{C.BUY_DELTA:.2f} delta, sell {C.SELL_LOTS} lots {C.SELL_OFFSET} pts further out, buy "
          f"{C.WING_LOTS} lot {C.WING_OFFSET} pts beyond the bought leg (capped loss), calls and puts."),
-        "Entry Monday 11:16 at 43 DTE (the condor's dates), every month, no filter. Strikes by Black-Scholes delta at 11:16 (nearest).",
+        ("Entry Monday 11:16 at 43 DTE (the condor's dates), every month, no filter." if a.filter is None else
+         f"Entry Monday 11:16 at 43 DTE (the condor's dates); month skipped if |NIFTY 10-day move| > {a.filter}% at the close before entry "
+         "(NSE official closes; see sheet Skipped).") + " Strikes by Black-Scholes delta at 11:16 (nearest).",
         f"One check a day at 15:16 on the whole position, entry day included; stop before target. Target +Rs {C.TP_RS:,.0f}, "
         f"stop -Rs {C.SL_RS:,.0f} (4% of a static capital of Rs {C.CAPITAL:,}); else time exit at {a.exit_dte} DTE.",
         ("Size: 2 + 1 lots per side at each expiry's lot size. UNHEDGED: one sold lot per side is uncovered (unlimited risk)."
@@ -154,7 +167,8 @@ def main():
         "A loss can pass the stop: with one check a day the position is only closed at the next 15:16.",
         "Sheets: Summary, By year, Trades (legs, prices, credit, exit, P&L), Daily (every 15:16 check), Not run, StockMock check (sample trade)."]})
     out = Path(a.out) if a.out else C.OUTPUT_DIR / (f"BATMAN_{C.VARIANT}_backtest_report"
-                                                    + ("" if a.exit_dte == C.EXIT_DTE else f"_x{a.exit_dte}") + ".xlsx")
+                                                    + ("" if a.exit_dte == C.EXIT_DTE else f"_x{a.exit_dte}")
+                                                    + ("" if a.filter is None else f"_f{a.filter:g}") + ".xlsx")
     out.parent.mkdir(parents=True, exist_ok=True)
     with pd.ExcelWriter(out) as w:
         readme.to_excel(w, sheet_name="Read me", index=False)
@@ -163,6 +177,8 @@ def main():
         tr.drop(columns=["status"]).to_excel(w, sheet_name="Trades", index=False)
         pd.DataFrame(daily).to_excel(w, sheet_name="Daily", index=False)
         notrun.to_excel(w, sheet_name="Not run", index=False)
+        if a.filter is not None:
+            skipped[["trade_id", "entry_date", "expiry", "move_10d_pct"]].to_excel(w, sheet_name="Skipped", index=False)
         stockmock_check(tr, strikes).to_excel(w, sheet_name="StockMock check", index=False)
     print(S.to_string(index=False))
     print(by_year.to_string())

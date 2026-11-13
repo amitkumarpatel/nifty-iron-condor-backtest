@@ -1572,6 +1572,12 @@ UNHEDGED BATMAN EXIT-DTE LADDER (13-Nov-2026, same strikes and ₹10k TP/SL; out
 worst / W-L / targets-stops-time / PF / 0.5-pt slip): 18 DTE 66 / ₹93,264 / −₹33,842 / −₹23,258 / 52-14 / 4-8-54 / 1.66 / ₹71,544; 15 ₹94,870 / −₹38,119 / 1.58;
 12 ₹93,973 / −₹45,998 / 1.56; 10 ₹86,089 / −₹54,398 / 1.50; 7 ₹122,428 / −₹42,843 / 1.71 / ₹100,708. Every exit day: worst −₹23,258 (trade 35) and one losing
 year; later exits add stops (8 → 12) and deepen the drawdown – the uncovered lot is the problem, not the exit day. Not adopted.
+UNHEDGED BATMAN + ±2.5% 10-DAY FILTER (13-Nov-2026, user request; new option backtest.py --filter X, NSE closes; 22 months skipped, 45 trades;
+output/batman/BATMAN_unhedged_backtest_report[_x<DTE>]_f2.5.xlsx; net / max DD / worst / W-L / PF / 0.5-pt slip, no filter in brackets): 18 DTE ₹99,973 /
+−₹28,632 / −₹23,258 / 38-7 / 2.34 / ₹85,183 (₹93,264 / −₹33,842); 15 ₹120,451 / −₹26,796 / 2.56 (2 losing years); 12 ₹126,038 / −₹26,796 / 2.66;
+10 ₹130,557 / −₹26,796 / 2.75; 7 ₹144,087 / −₹26,796 / −₹23,258 / 37-8 / 2.92 / ₹129,297. The filter removes the Feb-2026 (−₹18.9k) and Apr-2025
+(−₹12.6k) stops and lifts profit at every exit day, but the drawdown stays ≈ −₹27k (5 stops remain: 35 at +2.01%, 11, 21, 14, 51 – all inside
+±2.5%, all past −₹10k) and 2022 loses at every exit (−₹3.4k…−₹11.3k). Versus the condor rule (₹90,667 / −₹5,523): more profit, ≈ 5× the drawdown.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give

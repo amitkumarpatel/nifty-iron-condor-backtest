@@ -38,6 +38,8 @@ same P&L curve (within ≈ ₹700 for moves up to ±4%). Strike set `h30_100_600
   (`output/batman/BATMAN_unhedged_backtest_report.xlsx`).
 - Unhedged exit ladder: 15 DTE ₹94,870 / −₹38,119; 12 DTE ₹93,973 / −₹45,998; 10 DTE ₹86,089 / −₹54,398; 7 DTE ₹122,428 / −₹42,843 –
   worst trade −₹23,258 at every exit day; later exits add stops and deepen the drawdown.
+- With the ±2.5% 10-day filter (`--filter 2.5`, 45 trades): 18 DTE ₹99,973 / −₹28,632; 15 ₹120,451 / −₹26,796; 12 ₹126,038 / −₹26,796;
+  10 ₹130,557 / −₹26,796; 7 ₹144,087 / −₹26,796 – more profit, drawdown still ≈ −₹27k (5 stops past −₹10k), 2022 a losing year.
 
 ## Next tests (after the first run)
 - Hedged Batman: buy 1 far lot per side beyond the 16Δ strike – caps the loss and lowers the margin.
@@ -58,6 +60,7 @@ python strategies/batman/scripts/select_strikes.py          # 20Δ / 16Δ strike
 python strategies/batman/scripts/download.py --dry-run      # count the candle calls (no login)
 python strategies/batman/scripts/download.py --exit-dte 7   # candles entry -> 7 DTE (covers the 18-DTE exit too; ~700 calls)
 python strategies/batman/scripts/backtest.py                # offline -> output/batman/BATMAN_unhedged_backtest_report.xlsx
+python strategies/batman/scripts/backtest.py --filter 2.5   # skip months with |10-day move| > 2.5% -> ..._f2.5.xlsx
 python strategies/batman/scripts/backtest.py --exit-dte 10  # another time exit -> BATMAN_<variant>_backtest_report_x10.xlsx
 # hedged variant: add --variant hedged to each of the four scripts above (strike set h30_100_600)
 ```

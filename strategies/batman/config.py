@@ -46,7 +46,10 @@ TP_RS          = CAPITAL * TP_PCT_OF_CAPITAL / 100     # Rs 10,000
 SL_RS          = CAPITAL * SL_PCT_OF_CAPITAL / 100     # Rs 10,000
 EXIT_DTE       = int(os.environ.get("BATMAN_EXIT_DTE", 18))   # time exit: last trading day on/before expiry - 18 days
                                                              # (same as the condor; to be tested; --exit-dte per run)
-ENTRY_FILTER   = None            # every month first; the condor's 10-day move filter is a later variant
+# Entry filter (tested 13-Nov-2026 at the user's request; --filter X on backtest.py): skip the month if |NIFTY 10-day move| > X %
+# at the last close before entry (NSE official closes, data/shared/nifty_daily.csv) - the condor's earlier rule used 2.5.
+ENTRY_FILTER   = None            # default: every month
+TREND_LOOKBACK_DAYS = 10
 PERIODS        = ["2021-26 (68 cycles)"]   # 2019-20 not tested yet (user, 11-Nov-2026)
 
 # ---- files ----
