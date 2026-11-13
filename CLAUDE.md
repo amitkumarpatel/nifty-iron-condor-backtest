@@ -196,6 +196,14 @@ all ≈ equal (|corr| <= 0.2). Filters, 18 DTE | 15 DTE (n / net / max DD; worst
 worse. VERDICT: only the 10-day move matters; tightening it (±1.5%) or adding a calm-range filter brings the DD to ≈ −₹7.5k but cuts profit to ₹54–67k,
 still below the condor rule (₹90,667 / −₹5,523). No filter makes the hedged Batman beat the condor on both profit and drawdown. Not adopted.
 
+IC vs HEDGED BATMAN TRADE BY TRADE ON THE RICH MONTHS (13-Nov-2026, user request; ±2% & 400-pt C/W >= 45% = 18 months, Batman has 17 (53 no strikes);
+output/batman/IC_vs_hedged_batman_rich_months.xlsx; n / net / W-L / avg win / avg loss / worst = max DD / PF). IC 400-pt TP60: 18 / ₹64,001 / 15-3 / ₹4,443 /
+−₹879 / −₹1,558 / 25.3 (17 common ₹60,356). Batman 18 DTE: 17 / ₹53,829 / 16-1 / ₹3,677 / −₹4,996 (21, Sep-2022 −5.5% fall: IC +₹638) / 11.8; 15 DTE ₹57,659 /
+15-2 / −₹4,996. IC better on 10 of 17. Batman wins: 42 (Jun-2024 election week, target in 3 days +₹2,717 vs IC −₹1,558), 7, 32 (NIFTY drifted 2–3.5%
+towards a sold strike), 49, 4. IC wins: 21 (−₹5.6k gap), 3 (Batman target day 3 +₹5.1k vs IC +₹7.8k), 54, 10, 25. Credit 191 vs 138 pts; max loss
+at expiry (400 − credit) avg ₹11.3k vs ₹14.3k per lot; Batman 8 lots / 16 fills vs 4 / 8; capital used avg ₹1.33L. By year 2022: IC +₹2.5k, Batman −₹3.8k.
+Verdict: in the same months the condor makes more with a third of the worst loss; Batman not adopted.
+
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
   (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.
