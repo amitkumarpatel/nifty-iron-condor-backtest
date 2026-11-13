@@ -1,6 +1,6 @@
 ---
 name: nifty-ic-forward-test
-description: Run the monthly forward test (paper trading) of the NIFTY iron condor from the nifty-iron-condor-backtest repo. Use whenever the user mentions the iron condor, IC, forward test, paper trade, monthly entry, the 10-day trend filter, the 15:16 check, target/stop/time exit, gap-up logging, or asks "should I enter this month", "what is my IC position doing", "when is the exit date", or "log today's check", even if they don't name the skill. Also use to add a finished forward trade back into the backtest reference files for reconciliation.
+description: Run the monthly forward test (paper trading) of the NIFTY iron condor from the nifty-iron-condor-backtest repo. Use whenever the user mentions the iron condor, IC, forward test, paper trade, monthly entry, the 10-day trend filter, the 15:16 check, target/stop/time exit, gap-up logging, or asks "should I enter this month", "should I trade a Batman instead", "what is my IC position doing", "when is the exit date", or "log today's check", even if they don't name the skill. Also use to add a finished forward trade back into the backtest reference files for reconciliation.
 ---
 
 # NIFTY monthly iron condor: forward test
@@ -11,8 +11,9 @@ This skill runs the routine in README section 5.10 ("Monthly routine") of the re
 
 Repository layout (since 11-Nov-2026): shared code in `shared/`, the condor in `strategies/iron_condor/` (entry scripts in
 `strategies/iron_condor/scripts/`, research scripts in `strategies/iron_condor/analysis/`), condor data in `data/iron_condor/`, reports in
-`output/iron_condor/`. Run every command from the repository root. A Batman strategy is being set up in `strategies/batman/`
-(rules not final) – this skill covers the iron condor only.
+`output/iron_condor/`. Run every command from the repository root. The Batman strategy (`strategies/batman/`, reports in
+`output/batman/`) was backtested on 13-Nov-2026 and NOT adopted – see "Batman: tested, not adopted" below. This skill paper-trades the
+condor rulebook only.
 
 The rules change often (hedge width, exit DTE and the filter were all revised within one week). So:
 
@@ -276,6 +277,25 @@ A leg-by-leg check of the backtest found four problems; all figures above includ
 | Entry-day 15:16 check | The put-spread simulator skipped the entry day's 15:16 check (the condor engine had it). No 2021–26 trade changed; Apr-2020's put prices turned out to be unusable | Run `check` at 15:16 on the entry day too – a target or stop can hit the same afternoon |
 
 Files: `output/iron_condor/pcs_trade_details.xlsx` (every put spread, legs, volumes, daily path), `output/iron_condor/combined_ic_plus_put20_spread.xlsx` (Changes sheet), `output/iron_condor/variants_400_500_600_corrected.xlsx`.
+
+### Batman: tested, not adopted (13-Nov-2026)
+
+A Batman is a call ratio spread plus a put ratio spread. Both versions were backtested on 2021–26 with the condor's entry rules: Monday 11:16 at
+43 DTE, a 15:16 check, target = stop = 4% of the capital the trade uses. Neither replaces the condor rule (37 trades, ₹90,667, drawdown −₹5,523).
+Details: README §7, `strategies/batman/README.md`, summary page section "Even in its best months the hedged Batman trails the condor".
+
+- **Unhedged** (per side buy 1 ~20Δ, sell 2 ~16Δ; one sold lot uncovered): 18 DTE ₹1,02,835 / DD −₹42,924 / worst −₹18,899; with ±2.5% ₹1,17,592 /
+  −₹24,340. No entry filter or exit day fixes the drawdown, which is 4–8× the condor's.
+- **Hedged** (per side buy 1 ~30Δ, sell 2 at +100, buy 1 wing at +600 from the bought leg): no filter ₹44,739 / −₹31,612; ±2% ₹78,667 / −₹12,077
+  (15 DTE ₹88,179 / −₹10,644). Its best filter is the condor's own rich-month test (±2% and 400-pt credit ≥ 45%): 17 trades ₹53,829 / −₹4,996. In
+  those same months the 400-pt condor made ₹64,001 / −₹1,558 and did better in 10 of 17 (`output/batman/IC_vs_hedged_batman_rich_months.xlsx`).
+- **Not predictable:** the Batman beats the condor only when NIFTY moves 2–4% by the exit. Nothing known at entry predicts that – every entry
+  feature has |correlation| ≤ 0.2, and budget and election months come out level.
+- **Earlier stop** from the previous day's 15:00–15:15 reading, or NIFTY beyond a sold strike: cuts profit and does not lower the drawdown. The big
+  overshoots come in one day from a calm reading.
+
+If the user asks to trade a Batman instead of, or alongside, this month's condor, show these numbers. Treat it as a separate decision outside this
+forward test, log it in `notes` as a deviation if they do it anyway, and do not re-run these tests unless asked.
 
 ### What to do with this live
 
