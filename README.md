@@ -235,6 +235,7 @@ Sep-2026. Details and tables for each point are in §7.
 | Election / Budget / US-election filters | Elections: judgement call only. Budget months were all winners – never skip them |
 | Shift strikes with the trend, close only the tested side, lock in profit | All worse or no drawdown benefit |
 | Entry day | Monday 11:16 best. Wednesday much worse. Previous-Friday 15:16 roll ≈ Monday only with the filter on live NIFTY, and it does not work with the gap-up exit |
+| Collateral overlay (Liquidcase + index fund) and benchmarks (18-Nov-2026) | Rulebook ≈ 11%/yr vs bond 8.06%; plan with pledged collateral 17.3%/yr but DD −6.9% (index fund); liquid-only −3.75%. Trend-timed Nifty (200-DMA) lost to buy-and-hold. See §7 |
 
 ---
 
@@ -1672,6 +1673,42 @@ worst trade 3.7%; avg trade 1.6%. IC + 20Δ put spread: 61 tr ₹103,880 = ₹18
 (removes the lot 25–75 swings): IC 10.9%/yr, rulebook 12.5%/yr = 1.04%/month; by year 10.8 / 4.5 / 10.6 / 8.6 / 24.3 / 11.9% (2026 = 8 months). 0.5-pt slippage:
 IC ₹82,307 = 9.7%/yr. 2019–20 (out of sample) rulebook ₹12,963 = 4.3%/yr. ₹1.5L is today's margin (lot 65, NIFTY ≈ 25–26k); earlier years needed
 different margin. User target 1–1.5%/month: the rulebook sits at the bottom of it before slippage.
+OVERLAY + BENCHMARKS (18-Nov-2026, user request; strategies/iron_condor/analysis/overlay_benchmarks.py -> output/iron_condor/overlay_vs_benchmarks.xlsx). Account = Rs 1.5L per lot =
+₹50k Liquidcase + ₹50k Nifty index fund (both pledged) + ₹50k idle cash (user's current plan; RBI bonds cannot be pledged). Options P&L = the finished rulebook runs (61 tr ₹103,880
+2021–26; 20 tr ₹13,005 2019–20 without the untestable 2004); exit dates and daily 15:16 marks re-simulated. ASSUMPTIONS (editable at the top of the script, APPROXIMATE): liquid-fund
+yield by year (3.2% 2021 … 6.6% 2024, 5.1% 2026), index-fund dividend carry +1.2%/yr, trend-switch cost 0.1%; RBI bond 8.05% flat (the real floating rate was 7.15–7.35% until mid-2023,
+so this flatters the bond); idle cash earns 0; pledge haircuts, margin calls and the SEBI cash / non-cash split NOT modelled. Window 11-Jan-2021 … 11-Sep-2026 (5.66 yrs), 0.5-pt
+slippage, actual lots; avg/yr = profit ÷ ₹1.5L ÷ years (no compounding – overstates equity-heavy accounts, so CAGR is shown too); DD on the daily account value, % of peak.
+  avg/yr | CAGR | max DD | worst 12 months: RBI bond 8.06 | 6.86 | 0 | +8.1%. RULEBOOK ALONE (collateral idle) 10.94 | 8.89 | −₹9,158 (−5.0%) | −0.1%.
+  CURRENT PLAN + rulebook 17.29 | 12.81 | −₹12,733 (−6.9%) | +1.6%, every year positive (2021 +18.6, 2022 +6.4, 2023 +18.5, 2024 +13.5, 2025 +33.8, 2026 to Sep +7.2).
+  Same collateral, NO options, cash in the bond 9.03 | 7.57 | −5.5% | +1.9% -> the options add +8.3 points a year over putting the cash in the bond.
+  Nifty index fund on all ₹1.5L 12.87 | 10.15 | −16.6% (−₹43,500) | −9.8%. Trend-timed Nifty (200-day average, liquid fund when out) 6.54 | 5.72 | −19.2% | −21.7%.
+  DECOMPOSITION of the current plan (₹146,918): options ₹92,990 (10.9 pts), Liquidcase ₹17,474 (2.1), index fund ₹36,453 (4.3), idle cash ₹0; ₹50k in the RBI bond would earn ₹22,800 (2.7).
+  VARIANTS (same options): all ₹1.5L in the liquid fund 17.11 | 12.71 | −₹7,709 (−3.75%) | +4.5% (best drawdown per rupee); ₹1L liquid + ₹50k idle 15.06 | 11.50 | −4.1%; current plan with
+  the idle cash in a liquid fund 19.35 | 13.96 | −6.5% | +3.1% (the idle ₹50k costs ≈ ₹3.1k/yr = 2.1 pts). The index-fund slice earned +6.7 pts a year over liquid on its ₹50k in this
+  window but is the whole drawdown: the account's DD is the index fund's (no-options version −₹13.6k); the rulebook lost nothing while NIFTY fell 17% in 2022.
+  DAILY-MARKED DD of the rulebook alone is −₹8,858 (4-Sep → 26-Oct-2023, no slippage), not the −₹5,523 (3.7%) of the closed-trade basis (reproduced): open condors dip (deepest 15:16 marks:
+  trade 51 −₹6.1k [ended +₹3.9k], 67 −₹5.9k, 11 −₹5.8k, 58 −₹5.0k).
+  2019–26 INCL. COVID (81 tr ₹116,885): rulebook alone 8.91 | 7.03 | −₹11,799 (−7.5%); CURRENT PLAN 17.05 | 11.53 | −₹21,405 (−12.8%) | −6.2%; all-liquid 15.19 | 10.60 | −4.6%;
+  index fund 18.14 | 12.04 | −₹66,941 (−38.3%); trend 11.95 | 8.86 | −19.2%; bond 8.06 | 6.48; no-options same collateral 10.82 | 8.20 | −12.8%. The ₹50k index fund lost ₹22.3k (−38.3%) by 23-Mar-2020.
+  At lot 65 for every trade (2021–26): current plan 17.32 | 12.83 | −₹14,321 (−7.9%); rulebook alone 10.97.
+  CAVEAT – TAIL CORRELATION: Mar-2020 could not be priced (2003 no price, 2004 untestable), so the rulebook shows no loss in the crash month and the combined COVID drawdown is the index
+  fund alone. If a condor / put spread took its maximum loss (₹13.6k / ₹11.1k at lot 65) in the same fall (index fund −35% ≈ −₹17.5k) the account would lose ≈ ₹31k ≈ 21% of ₹1.5L
+  (illustration, not backtested), while margin rises with VIX and the pledged fund's value and haircut worsen.
+  TREND TIMING: lost to buy-and-hold on return AND drawdown in 2021–26 (6.5 vs 12.9%/yr; 35 switches, 77% in the market; 2022 −10%, 2025 +3.6%); 2019–26 it halved the COVID drawdown (−19% vs −38%)
+  but still earned less (11.95 vs 18.14). Only 8 years of NIFTY data (from Oct-2018, one crash); a fair test needs NSE history back to 2008 (not downloaded).
+  VERDICT: the rulebook is the engine (≈ 11%/yr after slippage vs 8.06% for the bond, +8.3 points over the no-options account); the pledged index fund adds return AND equity risk that the
+  condor does not hedge; Liquidcase-only collateral has the best drawdown per rupee. Open decisions (user): idle ₹50k into a liquid fund, size of the index-fund slice, pledge haircuts with Groww.
+COVERED CALL ON NIFTY WITH NIFTYBEES (18-Nov-2026, user request; capital ignored; output/iron_condor/covered_call_niftybees_2021_2026.xlsx). Hold 65 NIFTY units
+(≈ 6,500 NIFTYBEES, price index, no dividends) 11-Jan-2021 → 11-Sep-2026; each condor cycle (Monday 11:16, 43 DTE) sell 1 lot (65) of a ~30/20/16Δ call
+(Batman strike sets); stop = NSE close >= sold strike → buy back at 15:16 (1-min spot not cached daily); optional TP 50%; time exit 18 or 7 DTE (no data to
+expiry). CALLS ONLY (what pledging adds; n / net / DD on daily MTM / worst / stops): 16Δ 18 DTE TP50 + stop 67 / ₹1,00,756 / −₹31,195 / −₹16,736 / 2 (best);
+16Δ 18 DTE stop ₹99,492 / −₹33,941; 20Δ 18 DTE stop ₹91,210 / −₹46,982; 30Δ 18 DTE hold ₹1,18,277 / −₹89,512 / −₹65,936 (trade 35); 30Δ + stop ₹71,789 / −₹65,694;
+7-DTE exits and no stop are worse (DD −₹1.3–1.6L). The stop at the strike always lowers the call drawdown. Biggest losers = rallies (35 Nov-2023, 8, 19,
+15, 41). TOTAL with NIFTYBEES: buy & hold ₹5,79,368 / DD −₹2,68,671 (NIFTY 14,485 → 23,398, CAGR 8.8%); best CC ₹6,80,124 / DD −₹2,55,600 (CAGR 10.1%). By year
+(16Δ calls as % of the holding): 0.5 / 1.2 / −0.7 / 3.0 / 1.8 / 1.2%; the calls lose in strong-rally years (2023) and help in flat/falling ones (2026 −10.4% → −9.2%).
+VERSUS THE CONDOR RULEBOOK (₹1,03,880 / −₹5,523 per lot): the call income alone is about the same profit with ≈ 6× the drawdown; with NIFTYBEES the drawdown is
+the index's (≈ −₹2.6L per 65 units). A covered call does NOT give similar return with lower drawdown; it is an equity holding with a small yield (≈ +1.3%/yr).
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
