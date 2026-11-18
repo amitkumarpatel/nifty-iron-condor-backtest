@@ -1658,6 +1658,14 @@ the drawdown; with ±2% it gives up ₹8k for half the drawdown and no losing ye
 VERSUS THE CONDOR: ±2% Batman-500 ₹66,913 / −₹5,816 vs the condor rule ₹90,667 / −₹5,523 (same drawdown, ₹24k less); rich months ₹44,191 / −₹744 vs the 400-pt
 condor ₹64,001 / −₹1,558 (Batman better on drawdown, ₹20k less profit, 16 fills vs 8). Condor still the better trade; Batman-500 is the version to keep
 if the Batman is ever revisited. Caveats: 14 trades on a fallback wing, the bad-print rule changes several results, wing chosen after seeing the data.
+IC vs HEDGED BATMAN ON EQUAL RISK (18-Nov-2026, user point: different capital and IC uses 400/300 while HB uses one 500-pt wing). Same 35 months the condor
+rule trades (30, 53 have no HB strikes); risk = maximum loss per trade at expiry (IC (width − credit) × lot; HB (wing − 200 − credit) × lot); n / net / DD / avg
+max loss / avg return on max loss per trade / net ÷ avg max loss. ALL 35: IC ₹90,754 / −₹5,523 / ₹10,295 / 21.8% / 8.8×; HB-500 18 DTE ₹66,913 / −₹5,816 /
+₹11,212 / 17.2% / 6.0×; 15 DTE ₹73,700 / 19.3% / 6.6×. HB scaled to the IC's average risk: ₹61.4k / −₹5.3k. 400-PT MONTHS (17): IC ₹60,355 / −₹1,558 / ₹11,263 /
+26.9%; HB ₹44,190 / −₹744 / ₹10,201 / 24.9% (15 DTE 26.9%, DD −₹2,484) – about equal per rupee at risk. 300-PT MONTHS (18): IC ₹30,399 / −₹5,523 / ₹9,382 /
+16.9%; HB wing 500 ₹22,723 / −₹5,678 / ₹12,166 / 10.0%; wing 400 ₹13,561 / −₹2,430 / ₹7,726 / 9.3%; wing 600 ₹20,557 / −₹8,249 / 5.6%. Tiered HB (500 rich,
+400 thin) ₹57,751 / −₹3,050. The gap is in the thin-credit months: the condor earns ≈ 17% of its risk there, the HB 9–10% at any wing. Margin not
+compared (IC margin never measured; HB estimate ₹1.45L avg from the StockMock ₹1.9L sample) – needs Kite basket margins for the three structures.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
