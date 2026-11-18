@@ -253,6 +253,13 @@ max loss / avg return on max loss per trade / net ÷ avg max loss. ALL 35: IC �
 400 thin) ₹57,751 / −₹3,050. The gap is in the thin-credit months: the condor earns ≈ 17% of its risk there, the HB 9–10% at any wing. Margin not
 compared (IC margin never measured; HB estimate ₹1.45L avg from the StockMock ₹1.9L sample) – needs Kite basket margins for the three structures.
 
+RETURN ON CAPITAL OF THE ADOPTED RULE (18-Nov-2026, user: capital per lot = ₹1.5L = ₹1L pledged + ₹50k cash in Groww). 2021–26 (11-Jan-2021 … 11-Sep-2026 =
+5.66 yrs, 68 cycles), 1 lot, after costs, no compounding. IC only (variant 3): 37 tr ₹90,667 = ₹16,006/yr = 10.7%/yr = 0.89%/month; max DD −₹5,523 = 3.7%;
+worst trade 3.7%; avg trade 1.6%. IC + 20Δ put spread: 61 tr ₹103,880 = ₹18,338/yr = 12.2%/yr = 1.02%/month; DD 3.7%. At today's lot 65 for every trade
+(removes the lot 25–75 swings): IC 10.9%/yr, rulebook 12.5%/yr = 1.04%/month; by year 10.8 / 4.5 / 10.6 / 8.6 / 24.3 / 11.9% (2026 = 8 months). 0.5-pt slippage:
+IC ₹82,307 = 9.7%/yr. 2019–20 (out of sample) rulebook ₹12,963 = 4.3%/yr. ₹1.5L is today's margin (lot 65, NIFTY ≈ 25–26k); earlier years needed
+different margin. User target 1–1.5%/month: the rulebook sits at the bottom of it before slippage.
+
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
   (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.
