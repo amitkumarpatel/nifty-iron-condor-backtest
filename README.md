@@ -1719,6 +1719,15 @@ with or without the stop (−₹14.2k…+₹5.8k, DD −₹49k…−₹72k): a h
 (₹1,03,880 / closed DD −₹5,523 / daily −₹8,858): best CC ₹95,235 / −₹7,239 / −₹18,180 – close on closed trades, about twice on daily marks; the 2% line is a knife
 edge (trade 35 at +2.01%). PRACTICAL LIMIT: 1 lot needs 65 NIFTY units ≈ 6,500 NIFTYBEES ≈ ₹15–17L to be covered; with ₹1L of BEES the call is ≈ 94%
 uncovered (naked-call margin, unlimited loss beyond the stop). Not adopted.
+COVERED CALL WITH A ROLL (19-Nov-2026, user idea; 120 Breeze calls downloaded – next-month call chains on the roll days; scratch simulator; calls only, 65 units;
+when NIFTY's NSE close >= sold strike: buy back at 15:16 AND sell a next-month call at the same delta, same rules, may roll again; that month's regular entry
+skipped; legs / rolls / net / DD daily / DD closed / worst chain / losing years). 16Δ no filter: no roll 67 / 0 / ₹1,07,204 / −₹31,195 / −₹19,875 / −₹16,736 / 0;
+ROLL 67 / 2 / ₹77,024 / −₹57,812 / −₹51,572 / −₹51,572 / 1 (trade 35: Dec-2023 20250 −₹16,736, rolled 21300 Jan-2024 hit again 15-Dec −₹34,836; no Feb strike
+priced for a third roll). 16Δ + skip rise > 2%: no roll ever happens (₹1,01,683 / −₹18,180 / −₹7,239). 20Δ no filter: no roll ₹82,249 / −₹41,269 / −₹29,151; ROLL 6
+rolls ₹48,108 / −₹70,012 / −₹62,181 (35 chain −₹58,427). 20Δ + skip rise > 2%: no roll ₹76,953 / −₹28,064 / −₹22,084; ROLL 3 rolls ₹79,878 / −₹26,306 / −₹22,084
+(22, 30, 52 rolled calls each made +₹3.0–4.5k). Rolled calls win when the rally stops (15, 22, 30, 52: +₹3.0–4.5k) and lose big when it continues (35: the
+rolled call was sold into the Dec-2023 rally). Without a filter the roll doubles the drawdown; with the filter it rarely fires and changes little.
+(This simulator's per-call costs differ slightly from the earlier runs: 16Δ no-roll ₹1,07,204 here vs ₹1,00,756.) NOT ADOPTED – keep buy-back at the strike, no roll.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
