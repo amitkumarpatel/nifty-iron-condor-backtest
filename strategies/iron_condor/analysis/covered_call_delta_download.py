@@ -42,10 +42,17 @@ def main():
     ap.add_argument('--exit-dte', type=int, default=18)
     ap.add_argument('--month', action='store_true',
                     help="enter the trading day after the previous monthly expiry (current-month call, ~28-30 DTE) instead of the condor's 43-DTE Monday")
+    ap.add_argument('--ref', default=REF, help='trade list (default the 2021-26 reference; e.g. data/iron_condor/reference/ic_trades_2019_2020.csv)')
+    ap.add_argument('--ref-strikes', help="strike set whose CE strike replaces sell_ce as the IV first guess (e.g. strikes_d30_2019_2020.csv)")
+    ap.add_argument('--suffix', default='', help='strike set name suffix, e.g. _2019_2020')
     ap.add_argument('--dry-run', action='store_true')
     a = ap.parse_args()
-    name = f"cc{int(round(a.delta * 100))}" + ('_m' if a.month else '')
-    ref = pd.read_csv(REF, parse_dates=['entry_date', 'expiry']).sort_values('expiry').reset_index(drop=True)
+    name = f"cc{int(round(a.delta * 100))}" + ('_m' if a.month else '') + a.suffix
+    ref = pd.read_csv(a.ref, parse_dates=['entry_date', 'expiry']).sort_values('expiry').reset_index(drop=True)
+    if a.ref_strikes:
+        rs = pd.read_csv(a.ref_strikes)
+        ce = rs[rs.opt_type == 'CE'].drop_duplicates('trade_id').set_index('trade_id').strike
+        ref['sell_ce'] = [int(ce.get(t, s0)) for t, s0 in zip(ref.trade_id, ref.sell_ce)]
     if a.month:     # entry = first trading day after the previous monthly expiry
         prev = [pd.Timestamp('2021-01-28')] + list(ref.expiry[:-1])
         ent = []

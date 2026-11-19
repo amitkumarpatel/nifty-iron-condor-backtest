@@ -1759,6 +1759,17 @@ COVERED CALL 'MONTH START TO END' (19-Nov-2026, user request; 602 Breeze calls; 
 −₹56.2k. 2021–23 loses −₹26k…−₹75k in every version. Versus CURRENT (43 → 18 DTE): 67 / ₹1,04,662 / −₹33,941 (no target); skip rise > 2% no target 42 / ₹1,13,256 / −₹20,545
 / −₹7,239 / 0 stops. WHY: at 30 DTE the 16Δ strike is closer (4.3%) and the trade is held through the last 2–4 weeks, when a 4% monthly rise (common) runs through it –
 13–18 buy-backs vs 0–3; targets make it worse (they cap the winners that decay to zero while the losers stay). NOT ADOPTED – keep 43 → 18 DTE. Do not re-test.
+COVERED CALL 16Δ – A1–A4 RULES + 2019–20 OUT OF SAMPLE (19-Nov-2026, user request; 2019–20 strike sets strikes_cc16/cc12/cc20_2019_2020.csv, 87 Breeze calls via
+covered_call_delta_download.py --ref ic_trades_2019_2020.csv --ref-strikes strikes_d30_2019_2020.csv; output/iron_condor/covered_call_16d_rules_2019_2026.xlsx; calls only, 65 units
+in both periods; n / net / DD daily / DD closed / losing years). BASE (skip 10-day rise > 2%): 2021–26 no target 42 / ₹1,13,256 / −₹20,545 / −₹7,239 / 0, TP 50% ₹1,01,683 /
+−₹18,180 / −₹7,239 / 0; 2019–20 no target 16 / ₹6,011 / −₹24,916 / −₹21,647 / 1 (stops 1909 −₹13,436 = 20-Sep-2019 tax-cut rally, 1910 −₹8,211), TP 50% 16 / ₹19,137 /
+−₹10,073 / −₹8,211 / 0 (1909 hit its target the day after entry – partly luck). No filter 2019–20: −₹27,348 / −₹16,834 – the filter matters. A1 soft band (12Δ for a 10-day rise
+1.5–2.5% / 2–2.5% / 2–3% instead of skipping): 2021–26 ₹71k–₹1,02k, DD −₹32,045 closed (brings back trade 35 at 12Δ: −₹32,045) – WORSE; 2019–20 ≈ base. A2 delta by VIX (12Δ if
+VIX < 13): 2021–26 ₹94,493 / −₹7,239 (no target) – less profit, same DD; with 20Δ when VIX >= 15 ₹76,900 / −₹22,084 – worse; 2019–20 ≈ base (+₹6k with the 20Δ tier, only 9
+trades). A3 12Δ after a 10-day fall < −2%: 2021–26 ₹1,11,274 (no target) / ₹95,096 with TP 50% and the lowest daily DD −₹14,550; 2019–20 ₹2.6k / ₹16.1k – ≈ base, no gain.
+A1+A2+A3 combined worse everywhere. A4 slippage (2 orders/trade): 0.5 pt −₹2.7k, 1 pt −₹5.5k over 42 trades (−₹1–2k on 16 trades 2019–20) – negligible. VERDICT: no rule
+beats the base; TARGET 50% is the more robust choice (2019–26: TP 50% ₹1,20,820 vs no target ₹1,19,267, with much smaller 2019–20 DD −₹8.2k vs −₹21.6k). Rulebook condor +
+put spread 2019–26 ₹1,16,843 / DD −₹5,523 for comparison. Keep: 16Δ, skip after a 10-day rise > 2%, TP 50%, buy back at the strike, 18 DTE. Do not re-test A1–A3.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
