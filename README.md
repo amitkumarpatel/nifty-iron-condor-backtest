@@ -1727,7 +1727,7 @@ priced for a third roll). 16Δ + skip rise > 2%: no roll ever happens (₹1,01,6
 rolls ₹48,108 / −₹70,012 / −₹62,181 (35 chain −₹58,427). 20Δ + skip rise > 2%: no roll ₹76,953 / −₹28,064 / −₹22,084; ROLL 3 rolls ₹79,878 / −₹26,306 / −₹22,084
 (22, 30, 52 rolled calls each made +₹3.0–4.5k). Rolled calls win when the rally stops (15, 22, 30, 52: +₹3.0–4.5k) and lose big when it continues (35: the
 rolled call was sold into the Dec-2023 rally). Without a filter the roll doubles the drawdown; with the filter it rarely fires and changes little.
-(This simulator's per-call costs differ slightly from the earlier runs: 16Δ no-roll ₹1,07,204 here vs ₹1,00,756.) NOT ADOPTED – keep buy-back at the strike, no roll.
+(16Δ no-roll ₹1,07,204 here vs ₹1,00,756 before = trade 2603's call data was incomplete in the earlier runs – see the 16Δ filter/target entry.) NOT ADOPTED – keep buy-back at the strike, no roll.
 COVERED CALL AT 12Δ (19-Nov-2026, user request; 282 Breeze calls; strike set data/iron_condor/strike_sets/strikes_cc12.csv via
 strategies/iron_condor/analysis/covered_call_delta_download.py, 65 cycles, delta avg 0.120 (0.089–0.142), 6.3% above spot vs 5.6% for 16Δ; same 65 cycles for
 both; calls only; n / net / DD daily / DD closed / worst / losing years). 16Δ TP50 + stop at strike 65 / ₹98,584 / −₹31,195 / −₹19,875 / −₹16,736 / 0; 12Δ ₹48,364 /
@@ -1742,6 +1742,16 @@ losing years; TP50 + stop at strike | skip rise > 2% TP50 | skip rise > 2% no ta
 does not save 30Δ); 20Δ ₹82,582 / −₹37,905 / −₹26,584 / 1 | ₹77,285 / −₹28,213 / −₹22,084 / 0 | ₹1,11,878 / −₹28,213 / −₹22,084 / 0; 16Δ ₹95,733 / −₹31,195 / −₹19,875 / 1 |
 ₹90,211 / −₹18,180 / −₹7,239 / 0 | ₹1,06,617 / −₹20,545 / −₹7,239 / 0; 12Δ ₹54,428 / −₹43,345 / −₹33,424 / 1 | ₹66,067 / −₹12,798 / −₹3,547 / 0 | ₹84,566 / −₹14,154 / −₹3,547 / 0
 (without trade 30 in the common set). 16Δ = best balance; 20Δ no target the most profit with ≈ 3× the closed DD; 12Δ the smallest DD and profit.
+COVERED CALL 16Δ – FILTERS, TARGETS, EXIT DAY (19-Nov-2026, user request; all 67 cycles; calls only; n / net / DD daily / DD closed / losing years / 2021–23 | 2024–26).
+DATA FIX: trade 2603's 16Δ (and 20Δ) call had only its entry day cached until the roll download filled it → it is a +₹5,160 target, not −₹1,288; every 16Δ total run
+before the roll test is ₹6,448 too low (16Δ TP50 stop ₹1,00,756 → ₹1,07,204). All four strike sets are complete now. FILTERS (TP 50%): none 67 / ₹1,07,204 / −₹31,195 /
+−₹19,875 / 0 / ₹17.9k | ₹89.3k; rise10 <= 2% 42 / ₹1,01,683 / −₹18,180 / −₹7,239 / 0 / ₹32.7k | ₹69.0k; <= 1.5% ₹87,180; <= 2.5% ₹88,008 / −₹16,736 closed; 5-day <= 1 / 1.5%
+₹82,073 / ₹91,850, DD −₹16,736; 20-day move, distance above the 50-DMA, distance from the 250-day high, VIX change – worse; VIX >= 13 44 / ₹96,328 / −₹18,180 / −₹7,239
+(the rally losers 35, 8, 36 had VIX 11.4–13.0) but with no target ₹88,573 / −₹20,842 closed; rise10 <= 2 & rise5 <= 1.5 34 / ₹90,791 / −₹18,180 / −₹4,485 (smallest
+closed DD). TARGET with rise10 <= 2: 30% ₹69,586; 40% ₹81,234; 50% ₹1,01,683; 60% ₹1,01,696; 70% ₹1,10,968; 80% ₹1,10,113; none ₹1,13,256 – all DD −₹7,239 closed (daily −₹18.2k
+up to 50%, −₹20.5k above). EXIT DTE: 15 much worse (−₹35.9k closed), 21 worse (−₹10.4k). BEST: 16Δ, skip after a 10-day rise > 2%, no target (or 70%), stop at the strike,
+18 DTE: 42 tr ₹1,13,256 / −₹20,545 daily / −₹7,239 closed / 0 losing years / ₹36.6k | ₹76.6k. Versus the condor rulebook ₹1,03,880 / −₹8,858 / −₹5,523: ≈ ₹9k more, DD
+1.3× closed / 2.3× daily; 2% line set by trade 35 (+2.01%); two-thirds of the profit is 2024–26. Needs ≈ ₹15–17L of NIFTYBEES per lot. Not adopted (user's call).
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
