@@ -1752,6 +1752,13 @@ closed DD). TARGET with rise10 <= 2: 30% ₹69,586; 40% ₹81,234; 50% ₹1,01,6
 up to 50%, −₹20.5k above). EXIT DTE: 15 much worse (−₹35.9k closed), 21 worse (−₹10.4k). BEST: 16Δ, skip after a 10-day rise > 2%, no target (or 70%), stop at the strike,
 18 DTE: 42 tr ₹1,13,256 / −₹20,545 daily / −₹7,239 closed / 0 losing years / ₹36.6k | ₹76.6k. Versus the condor rulebook ₹1,03,880 / −₹8,858 / −₹5,523: ≈ ₹9k more, DD
 1.3× closed / 2.3× daily; 2% line set by trade 35 (+2.01%); two-thirds of the profit is 2024–26. Needs ≈ ₹15–17L of NIFTYBEES per lot. Not adopted (user's call).
+COVERED CALL 'MONTH START TO END' (19-Nov-2026, user request; 602 Breeze calls; strike set data/iron_condor/strike_sets/strikes_cc16_m.csv via covered_call_delta_download.py
+--month: current-month ~16Δ call (delta avg 0.162) sold at 11:16 on the first trading day after the previous monthly expiry, ≈ 30 DTE, only 4.3% above spot vs 5.6% for
+16Δ at 43 DTE; output/iron_condor/covered_call_month_vs_current.xlsx; calls only; n / net / DD daily / DD closed / strike stops / losing years). EXIT AT EXPIRY: no target 66 /
+₹1,028 / −₹54,736 / −₹54,258 / 18 / 2; + skip rise > 2% 47 / ₹327 / −₹33,791 / 13 / 3; TP 50% −₹40,904 / −₹71,791; TP 70% −₹21,911. Exit 3 DTE −₹7.6k…−₹44k; exit 7 DTE −₹10.6k…
+−₹56.2k. 2021–23 loses −₹26k…−₹75k in every version. Versus CURRENT (43 → 18 DTE): 67 / ₹1,04,662 / −₹33,941 (no target); skip rise > 2% no target 42 / ₹1,13,256 / −₹20,545
+/ −₹7,239 / 0 stops. WHY: at 30 DTE the 16Δ strike is closer (4.3%) and the trade is held through the last 2–4 weeks, when a 4% monthly rise (common) runs through it –
+13–18 buy-backs vs 0–3; targets make it worse (they cap the winners that decay to zero while the losers stay). NOT ADOPTED – keep 43 → 18 DTE. Do not re-test.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give

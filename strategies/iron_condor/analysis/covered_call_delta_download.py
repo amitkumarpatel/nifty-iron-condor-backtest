@@ -22,6 +22,13 @@ from shared.pricing import candles, price_at
 
 REF = 'data/iron_condor/reference/ic_reference_trades.csv'
 STEP, AROUND = 50, 3
+_ND = pd.read_csv('data/shared/nifty_daily.csv', parse_dates=['date']).set_index('date')
+
+
+def SPOT_FALLBACK(day):
+    '''1-minute spot is not cached every day: use the midpoint of that day's NSE open and close.'''
+    r = _ND.loc[pd.Timestamp(day)] if pd.Timestamp(day) in _ND.index else None
+    return None if r is None else (r.open + r.close) / 2
 
 
 def years(day, expiry):
@@ -33,10 +40,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--delta', type=float, default=0.12)
     ap.add_argument('--exit-dte', type=int, default=18)
+    ap.add_argument('--month', action='store_true',
+                    help="enter the trading day after the previous monthly expiry (current-month call, ~28-30 DTE) instead of the condor's 43-DTE Monday")
     ap.add_argument('--dry-run', action='store_true')
     a = ap.parse_args()
-    name = f"cc{int(round(a.delta * 100))}"
-    ref = pd.read_csv(REF, parse_dates=['entry_date', 'expiry'])
+    name = f"cc{int(round(a.delta * 100))}" + ('_m' if a.month else '')
+    ref = pd.read_csv(REF, parse_dates=['entry_date', 'expiry']).sort_values('expiry').reset_index(drop=True)
+    if a.month:     # entry = first trading day after the previous monthly expiry
+        prev = [pd.Timestamp('2021-01-28')] + list(ref.expiry[:-1])
+        ent = []
+        for pe, ex in zip(prev, ref.expiry):
+            cal = load_calendar(pe.date() + timedelta(days=1), ex.date())
+            ent.append(pd.Timestamp(cal[0]))
+        ref['entry_date'] = ent
     api = None
 
     def fetch(legs):
@@ -62,8 +78,10 @@ def main():
     plan, todo = {}, []
     for t in ref.itertuples():
         day, exp = t.entry_date.date(), t.expiry.date()
-        spot = price_at(SC.SPOT_KEY, day, SC.ENTRY_TIME)[0]
+        spot = price_at(SC.SPOT_KEY, day, SC.ENTRY_TIME)[0] or SPOT_FALLBACK(day)
         rp = price_at(contract_key(exp.strftime('%Y-%m-%d'), int(t.sell_ce), 'CE'), day, SC.ENTRY_TIME)[0]
+        if not rp:      # month mode: reference strike may not be cached that day -> generic 13% IV first guess
+            rp = bs(spot, int(t.sell_ce), years(day, exp), 0.13, 'CE')[0] if spot else None
         T = years(day, exp)
         iv = implied_vol(rp, spot, int(t.sell_ce), T, 'CE') if (rp and spot) else None
         if not iv:
