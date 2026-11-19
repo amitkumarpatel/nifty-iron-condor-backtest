@@ -1728,6 +1728,15 @@ rolls ₹48,108 / −₹70,012 / −₹62,181 (35 chain −₹58,427). 20Δ + sk
 (22, 30, 52 rolled calls each made +₹3.0–4.5k). Rolled calls win when the rally stops (15, 22, 30, 52: +₹3.0–4.5k) and lose big when it continues (35: the
 rolled call was sold into the Dec-2023 rally). Without a filter the roll doubles the drawdown; with the filter it rarely fires and changes little.
 (This simulator's per-call costs differ slightly from the earlier runs: 16Δ no-roll ₹1,07,204 here vs ₹1,00,756.) NOT ADOPTED – keep buy-back at the strike, no roll.
+COVERED CALL AT 12Δ (19-Nov-2026, user request; 282 Breeze calls; strike set data/iron_condor/strike_sets/strikes_cc12.csv via
+strategies/iron_condor/analysis/covered_call_delta_download.py, 65 cycles, delta avg 0.120 (0.089–0.142), 6.3% above spot vs 5.6% for 16Δ; same 65 cycles for
+both; calls only; n / net / DD daily / DD closed / worst / losing years). 16Δ TP50 + stop at strike 65 / ₹98,584 / −₹31,195 / −₹19,875 / −₹16,736 / 0; 12Δ ₹48,364 /
+−₹44,105 / −₹33,693 / −₹32,045 / 1 – WORSE: credit 52 vs 74 pts and trade 35's 12Δ call was hit later, deeper into the Dec-2023 rally (−₹32,045). 12Δ + gap-up 1%
+exit ₹61,627 / −₹18,137 / −₹11,345. WITH SKIP AFTER A 10-DAY RISE > 2% (40 tr): 16Δ ₹93,062 / −₹18,180 / −₹7,239; 16Δ no target ₹1,05,337 / −₹20,545 / −₹7,239 /
+0 losing years (best profit); 12Δ ₹60,003 / −₹12,798 / −₹6,064; 12Δ no target ₹78,502 / −₹14,154 / −₹6,064. Profit ÷ daily DD ≈ 5.1 (16Δ) vs 4.7–5.5 (12Δ) – 12Δ is a
+smaller trade, not a safer one; at 2.5% the filter keeps trade 35 and 12Δ falls to ₹33,350 / −₹37,940. 16Δ 7 DTE worse (₹61,264 / −₹39,913). Keep 16Δ + skip rise
+> 2%; target 50% or none about equal (none +₹12k, DD −₹2.4k deeper). Versus the condor rulebook (₹1,03,880 / closed −₹5,523 / daily −₹8,858): same profit, DD
+about 1.3× closed / 2.3× daily; full cover needs ≈ ₹15–17L of NIFTYBEES per lot.
   FINALISED by the user 11-Oct-2026: "±2% both" (400-pt if credit>=45%, 300-pt if 40–45%, skip below 40%; `FWD_NARROW_MOVE_PCT` 1.5 → 2.0).
   Details behind it are listed in §1b "Small print": trade 24 (no Breeze data) would have been a 300-pt trade (move −0.09%, StockMock
   credit 177.7 pts = 44.4%, StockMock −₹1,925 gross) → 2021–26 ≈ ₹83.5k, 2022 ≈ −₹1.5k, DD ≈ −₹5.8k; trade 35 at 2.00% would give
