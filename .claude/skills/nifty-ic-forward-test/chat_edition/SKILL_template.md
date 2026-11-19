@@ -20,6 +20,8 @@ __RULES__
 Backtest 2021–26 (1 lot, after costs; small sample, thresholds fitted – not a forecast): condor rule 37 trades ₹90,667, max drawdown
 −₹5,523; with the put spread in skipped months 61 trades ₹1,03,880, drawdown −₹5,523. 2019–20 (never fitted) 20 trades +₹12,963.
 Batman (ratio spreads) was tested on 13-Nov-2026 and NOT adopted – the condor makes more for the same or less drawdown.
+Covered call on NIFTYBEES (16Δ call at 43 DTE, skip after a 10-day rise > 2%, TP 50%) was tested on 19-Nov-2026 and NOT adopted – ₹1,20,820 over
+2019–26 but only ≈ 1% a year on the ≈ ₹15–17L of BEES one lot needs. Do not propose it unless the user asks.
 
 ## Where the data comes from
 
