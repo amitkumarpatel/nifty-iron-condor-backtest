@@ -330,6 +330,12 @@ smaller trade, not a safer one; at 2.5% the filter keeps trade 35 and 12Δ falls
 > 2%; target 50% or none about equal (none +₹12k, DD −₹2.4k deeper). Versus the condor rulebook (₹1,03,880 / closed −₹5,523 / daily −₹8,858): same profit, DD
 about 1.3× closed / 2.3× daily; full cover needs ≈ ₹15–17L of NIFTYBEES per lot.
 
+COVERED CALL DELTA LADDER, LIKE FOR LIKE (19-Nov-2026; 64 cycles common to all four strike sets – 30 has no 30Δ set; calls only; net / DD daily / DD closed /
+losing years; TP50 + stop at strike | skip rise > 2% TP50 | skip rise > 2% no target): 30Δ ₹44,938 / −₹83,077 / −₹74,749 / 3 | ₹46,641 / −₹80,051 | ₹72,095 / −₹81,722 (filter
+does not save 30Δ); 20Δ ₹82,582 / −₹37,905 / −₹26,584 / 1 | ₹77,285 / −₹28,213 / −₹22,084 / 0 | ₹1,11,878 / −₹28,213 / −₹22,084 / 0; 16Δ ₹95,733 / −₹31,195 / −₹19,875 / 1 |
+₹90,211 / −₹18,180 / −₹7,239 / 0 | ₹1,06,617 / −₹20,545 / −₹7,239 / 0; 12Δ ₹54,428 / −₹43,345 / −₹33,424 / 1 | ₹66,067 / −₹12,798 / −₹3,547 / 0 | ₹84,566 / −₹14,154 / −₹3,547 / 0
+(without trade 30 in the common set). 16Δ = best balance; 20Δ no target the most profit with ≈ 3× the closed DD; 12Δ the smallest DD and profit.
+
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
   (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.
