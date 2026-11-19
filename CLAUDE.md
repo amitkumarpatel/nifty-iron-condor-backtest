@@ -299,6 +299,17 @@ expiry). CALLS ONLY (what pledging adds; n / net / DD on daily MTM / worst / sto
 VERSUS THE CONDOR RULEBOOK (₹1,03,880 / −₹5,523 per lot): the call income alone is about the same profit with ≈ 6× the drawdown; with NIFTYBEES the drawdown is
 the index's (≈ −₹2.6L per 65 units). A covered call does NOT give similar return with lower drawdown; it is an equity holding with a small yield (≈ +1.3%/yr).
 
+COVERED CALL ADJUSTMENTS (19-Nov-2026, user request; cached data, calls only, 65 units, NSE close as the strike trigger; n / net / DD daily-marked / DD
+closed trades / worst / stops / losing years). Base 16Δ TP50 + stop at strike 67 / ₹1,00,756 / −₹31,195 / −₹19,875 / −₹16,736 / 2 / 0. Earlier stop (NIFTY within 0.5 /
+1% of strike): ₹94,246 / ₹70,157, DD −₹31.2k / −₹27.0k – worse. Premium stop (loss 1 / 2 / 3× premium): ₹44,836 / ₹52,025 / ₹85,253, DD −₹22.6k…−₹33.3k – worse.
+Gap-up 1% exit: ₹93,164 / −₹25,731 / −₹18,112 (trade 41 −₹15.1k remains). No target: ₹99,492 / −₹33,941. SKIP AFTER A 10-DAY RISE (the rally losers 8, 15, 19, 35,
+36): > 2.5% 49 / ₹81,560 / −₹22,975 / −₹16,736 (35 at +2.01% stays in); > 2% 42 / ₹95,235 / −₹18,180 / −₹7,239 / −₹7,239 / 0 / 0 (best; daily DD = trade 52 open,
+Apr-2025, ended −₹4,485); > 1.5% 36 / ₹80,732; > 2% + gap-up exit ₹77,951 / −₹21,631 (worse). 30Δ CALL SPREADS (hedge +300 / +400, ref strikes) lose in 2021–26
+with or without the stop (−₹14.2k…+₹5.8k, DD −₹49k…−₹72k): a hedged short call is the condor's call side alone and NIFTY drifted up. VERSUS THE CONDOR RULEBOOK
+(₹1,03,880 / closed DD −₹5,523 / daily −₹8,858): best CC ₹95,235 / −₹7,239 / −₹18,180 – close on closed trades, about twice on daily marks; the 2% line is a knife
+edge (trade 35 at +2.01%). PRACTICAL LIMIT: 1 lot needs 65 NIFTY units ≈ 6,500 NIFTYBEES ≈ ₹15–17L to be covered; with ₹1L of BEES the call is ≈ 94%
+uncovered (naked-call margin, unlimited loss beyond the stop). Not adopted.
+
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
   (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.
