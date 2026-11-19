@@ -102,7 +102,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
 <div class="wrap">
 
 <header>
-  <span class="eyebrow">Backtest summary · 13 Nov 2026 · condor rulebook + Batman tests (not adopted)</span>
+  <span class="eyebrow">Backtest summary · 19 Nov 2026 · condor rulebook + Batman and covered-call tests (not adopted)</span>
   <h1>NIFTY Iron Condor Playbook</h1>
   <p class="lede">The rule set chosen for the forward test of a monthly NIFTY iron condor, and the backtest behind it: 68 monthly cycles from January 2021 to August 2026 (61 traded, 5 skipped by the rules, 2 without usable data), replayed on 1-minute option prices from ICICI Breeze and checked against StockMock.</p>
   <div class="meta">
@@ -502,6 +502,44 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
   </ul>
 </section>
 
+<section aria-labelledby="h-cc">
+  <div class="sec-head">
+    <span class="eyebrow">Covered call · 18–19 Nov 2026 · tested, not adopted</span>
+    <h2 id="h-cc">Covered call on NIFTYBEES: about the condor's profit, but it ties up a full lot of BEES for ≈ 1% a year</h2>
+    <p>Hold 65 NIFTY units of NIFTYBEES and, each month on the condor's dates (Monday 11:16, 43 DTE), sell 1 lot of a NIFTY call. The figures are for the sold calls only (the BEES are held forever and their own gains are left out), 1 lot of 65, after costs. Delta (30 / 20 / 16 / 12), exit day, profit target, stop rules, filters, a roll to next month and a "month start to expiry" version were all tested.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Version</th><th class="n">Trades</th><th class="n">Net P&amp;L</th><th class="n">Drawdown (daily)</th><th class="n">Drawdown (booked)</th><th class="n">Losing years</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">30Δ, 50% target, buy back at strike (2021–26)</td><td class="n">64</td><td class="n">₹44,938</td><td class="n neg">−₹83,077</td><td class="n neg">−₹74,749</td><td class="n">3</td></tr>
+        <tr><td class="lbl">16Δ, no filter (2021–26)</td><td class="n">67</td><td class="n">₹1,07,204</td><td class="n neg">−₹31,195</td><td class="n neg">−₹19,875</td><td class="n">0</td></tr>
+        <tr><td class="lbl">16Δ + skip after a 10-day rise &gt; 2%, 50% target (2021–26)</td><td class="n">42</td><td class="n">₹1,01,683</td><td class="n neg">−₹18,180</td><td class="n neg">−₹7,239</td><td class="n">0</td></tr>
+        <tr><td class="lbl">Same rule, 2019–20 (never tuned on)</td><td class="n">16</td><td class="n">₹19,137</td><td class="n neg">−₹10,073</td><td class="n neg">−₹8,211</td><td class="n">0</td></tr>
+        <tr><td class="lbl">Same rule, 2019–26</td><td class="n">58</td><td class="n">₹1,20,820</td><td class="n neg">−₹18,180</td><td class="n neg">−₹8,211</td><td class="n">0</td></tr>
+        <tr><td class="lbl">Month start to expiry (current-month 16Δ call, ≈ 30 DTE)</td><td class="n">66</td><td class="n">₹1,028</td><td class="n neg">−₹54,736</td><td class="n neg">−₹54,258</td><td class="n">2</td></tr>
+        <tr><td class="lbl">Roll to next month when the strike is reached (16Δ, no filter)</td><td class="n">67</td><td class="n">₹77,024</td><td class="n neg">−₹57,812</td><td class="n neg">−₹51,572</td><td class="n">1</td></tr>
+        <tr class="hl"><td class="lbl">Condor rulebook, 2019–26 (₹1.5L margin)</td><td class="n">81</td><td class="n">₹1,16,843</td><td class="n neg">–</td><td class="n neg">−₹5,523</td><td class="n">0</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Final rule by year</th><th class="n">2019</th><th class="n">2020</th><th class="n">2021</th><th class="n">2022</th><th class="n">2023</th><th class="n">2024</th><th class="n">2025</th><th class="n">2026*</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">Call profit</td><td class="n">₹6,394</td><td class="n">₹12,743</td><td class="n">₹12,198</td><td class="n">₹5,522</td><td class="n">₹14,931</td><td class="n">₹26,879</td><td class="n">₹21,683</td><td class="n">₹20,469</td></tr>
+        <tr><td class="lbl">Yield on the BEES held</td><td class="n">0.9%</td><td class="n">1.6%</td><td class="n">1.3%</td><td class="n">0.5%</td><td class="n">1.3%</td><td class="n">1.9%</td><td class="n">1.4%</td><td class="n">1.2%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="risks">
+    <li><b>Final rule found:</b> sell the ~16Δ call at 43 DTE, skip the month after a 10-day rise above 2%, 50% target, buy back when NIFTY closes at the strike, time exit at 18 DTE. 55 of 58 trades won; no losing year. 2019–20 uses lot 65 for comparability (the real lot was 75). *2026 runs to September.</li>
+    <li><b>What did not help:</b> 30Δ and 20Δ (strikes hit too often), 12Δ (less premium, and the Nov-2023 rally still hit it), earlier or premium-based stops, a hedged call (call spread), rolling to next month (it sells into the rally that just broke the strike), switching delta by VIX or after falls, a softer 10-day band, and selling the current-month call from month start to expiry (the strike is closer and the last weeks are the riskiest).</li>
+    <li><b>The catch is the capital.</b> Covering one lot needs 65 NIFTY units of BEES – about ₹15–17L. The calls add only ≈ 0.5–1.9% a year on that holding, and do not soften a fall (2026: NIFTY −14%, calls +1.2%). With less BEES most of the call is naked. One bad month (Nov-2019 −₹8.2k, Oct-2022 −₹7.2k) takes half a year's premium.</li>
+    <li><b>Decision (19 Nov 2026):</b> not adopted – too much capital and risk for ≈ 1% a year. The condor rulebook, which makes about the same money on ₹1.5L of margin, stays the strategy.</li>
+  </ul>
+</section>
+
 <section aria-labelledby="h-small">
   <div class="sec-head">
     <span class="eyebrow">Small print</span>
@@ -620,6 +658,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;font-size:.82rem;color:
     <li><b>Decide in advance what would stop the test</b>, for example a drawdown beyond about ₹13,000 a lot (the reshuffled-trade estimate) or average slippage above 1 point per leg.</li>
     <li><b>Review the hedge width after 6–12 months</b> (around April–October 2027): 400 against 600 points for the condor and 200 against 300 points for the put spread, with real fills and margin.</li>
     <li><b>Batman:</b> both versions were backtested on 13 Nov 2026 and not adopted (sections above): the unhedged one for its drawdown, the hedged one because the condor makes the same with half the drawdown, wins in its best months too, and no filter or earlier stop changes that.</li>
+    <li><b>Covered call:</b> tested 18–19 Nov 2026 and not adopted (section above) – it needs a full lot of NIFTYBEES (≈ ₹15–17L) for ≈ 1% a year.</li>
   </ol>
 </section>
 
