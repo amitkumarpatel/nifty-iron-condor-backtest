@@ -1,6 +1,6 @@
 ---
 name: nifty-ic-forward-test
-description: Run the monthly forward test (paper trading) of the NIFTY iron condor from the nifty-iron-condor-backtest repo. Use whenever the user mentions the iron condor, IC, forward test, paper trade, monthly entry, the 10-day trend filter, the 15:16 check, target/stop/time exit, gap-up logging, or asks "should I enter this month", "should I trade a Batman instead", "what is my IC position doing", "when is the exit date", or "log today's check", even if they don't name the skill. Also use to add a finished forward trade back into the backtest reference files for reconciliation.
+description: Run the monthly forward test (paper trading) of the NIFTY iron condor from the nifty-iron-condor-backtest repo. Use whenever the user mentions the iron condor, IC, forward test, paper trade, monthly entry, the 10-day trend filter, the 15:16 check, target/stop/time exit, gap-up logging, or asks "should I enter this month", "should I trade a Batman or a covered call instead", "what is my IC position doing", "when is the exit date", or "log today's check", even if they don't name the skill. Also use to add a finished forward trade back into the backtest reference files for reconciliation.
 ---
 
 # NIFTY monthly iron condor: forward test
@@ -296,6 +296,20 @@ Details: README §7, `strategies/batman/README.md`, summary page section "Even i
 
 If the user asks to trade a Batman instead of, or alongside, this month's condor, show these numbers. Treat it as a separate decision outside this
 forward test, log it in `notes` as a deviation if they do it anyway, and do not re-run these tests unless asked.
+
+### Covered call: tested, not adopted (19-Nov-2026)
+
+The idea: hold NIFTYBEES and sell 1 lot of a NIFTY call each month on the condor's dates. Tested on 2021–26 plus 2019–20. Figures are for the sold calls only,
+1 lot of 65 (README §7; summary page section "Covered call on NIFTYBEES"; `output/iron_condor/covered_call_*.xlsx`).
+
+- **Best rule:** ~16Δ call at 43 DTE; skip the month after a 10-day rise above 2%; 50% target; buy back when NIFTY closes at the strike; 18-DTE time
+  exit. 2019–26: 58 trades, ₹1,20,820, no losing year, booked drawdown −₹8,211. By year 2019–26: ₹6.4k / 12.7k / 12.2k / 5.5k / 14.9k / 26.9k / 21.7k /
+  20.5k (2026 to Sep), i.e. ≈ 0.5–1.9% a year on the BEES held.
+- **Didn't help:** 30Δ / 20Δ / 12Δ, earlier or premium-based stops, a call spread, rolling to next month, delta switching by VIX or after falls, a
+  softer filter, and the current-month call from month start to expiry (₹1k / −₹55k drawdown).
+- **User decision (19-Nov-2026):** not adopted. One lot needs ≈ ₹15–17L of NIFTYBEES (65 NIFTY units) for ≈ 1% a year; with less, most of the call
+  is naked. Do not propose it again unless the user asks. If the user asks about it, show these numbers and treat it as a separate decision outside
+  this forward test.
 
 ### What to do with this live
 
