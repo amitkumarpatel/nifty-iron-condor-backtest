@@ -367,6 +367,11 @@ A1+A2+A3 combined worse everywhere. A4 slippage (2 orders/trade): 0.5 pt −₹2
 beats the base; TARGET 50% is the more robust choice (2019–26: TP 50% ₹1,20,820 vs no target ₹1,19,267, with much smaller 2019–20 DD −₹8.2k vs −₹21.6k). Rulebook condor +
 put spread 2019–26 ₹1,16,843 / DD −₹5,523 for comparison. Keep: 16Δ, skip after a 10-day rise > 2%, TP 50%, buy back at the strike, 18 DTE. Do not re-test A1–A3.
 
+USER DECISION 19-Nov-2026 – COVERED CALL NOT ADOPTED. Final CC rule (16Δ, 43 → 18 DTE, skip 10-day rise > 2%, TP 50%, buy back at the strike) 2019–26 by exit year (calls only,
+lot 65): 2019 ₹6,394 / 2020 ₹12,743 / 2021 ₹12,198 / 2022 ₹5,522 / 2023 ₹14,931 / 2024 ₹26,879 / 2025 ₹21,683 / 2026 (to Sep) ₹20,469 = 58 tr ₹1,20,820, 55 wins, no losing
+year, yield ≈ 0.5–1.9% (avg ≈ 1.3%) a year on 65 NIFTY units of BEES (₹7–17L). User: needs a full lot of BEES for ≈ 1%/yr – not worth the capital and risk; the condor
+rulebook (₹1.5L margin, ≈ 11–12%/yr on it) stays the strategy. Do not propose covered calls again unless the user asks.
+
 ## Second index: BANKNIFTY (engine made index-aware 11-Oct-2026 at the user's request; README §5.3e)
 - `--symbol banknifty` on any script (= `IC_INDEX=BANKNIFTY`); default NIFTY. Per-index values live in `INDEXES` in `shared/config.py`
   (breeze code, strike step, default hedge width, fallback shifts, lot sizes, expiry weekdays). Rules are shared.
